@@ -1,0 +1,256 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Media History UI Requirements
+
+## Overview
+
+Create a comprehensive UI for displaying media history with pagination, sorting, and detailed view navigation. The interface should display simulation cards with participant personas, product information, and media files.
+
+## Technical Stack
+
+- **Data Fetching**: React Query (TanStack Query)
+- **Query State Management**: nuqs
+- **UI Components**: shadcn/ui
+- **TypeScript**: Full type safety required
+- **Routing**: react router
+
+## API Specification
+
+### Endpoint
+
+```
+GET /api/v1/media/history
+```
+
+### Query Parameters
+
+- `page`: number (default: 1)
+- `page_size`: number (default: 10)
+- `sort_by`: "createdAt" | "updatedAt" (default: "createdAt")
+- `sort_order`: "asc" | "desc" (default: "desc")
+
+### Response Structure
+
+```json
+// sample api response
+{
+  "success": true,
+  "items": [
+    {
+      "_id": "68d24739aa642e99ba004341",
+      "model_used": "gemini-2.0-flash",
+      "media_files": [
+        {
+          "media_id": "syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d",
+          "media_type": "image/png",
+          "media_url": "",
+          "s3_key": "uploads/20250923070714_2dafff62_syn_2.png",
+          "media_size": 1903178
+        },
+        {
+          "media_id": "syn_1.jpeg_97b5ec46-284d-447a-8c95-370abc911f28",
+          "media_type": "image/jpeg",
+          "media_url": "",
+          "s3_key": "uploads/20250923070714_f78a3d2d_syn_1.jpeg",
+          "media_size": 7519
+        }
+      ],
+      "participated_personas": [
+        {
+          "_id": "68be842179804fe36564a081",
+          "name": "Emergency Obesity Complication (A+, Cigna)",
+          "persona_category": "Emergency Obesity Complication (Cigna)",
+          "status": "published",
+          "demographic": {
+            "age_range": "35-45",
+            "gender": "Male",
+            "occupation": "Warehouse night-shift associate",
+            "income_tier": "Lower-middle income",
+            "location": "Southern metro (U.S.)",
+            "education": "High school diploma"
+          },
+          "created_at": "2025-09-08T07:22:09.560000",
+          "updated_at": "2025-09-08T07:22:09.560000"
+        }
+      ],
+      "participated_product": {
+        "_id": "68b161f18863a919e565d637",
+        "name": "Apple iPhone 15",
+        "description": "The latest iPhone 15 with A16 Bionic chip, advanced dual-camera system, and stunning Super Retina XDR display.",
+        "price": 999.0,
+        "currency": "USD",
+        "country": "USA",
+        "city": "Cupertino"
+      },
+      "created_at": "2025-09-23T07:07:37.222000",
+      "updated_at": "2025-09-23T07:07:37.222000"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 10,
+    "total_pages": 1,
+    "has_next": false,
+    "has_previous": false
+  },
+  "total_count": 1
+}
+```
+
+## Folder Structure
+
+```
+src/
+└── app/
+    └── media-simulation/
+        ├── components/
+        │   ├── simulation-card.tsx
+        │   ├── simulation-filters.tsx
+        │   ├── simulation-pagination.tsx
+        │   └── simulation-grid.tsx
+        ├── hooks/
+        │   └── use-media-history.ts
+        ├── types/
+        │   └── media-history.ts
+        ├── lib/
+        │   └── api.ts
+        └── page.tsx
+```
+
+## Component Requirements
+
+### 1. Main Page (`page.tsx`)
+
+- Display grid/list of simulation cards
+- Implement pagination controls
+- Include sorting and filtering options
+- Handle loading and error states
+- Use nuqs for URL state management
+
+### 2. Simulation Card (`simulation-card.tsx`)
+
+**Card Layout:**
+
+- **Header**: Model used, creation date
+- **Media Section**: Display thumbnails/icons for media files with count
+- **Persona Section**: Primary persona name and category
+- **Product Section**: Product name and price
+- **Footer**: "View Details" button
+
+**Card Features:**
+
+- Responsive design (grid layout)
+- Hover effects
+- Clean, modern design using shadcn/ui components
+
+### 3. Filters Component (`simulation-filters.tsx`)
+
+- Sort by dropdown (Created At, Updated At)
+- Sort order toggle (Ascending/Descending)
+- Clear filters option
+- Real-time URL updates via nuqs
+
+### 4. Pagination Component (`simulation-pagination.tsx`)
+
+- Previous/Next buttons
+- Page numbers
+- Items per page selector (10, 20, 50)
+- Total count display
+- Use shadcn/ui Pagination component
+
+### 5. Grid Component (`simulation-grid.tsx`)
+
+- Responsive grid layout
+- Loading skeleton states
+- Empty state handling
+- Error boundary
+
+## State Management
+
+### URL Query Parameters (nuqs)
+
+```typescript
+// Expected URL structure
+// /media-simulation?page=1&page_size=10&sort_by=createdAt&sort_order=desc
+
+const searchParams = {
+  page: parseAsInteger.withDefault(1),
+  page_size: parseAsInteger.withDefault(10),
+  sort_by: parseAsStringLiteral(["createdAt", "updatedAt"]).withDefault(
+    "createdAt"
+  ),
+  sort_order: parseAsStringLiteral(["asc", "desc"]).withDefault("desc"),
+};
+```
+
+### React Query Implementation
+
+```typescript
+// Hook structure
+const useMediaHistory = (params: MediaHistoryParams) => {
+  return useQuery({
+    queryKey: ["media-history", params],
+    queryFn: () => fetchMediaHistory(params),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+```
+
+## UI/UX Requirements
+
+### Design Specifications
+
+- **Layout**: Grid layout (3-4 cards per row on desktop, responsive)
+- **Card Design**: Clean, material design with subtle shadows
+- **Color Scheme**: Follow shadcn/ui default theme
+- **Typography**: Consistent hierarchy using shadcn/ui typography
+- **Loading States**: Skeleton components for cards
+- **Empty State**: Friendly message when no simulations found
+
+### Interaction Patterns
+
+- **Card Hover**: Subtle elevation increase
+- **Button States**: Loading spinners, disabled states
+- **Pagination**: Keyboard navigation support
+- **Filtering**: Debounced input, immediate URL updates
+
+## Navigation
+
+- **Detail View**: `/simulation/{simulation_id}` route
+- **View Details Button**: Primary CTA on each card
+- **URL State**: Preserve filter/pagination state in URL
+
+## Error Handling
+
+- **Network Errors**: Retry mechanism with error toast
+- **Empty States**: Helpful messaging and suggested actions
+- **Loading States**: Progressive loading with skeletons
+- **Form Validation**: Real-time validation for filters
+
+## Performance Considerations
+
+- **Pagination**: Implement proper pagination to avoid large data loads
+- **Image Loading**: Lazy loading for media thumbnails
+- **Query Optimization**: Proper cache management with React Query
+- **Bundle Size**: Code splitting for the media-simulation route
+
+## Accessibility Requirements
+
+- **Keyboard Navigation**: Full keyboard accessibility
+- **ARIA Labels**: Proper labeling for screen readers
+- **Color Contrast**: Meet WCAG 2.1 AA standards
+- **Focus Management**: Clear focus indicators
+
+## shadcn/ui Components when ever possible
+
+## Implementation Priority
+
+1. **Phase 1**: Basic card grid with pagination
+2. **Phase 2**: Sorting and filtering
+3. **Phase 3**: Advanced UI polish and interactions
+4. **Phase 4**: Performance optimizations and accessibility

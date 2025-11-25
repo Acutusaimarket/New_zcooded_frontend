@@ -1,0 +1,523 @@
+---
+alwaysApply: false
+---
+
+# Simulation History Pages - Implementation Requirements
+
+## Overview
+
+Create two pages for simulation history management:
+
+1. **Simulation History List Page** - Display paginated list of simulations with filters
+2. **Simulation Details Page** - Show detailed view of a specific simulation
+
+## Technical Stack Requirements
+
+- **State Management**: React Query for API calls, nuqs for URL query parameters
+- **UI Components**: Shadcn/ui component library
+- **Date Handling**: Shadcn/ui Calendar component
+- **Architecture**: Feature-based folder structure
+- **Routing**: Use existing routing patterns from the project
+
+## API Endpoints
+
+### 1. Get Simulation History
+
+```
+GET /api/v1/simulation/history
+Query Parameters:
+- simulation_type: "overview" | "detailed" | null
+- date_from: string | null
+- date_to: string | null
+
+API Response:
+{
+  "data": [
+    {
+      "_id": "5eb7cf5a86d9755df3a6c593",
+      "simulation_type": "string",
+      "product_name": "string",
+      "personas": [
+        {
+          "_id": "5eb7cf5a86d9755df3a6c593",
+          "name": "string",
+          "description": "string"
+        }
+      ],
+      "product_details": {
+        "_id": "5eb7cf5a86d9755df3a6c593",
+        "name": "string",
+        "description": "string",
+        "price": 0,
+        "currency": "string",
+        "country": "string",
+        "city": "string",
+        "variants": []
+      },
+      "model": "string",
+      "created_at": "2025-09-02T11:18:46.400Z",
+      "updated_at": "2025-09-02T11:18:46.400Z"
+    }
+  ],
+  "message": "Operation successful",
+  "success": true
+}
+```
+
+### 2. Get Simulation Details
+
+```
+GET /api/v1/simulation/history/{simulation_id}
+API Response:
+{
+  "data": {
+    "_id": "5eb7cf5a86d9755df3a6c593",
+    "simulation_type": "string",
+    "persona_results": [
+      {
+        "persona_id": "5eb7cf5a86d9755df3a6c593",
+        "result": {
+          "interest_level": 1,
+          "purchase_intent": 1,
+          "price_perception": "too high",
+          "key_concerns": [
+            "string"
+          ],
+          "motivation_drivers": [
+            "string"
+          ],
+          "recommendation_likelihood": 1,
+          "decision_timeline": "very quick (same day)",
+          "summary": "string"
+        }
+      }
+    ],
+    "summary": {
+      "best_fit_personas": [
+        {
+          "persona_id": "5eb7cf5a86d9755df3a6c593",
+          "persona_name": "string",
+          "reason": "string",
+          "other_insights": [
+            "string"
+          ]
+        }
+      ],
+      "overall_recommendation": "string",
+      "reason_to_reject": "string",
+      "overall_summary": "string",
+      "overall_interest_level": 1,
+      "overall_purchase_intent": 1,
+      "overall_price_perception": "too high",
+      "key_concerns": [
+        "string"
+      ]
+    },
+    "product_details": {
+      "name": "string",
+      "description": "string",
+      "price": 0,
+      "currency": "string",
+      "country": "string",
+      "city": "string",
+      "images": [
+        "string"
+      ],
+      "features": [
+        "string"
+      ],
+      "specification": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      },
+      "color": "string",
+      "size": "string",
+      "weight": 0,
+      "metadata": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      },
+      "product_type": "variant",
+      "_id": "5eb7cf5a86d9755df3a6c593",
+      "created_at": "2025-09-02T11:20:27.277Z",
+      "updated_at": "2025-09-02T11:20:27.277Z",
+      "variants": [
+        {
+          "name": "string",
+          "description": "string",
+          "price": 0,
+          "currency": "string",
+          "country": "string",
+          "city": "string",
+          "images": [
+            "string"
+          ],
+          "features": [
+            "string"
+          ],
+          "specification": {
+            "additionalProp1": "string",
+            "additionalProp2": "string",
+            "additionalProp3": "string"
+          },
+          "color": "string",
+          "size": "string",
+          "weight": 0,
+          "metadata": {
+            "additionalProp1": "string",
+            "additionalProp2": "string",
+            "additionalProp3": "string"
+          },
+          "product_type": "variant",
+          "_id": "5eb7cf5a86d9755df3a6c593",
+          "created_at": "2025-09-02T11:20:27.278Z",
+          "updated_at": "2025-09-02T11:20:27.278Z"
+        }
+      ]
+    },
+    "personas": [
+      {
+        "persona_category": "string",
+        "name": "string",
+        "description": "string",
+        "demographic": {
+          "age_range": "string",
+          "gender": "string",
+          "occupation": "string",
+          "income_tier": "string",
+          "location": "string",
+          "education": "string"
+        },
+        "behavior_patterns": {
+          "communication_style": "string",
+          "response_tendency": "string",
+          "decision_making_process": "string",
+          "lifestyle": "string",
+          "values": [
+            "string"
+          ],
+          "purchasing_behavior": "string",
+          "price_sensitivity": "string",
+          "media_consumption": "string"
+        },
+        "traits": [
+          {
+            "name": "string",
+            "value": 0,
+            "reason": "string"
+          }
+        ],
+        "psychological_attributes": {
+          "personality_type": "string",
+          "emotional_tendencies": "string",
+          "cognitive_style": "string",
+          "motivations": [
+            "string"
+          ],
+          "fears": [
+            "string"
+          ],
+          "stress_triggers": [
+            "string"
+          ],
+          "coping_mechanisms": [
+            "string"
+          ],
+          "learning_style": "string"
+        },
+        "status": "draft",
+        "_id": "5eb7cf5a86d9755df3a6c593",
+        "metadata": "string",
+        "user": "string",
+        "created_at": "2025-09-02T11:20:27.278Z",
+        "updated_at": "2025-09-02T11:20:27.278Z"
+      }
+    ],
+    "product_name": "string",
+    "created_at": "2025-09-02T11:20:27.278Z",
+    "updated_at": "2025-09-02T11:20:27.278Z"
+  },
+  "message": "Operation successful",
+  "success": true
+}
+```
+
+## Feature Structure
+
+```
+src/features/simulation-history/
+├── components/
+│   ├── simulation-history-list.tsx
+│   ├── simulation-history-filters.tsx
+│   ├── simulation-card.tsx
+│   ├── simulation-details/
+│   │   ├── simulation-overview.tsx
+│   │   ├── persona-results.tsx
+│   │   ├── simulation-summary.tsx
+│   │   └── product-details.tsx
+├── hooks/
+│   ├── use-simulation-history.ts
+│   ├── use-simulation-details.ts
+│   └── use-simulation-filters.ts
+├── types/
+│   └── simulation.types.ts
+├── utils/
+│   └── simulation.utils.ts
+└── pages/
+    ├── simulation-history-page.tsx
+    └── simulation-details-page.tsx
+```
+
+## Implementation Requirements
+
+### 1. Simulation History List Page
+
+#### Components Needed:
+
+- **SimulationHistoryPage**: Main page component
+- **SimulationHistoryList**: List container with loading/error states
+- **SimulationCard**: Individual simulation item display
+- **SimulationHistoryFilters**: Filter panel with date range and simulation type
+
+#### Features:
+
+- **URL Query State Management** using nuqs:
+  - `simulation_type` parameter
+  - `date_from` and `date_to` parameters
+  - Sync filters with URL for bookmarkable/shareable state
+- **Filtering Options**:
+  - Simulation type dropdown: "overview", "detailed", or "all"
+  - Date range picker using Shadcn Calendar
+  - Clear filters functionality
+- **Data Display**:
+  - Product name and description
+  - Simulation type badge
+  - Creation date (formatted)
+  - Number of personas involved
+  - "View Details" button/link
+
+#### React Query Implementation:
+
+```typescript
+const useSimulationHistory = (filters: SimulationFilters) => {
+  return useQuery({
+    queryKey: ["simulation-history", filters],
+    queryFn: () => fetchSimulationHistory(filters),
+  });
+};
+```
+
+#### nuqs Implementation Pattern:
+
+```typescript
+const useSimulationFilters = () => {
+  const [simulationType, setSimulationType] = useQueryState("simulation_type");
+  const [dateFrom, setDateFrom] = useQueryState("date_from");
+  const [dateTo, setDateTo] = useQueryState("date_to");
+
+  return {
+    filters: {
+      simulation_type: simulationType,
+      date_from: dateFrom,
+      date_to: dateTo,
+    },
+    setSimulationType,
+    setDateFrom,
+    setDateTo,
+    clearFilters: () => {
+      setSimulationType(null);
+      setDateFrom(null);
+      setDateTo(null);
+    },
+  };
+};
+```
+
+### 2. Simulation Details Page
+
+#### Reference Files
+
+```
+/src/features/persona-simulation/types/index.ts
+/src/types/persona.type.ts
+```
+
+#### Components Needed:
+
+- **SimulationDetailsPage**: Main details page
+- **SimulationOverview**: Basic simulation information
+- **PersonaResults**: Individual persona analysis results
+- **SimulationSummary**: Overall summary and recommendations
+- **ProductDetails**: Product information and variants
+
+#### Features:
+
+- **Breadcrumb navigation** back to history list
+- **Tabbed interface** for different sections:
+  - Overview
+  - Persona Results
+  - Summary & Recommendations
+  - Product Details
+- **Data Visualization**:
+  - Interest level indicators (progress bars/charts)
+  - Purchase intent visualization
+  - Price perception badges
+  - Decision timeline indicators
+
+#### React Query Implementation:
+
+```typescript
+const useSimulationDetails = (simulationId: string) => {
+  return useQuery({
+    queryKey: ["simulation-details", simulationId],
+    queryFn: () => fetchSimulationDetails(simulationId),
+    enabled: !!simulationId,
+  });
+};
+```
+
+#### NUQS pattern
+
+```ts
+import {
+  parseAsBoolean,
+  parseAsInteger,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryStates,
+} from "nuqs";
+
+/**
+ * Custom hook for managing persona-related URL query state
+ * Used across PersonaList and PersonaFilters components
+ */
+export const usePersonaQueryState = () => {
+  return useQueryStates({
+    // Filter states
+    search: parseAsString
+      .withOptions({
+        throttleMs: 300, // Debounce search input
+      })
+      .withDefault(""),
+    status: parseAsStringEnum(["all", "active", "inactive"]).withDefault("all"),
+    metadata_id: parseAsString.withDefault(""),
+
+    // Advanced filter states
+    sort_by: parseAsString.withDefault(""),
+    sort_order: parseAsStringEnum(["asc", "desc"]).withDefault("desc"),
+    location: parseAsString.withDefault(""),
+    age_min: parseAsInteger.withDefault(0),
+    age_max: parseAsInteger.withDefault(120),
+    gender: parseAsStringEnum(["all", "male", "female", "other"]).withDefault(
+      "all"
+    ),
+
+    // Pagination
+    page: parseAsInteger.withDefault(1),
+    per_page: parseAsInteger.withDefault(14),
+
+    // Dialog states
+    download_dialog: parseAsBoolean.withDefault(false),
+    create_persona_dialog: parseAsBoolean.withDefault(false),
+  });
+};
+```
+
+## UI Components to Use/Create
+
+### Existing Shadcn Components:
+
+- `Button` - for actions and navigation
+- `Card` - for simulation items and detail sections
+- `Badge` - for simulation types and status indicators
+- `Calendar` - for date range selection
+- `Select` - for simulation type filter
+- `Tabs` - for details page sections
+- `Progress` - for interest/intent levels
+- `Separator` - for content divisions
+- `Skeleton` - for loading states
+
+### Custom Components to Create:
+
+- **SimulationCard**: Reusable card component for simulation items
+- **DateRangePicker**: Calendar-based date range selection
+- **PersonaResultCard**: Display individual persona analysis
+- **InterestLevelIndicator**: Visual representation of interest/intent levels
+
+## Data Types
+
+### Core Types:
+
+```typescript
+interface SimulationHistoryItem {
+  _id: string;
+  simulation_type: string;
+  product_name: string;
+  personas: Persona[];
+  product_details: ProductDetails;
+  model: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SimulationDetails extends SimulationHistoryItem {
+  persona_results: PersonaResult[];
+  summary: SimulationSummary;
+  personas: DetailedPersona[];
+}
+
+interface SimulationFilters {
+  simulation_type?: "overview" | "detailed" | null;
+  date_from?: string | null;
+  date_to?: string | null;
+}
+```
+
+## Error Handling & Loading States
+
+- Implement proper error boundaries
+- Show skeleton loaders during data fetching
+- Handle empty states with appropriate messaging
+- Add retry functionality for failed requests
+
+## Accessibility Requirements
+
+- Proper heading hierarchy (h1, h2, h3)
+- ARIA labels for interactive elements
+- Keyboard navigation support
+- Screen reader friendly content
+- Focus management for modals/dialogs
+
+## Performance Considerations
+
+- Implement pagination or virtual scrolling for large lists
+- Use React Query caching effectively
+- Lazy load detail components
+- Optimize re-renders with proper memoization
+
+## Styling Guidelines
+
+- Use Tailwind CSS classes consistently
+- Follow existing design system patterns
+- Ensure responsive design for mobile/tablet
+- Maintain consistent spacing and typography
+- Use semantic color schemes for status indicators
+
+## Route Structure
+
+```
+/simulation-history - History list page
+/simulation-history/:id - Simulation details page
+```
+
+## Success Criteria
+
+1. Users can view and filter simulation history effectively
+2. Date range filtering works correctly with URL persistence
+3. Simulation details page displays all relevant information clearly
+4. Navigation between pages is intuitive
+5. Loading and error states provide good UX
+6. All components are reusable and follow project patterns
+7. Performance is optimal with proper caching strategies

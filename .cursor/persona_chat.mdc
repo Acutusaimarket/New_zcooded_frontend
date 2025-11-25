@@ -1,0 +1,802 @@
+---
+alwaysApply: true
+---
+
+# Persona Chat UI Requirements
+
+## Overview
+
+Create a conversational chat interface for building personas through AI-guided questions. The interface should feel like chatting with an intelligent bot that asks questions one by one and builds a comprehensive persona based on responses.
+
+**UI Framework**: Use **shadcn/ui** components for all UI elements (buttons, inputs, cards, etc.)
+
+---
+
+## Project Structure
+
+### Feature-Based Folder Structure
+
+```
+/features
+  /persona-chatbot
+    /components
+      - (Create all chat-related components here)
+      - (Let the AI figure out component names and structure)
+    /hooks
+      - (Create custom hooks for chat logic, SSE streaming, etc.)
+    /api
+      - (API functions for persona chat endpoints)
+    /types
+      - (TypeScript types for persona chat)
+    /utils
+      - (Utility functions for time formatting, SSE parsing, etc.)
+    /pages
+      - PersonaStudioNewPage.tsx (Already exists - entry point)
+      - (Create chat page component - AI to determine name)
+```
+
+---
+
+## Routing & Navigation
+
+### Existing Entry Page
+
+- **URL**: `http://localhost:5173/dashboard/persona-studio/new`
+- **Component**: `PersonaStudioNewPage` (Already exists)
+- **Functionality**: Initial welcome screen where user enters persona description
+- **On Submit**: Redirects to chat page with query param
+
+### Navigation Logic
+
+```typescript
+// From PersonaStudioNewPage on form submit:
+const message = "Create a Gen-Z persona who likes to build stuff";
+const redirectUrl = `/dashboard/persona-studio/chat/${data._id}?message=${message.split(" ").join("+")}`;
+router.push(redirectUrl);
+```
+
+### Chat Page to Build
+
+- **URL Pattern**: `/dashboard/persona-studio/chat/${session_id}`
+- **Query Params**: `?message=Create+a+Gen-Z+persona+who+likes+to+build+stuff` (on first visit)
+- **Component Name**: Let AI determine appropriate name
+- **Functionality**: Main chat interface for persona building
+
+---
+
+## API Endpoints
+
+### 1. Get Existing Chat Session
+
+```
+GET /api/v1/ai/persona-chat/chat/{session_id}
+```
+
+**Response Type:**
+
+```typescript
+type ChatMessageMinimal = {
+  _id: string;
+  message_content: string;
+  answer?: string | null;
+  created_at: string; // UTC format
+  updated_at: string; // UTC format
+  meta_data?: Record<string, any> | null;
+};
+
+type GeneratedQuestion = {
+  question_text: string;
+  answer_option?: string[] | null;
+  has_answered: boolean;
+  answer?: string | null;
+};
+
+type PersonaChatWithMessage = {
+  _id: string;
+  name?: string | null;
+  generated_questions?: GeneratedQuestion[] | null;
+  mode?: string | null; // "initial_prompt" | "generation"
+  messages: ChatMessageMinimal[];
+  created_at: string; // UTC format
+  updated_at: string; // UTC format
+};
+```
+
+### 2. Stream Chat Response (SSE)
+
+```
+POST /api/v1/ai/persona-chat/chat/stream
+Content-Type: text/event-stream
+```
+
+**Request Body:**
+
+```typescript
+{
+  message: string;
+  mode: "generation" | "initial_prompt";
+  session_id: string;
+}
+```
+
+**SSE Stream Format:**
+
+```typescript
+// Each SSE event comes as:
+data: {"type": "chunk", "content": "partial JSON string"}
+// ... multiple chunk events
+data: {"type": "done", "session_id": "...", "questions_count": 23}
+
+// Chunks build up to form:
+type AIGeneratedQuestionResponse = {
+  name: string;
+  questions: GeneratedQuestion[];
+  message: string;
+};
+```
+
+**SSE Parsing Logic:**
+
+- Stream events have format: `data: {"type": "chunk", "content": "..."}`
+- Accumulate all `content` values from `chunk` type events
+- When `type: "done"` is received, parse accumulated string as JSON
+- Extract `session_id` and `questions_count` from done event
+
+---
+
+## User Flow
+
+### Chat Page Load Sequence
+
+1. **Extract Parameters**
+
+   - Get `session_id` from URL path params
+   - Get `message` from URL query params (if present, means first visit from new page)
+
+2. **Fetch Existing Session**
+
+   ```typescript
+   GET / api / v1 / ai / persona - chat / chat / { session_id };
+   ```
+
+   - If successful: Load existing chat history and questions
+   - If 404: Session doesn't exist yet (new session scenario)
+
+3. **Decision Tree Based on State**
+
+   **Scenario A: First Visit with Message Query Param**
+
+   - Session exists but empty (just created)
+   - `message` query param present
+   - Action: Immediately call stream API with `mode: "initial_prompt"`
+
+   **Scenario B: Returning to Existing Session**
+
+   - Session exists with chat history
+   - No `message` query param
+   - Check `mode` field:
+     - If `mode === "question_generated"`: Show chat history + next unanswered question
+     - If `mode === "initial_prompt"`: Show chat history, may need to generate questions
+
+   **Scenario C: Session Not Found**
+
+   - 404 error from GET request
+   - Redirect back to `/dashboard/persona-studio/new`
+
+### Chat Interaction Flow
+
+#### Phase 1: Initial Prompt (mode: "initial_prompt")
+
+1. **First API Call** (automatic on page load if `message` query param exists)
+
+   ```typescript
+   POST /api/v1/ai/persona-chat/chat/stream
+   {
+     message: "Create a Gen-Z persona who likes to build stuff", // from query param
+     mode: "initial_prompt",
+     session_id: "{session_id}" // from URL
+   }
+   ```
+
+2. **Handle SSE Stream**
+   - Show typing indicator while streaming
+   - **IMPORTANT**: Accumulate chunks in thinking/processing state (not visible to user)
+   - Parse accumulated JSON when stream completes
+   - Extract:
+     - `message`: Display this as bot's response
+     - `questions`: Store in state
+     - `name`: Update session name
+     - `session_id`: Confirm session ID
+3. **Display Welcome Message**
+
+   - Add user's initial message to chat (from query param)
+   - Show bot's welcome message (from `message` field)
+   - Example: "Great—let's build a clear Gen Z persona together. I'll ask a quick set of questions..."
+
+4. **Automatically Ask First Question**
+   - Filter questions where `has_answered === false`
+   - Take first unanswered question
+   - Display as new bot message bubble
+   - Render appropriate input UI below question
+
+#### Phase 2: Question Generation (mode: "generation")
+
+1. **Display Current Question**
+
+   - Show one question at a time in chat flow
+   - Bot message bubble with question text
+   - Below question, show appropriate input:
+     - If `answer_option !== null`: Use shadcn Button components as selectable chips
+     - If `answer_option === null`: Use shadcn Input or Textarea component
+
+2. **User Responds**
+
+   - Capture answer (button click or text input submission)
+   - Add user's answer to chat as message bubble (right-aligned)
+   - Immediately show typing indicator
+
+3. **Send Answer to API**
+
+   ```typescript
+   POST /api/v1/ai/persona-chat/chat/stream
+   {
+     message: "18-24", // user's answer
+     mode: "generation",
+     session_id: "68f186f01362bde043cee399"
+   }
+   ```
+
+4. **Handle Response Stream**
+
+   - Accumulate chunks silently (thinking/processing state)
+   - Parse response when stream completes
+   - Display bot's acknowledgment message in chat
+   - Update question's `has_answered` to `true`
+   - Automatically move to next unanswered question
+
+5. **Continue Loop**
+
+   - Repeat steps 1-4 until all questions answered
+   - Always show only ONE unanswered question at a time
+   - Previous questions remain visible in chat history with their answers
+
+6. **Completion State**
+   - When all questions answered: Show completion message
+   - Offer actions: View persona, edit answers, start new persona
+
+---
+
+## Question Display Logic
+
+### Question Types
+
+1. **Multiple Choice** (`answer_option` is array)
+
+   - Use shadcn **Button** component in a flex/grid layout
+   - Variant: outline or secondary
+   - Make buttons visually selectable (hover, focus states)
+   - On click: Submit answer immediately
+
+2. **Open Text** (`answer_option` is null)
+   - Use shadcn **Input** component for short answers
+   - Use shadcn **Textarea** component for longer answers (AI to decide based on question)
+   - Include submit button or handle Enter key press
+   - Placeholder: "Type your answer..."
+
+### Question State Visual Indicators
+
+1. **Current Question** (active)
+
+   - Highlighted or emphasized styling
+   - Input UI visible and enabled
+   - User can interact
+
+2. **Answered Questions** (completed)
+
+   - Visible in chat history above current question
+   - Shows user's selected/entered answer
+   - Checkmark icon or success indicator
+   - Non-interactive (can't change answer from this view)
+
+3. **Future Questions** (not yet shown)
+   - Completely hidden from user
+   - Only current unanswered question is visible
+
+---
+
+## UI Components to Build
+
+**Note**: AI should determine component names and internal structure. Use shadcn/ui for all base components.
+
+### Required Components (AI to name appropriately)
+
+1. **Main Chat Container**
+
+   - Wraps entire chat interface
+   - Handles layout, scrolling
+   - Use shadcn **Card** or **Sheet** components
+
+2. **Chat Header**
+
+   - Shows session name (from `name` field)
+   - Progress indicator (X of Y questions answered)
+   - Use shadcn **Badge** for progress
+
+3. **Message List / Chat History**
+
+   - Scrollable list of messages
+   - Auto-scroll to bottom on new messages
+   - Use shadcn **ScrollArea** component
+
+4. **Message Bubble**
+
+   - Props: content, sender (user/bot), timestamp, isQuestion
+   - Different alignment and styling for user vs bot
+   - Use shadcn **Card** or custom div with shadcn styling
+
+5. **Question Input Container**
+
+   - Wraps current question and input UI
+   - Positioned at bottom of chat (sticky or in chat flow)
+
+6. **Multiple Choice Input**
+
+   - Grid/flex of shadcn **Button** components
+   - Pass options array as prop
+   - Handle selection callback
+
+7. **Text Input**
+
+   - shadcn **Input** or **Textarea**
+   - Submit handler
+   - Loading state during submission
+
+8. **Typing Indicator**
+
+   - Animated dots or pulsing indicator
+   - Shows during SSE streaming
+   - Position: Left-aligned (bot's side)
+
+9. **Loading/Error States**
+   - Use shadcn **Skeleton** for loading
+   - Use shadcn **Alert** for errors
+   - Retry button with shadcn **Button**
+
+---
+
+## State Management (React Query)
+
+### Queries
+
+```typescript
+// Fetch existing session
+const {
+  data: session,
+  isLoading,
+  error,
+} = useQuery({
+  queryKey: ["persona-chat", sessionId],
+  queryFn: () => fetchSession(sessionId),
+  enabled: !!sessionId,
+  retry: false, // Don't retry on 404
+});
+
+// Transform chat messages for display
+const chatMessages = useMemo(() => {
+  if (!session?.messages) return [];
+
+  return session.messages.flatMap((msg) => [
+    {
+      id: msg._id,
+      sender: "user",
+      content: msg.message_content,
+      timestamp: msg.created_at,
+    },
+    ...(msg.answer
+      ? [
+          {
+            id: `${msg._id}-answer`,
+            sender: "bot",
+            content: msg.answer,
+            timestamp: msg.updated_at,
+          },
+        ]
+      : []),
+  ]);
+}, [session]);
+
+// Get current unanswered question
+const currentQuestion = useMemo(() => {
+  return session?.generated_questions?.find((q) => !q.has_answered);
+}, [session]);
+```
+
+### Mutations
+
+```typescript
+// Stream response mutation
+const streamMutation = useMutation({
+  mutationFn: async ({ message, mode, sessionId }) => {
+    const response = await fetch("/api/v1/ai/persona-chat/chat/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, mode, session_id: sessionId }),
+    });
+
+    // Parse SSE stream (see SSE Parsing section)
+    return parseSSEStream(response);
+  },
+  onSuccess: (data) => {
+    // Invalidate and refetch session data
+    queryClient.invalidateQueries(["persona-chat", sessionId]);
+
+    // Or optimistically update cache
+    queryClient.setQueryData(["persona-chat", sessionId], (old) => ({
+      ...old,
+      generated_questions: data.questions,
+      name: data.name,
+      mode: "generation",
+    }));
+  },
+  onError: (error) => {
+    // Show error toast or alert
+    toast.error("Failed to send message. Please try again.");
+  },
+});
+```
+
+---
+
+## SSE Stream Handling
+
+### Implementation Requirements
+
+```typescript
+async function parseSSEStream(response: Response): Promise<StreamResult> {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let accumulated = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          const jsonStr = line.slice(6); // Remove 'data: ' prefix
+          const event = JSON.parse(jsonStr);
+
+          if (event.type === "chunk") {
+            accumulated += event.content;
+            // Optional: Emit progress event for UI
+          } else if (event.type === "done") {
+            // Parse accumulated chunks as complete JSON
+            const parsed = JSON.parse(accumulated);
+            return {
+              name: parsed.name,
+              questions: parsed.questions,
+              message: parsed.message,
+              session_id: event.session_id,
+              questions_count: event.questions_count,
+            };
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("SSE parsing error:", error);
+    throw new Error("Failed to parse stream response");
+  }
+}
+```
+
+### Loading States During Streaming
+
+```typescript
+type StreamState =
+  | { status: "idle" }
+  | { status: "streaming" } // Show typing indicator
+  | { status: "parsing" } // Brief moment parsing JSON
+  | { status: "complete"; data: AIGeneratedQuestionResponse }
+  | { status: "error"; error: string };
+```
+
+---
+
+## Time Formatting
+
+All timestamps from API are in UTC format. Convert to local time for display:
+
+```typescript
+// Utility function to format UTC timestamps
+function formatTimestamp(utcString: string): string {
+  const date = new Date(utcString);
+  return date.toLocaleString(); // Converts to user's local timezone
+}
+
+// For relative time display (optional)
+function formatRelativeTime(utcString: string): string {
+  const date = new Date(utcString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d ago`;
+}
+```
+
+---
+
+## Error Handling
+
+### Network Errors
+
+```typescript
+try {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+} catch (error) {
+  // Show error using shadcn Alert component
+  // Provide retry button
+}
+```
+
+### Session Not Found (404)
+
+```typescript
+if (error?.response?.status === 404) {
+  // Redirect back to new persona page
+  router.push("/dashboard/persona-studio/new");
+  toast.error("Session not found. Please start a new persona.");
+}
+```
+
+### SSE Stream Errors
+
+```typescript
+// Handle stream interruption
+if (event.type === "error") {
+  throw new Error(event.message || "Stream error occurred");
+}
+
+// Handle timeout
+const timeoutId = setTimeout(() => {
+  reader.cancel();
+  reject(new Error("Stream timeout"));
+}, 30000); // 30 second timeout
+```
+
+---
+
+## Design Guidelines
+
+### Layout
+
+- **Chat Container**: Full height, scrollable
+- **Message Area**: Flex column, scroll to bottom
+- **Input Area**: Sticky at bottom or flows with chat
+- **Spacing**: Consistent padding using Tailwind/shadcn spacing scale
+
+### Message Bubbles (Use shadcn Card or custom styled divs)
+
+- **User messages**:
+  - Right-aligned
+  - Background: Primary color (blue)
+  - Text: White
+  - Max-width: 70% of container
+  - Border-radius: Rounded
+- **Bot messages**:
+
+  - Left-aligned
+  - Background: Muted/secondary color (gray)
+  - Text: Foreground color
+  - Max-width: 70% of container
+  - Border-radius: Rounded
+
+- **Question messages**:
+  - Same as bot messages but with emphasis
+  - Slightly larger or bold text
+  - Bottom margin before input UI
+
+### Buttons (shadcn Button component)
+
+- **Multiple Choice Options**:
+
+  - Variant: outline or secondary
+  - Size: default or lg
+  - Gap between buttons: 8px (space-2)
+  - Flex wrap layout
+  - Hover: Scale slightly, change border color
+  - Active/Selected: Primary variant
+
+- **Submit Button**:
+  - Variant: default (primary)
+  - Size: default
+  - Loading state with spinner
+
+### Input Fields (shadcn Input/Textarea)
+
+- Full-width in chat container
+- Border: Subtle, matches theme
+- Focus: Ring effect (shadcn default)
+- Placeholder: Muted text color
+- Padding: Comfortable spacing
+
+### Progress Indicator
+
+- Use shadcn **Progress** component
+- Or custom badge: "5 / 23 questions answered"
+- Position: Chat header or top of page
+
+### Typing Indicator
+
+- Three animated dots (CSS animation)
+- Left-aligned in message area
+- Color: Muted
+- Size: Small, consistent with bot messages
+
+### Colors (Use shadcn theme variables)
+
+- Use CSS variables from shadcn theme
+- `bg-primary`, `text-primary`, `bg-secondary`, etc.
+- Support both light and dark modes
+- Muted colors for timestamps and secondary info
+
+---
+
+## Accessibility
+
+- **Keyboard Navigation**:
+
+  - Tab through multiple choice buttons
+  - Enter to submit text input
+  - Escape to clear input (optional)
+
+- **Screen Reader**:
+
+  - ARIA labels on all interactive elements
+  - Announce new messages
+  - Role="log" or "feed" for chat area
+
+- **Focus Management**:
+
+  - Auto-focus input after question appears
+  - Visible focus indicators (shadcn default)
+
+- **Semantic HTML**:
+  - Proper heading hierarchy
+  - List elements for messages
+  - Form elements for inputs
+
+---
+
+## Performance Considerations
+
+2. **Debounce Text Input**: 300ms debounce before enabling submit
+3. **Memoize Computations**: Use useMemo for filtering questions, formatting messages
+4. **Optimize Re-renders**: Use React.memo for message components
+5. **Cache Session Data**: React Query caching (staleTime: 5 minutes)
+6. **Auto-scroll Smoothly**: Use smooth scroll behavior, requestAnimationFrame
+
+---
+
+## Edge Cases to Handle
+
+1. **Page Refresh Mid-Session**
+
+   - Re-fetch session data
+   - Restore to correct question
+   - Show full chat history
+
+2. **All Questions Answered**
+
+   - Show completion message
+   - Disable input
+   - Show action buttons (view persona, start new)
+
+3. **Network Disconnect During Stream**
+
+   - Show reconnecting indicator
+   - Retry with exponential backoff
+   - Don't lose user's progress
+
+4. **Rapid Multiple Answers**
+
+   - Disable input during streaming
+   - Queue requests or ignore duplicates
+
+5. **Empty answer_option Array**
+
+   - Treat as open text question
+   - Don't render empty button group
+
+6. **Very Long Question Text**
+
+   - Handle text wrapping
+   - Maintain readability
+
+7. **Session Expired/Deleted**
+   - Handle 404 gracefully
+   - Redirect to new session page
+
+---
+
+## Testing Checklist
+
+- [ ] Chat page loads with existing session ID
+- [ ] First-time visit with message query param triggers stream
+- [ ] SSE stream parses correctly and displays welcome message
+- [ ] Questions appear one at a time in chat flow
+- [ ] Multiple choice buttons work and submit answer
+- [ ] Text input works and submits answer
+- [ ] Typing indicator shows during streaming
+- [ ] Chat history displays correctly (user + bot messages)
+- [ ] Timestamps convert from UTC to local time
+- [ ] Progress indicator updates as questions are answered
+- [ ] Completion state shows when all questions done
+- [ ] Error handling for network issues
+- [ ] Error handling for 404 session not found
+- [ ] Page refresh maintains session state
+- [ ] Keyboard navigation works (Tab, Enter)
+- [ ] Responsive on mobile devices
+- [ ] Dark mode support (if applicable)
+- [ ] Accessibility with screen reader
+
+---
+
+## Implementation Instructions for AI
+
+1. **Component Structure**: Determine appropriate component names and create them in `/features/persona-studio/components`
+
+2. **Use shadcn/ui**: All UI components must use shadcn/ui base components (Button, Input, Card, Alert, etc.)
+
+3. **React Query**: Implement queries and mutations as shown in examples
+
+4. **SSE Parsing**: Create robust SSE stream parser in `/features/persona-studio/utils`
+
+5. **Hooks**: Create custom hooks for chat logic, question flow, and stream handling in `/features/persona-studio/hooks`
+
+6. **Types**: Define all TypeScript types in `/features/persona-studio/types`
+
+7. **API Functions**: Create API client functions in `/features/persona-studio/api`
+
+8. **Routing**: Implement chat page at `/dashboard/persona-studio/chat/[sessionId]` route
+
+9. **Error Boundaries**: Wrap components in error boundaries for graceful failures
+
+10. **Loading States**: Use shadcn Skeleton components for loading states
+
+11. **Toasts**: Use shadcn Toast/Sonner for notifications
+
+12. **Form Handling**: Use react-hook-form if complex validation needed (optional)
+
+---
+
+## Summary of Key Requirements
+
+✅ Build chat page at `/dashboard/persona-studio/chat/${session_id}`
+✅ Use shadcn/ui for all components
+✅ Handle SSE streaming with chunk accumulation
+✅ Display questions one at a time in chat flow
+✅ Support both multiple choice and text input questions
+✅ Convert UTC timestamps to local time
+✅ Use React Query for data fetching and mutations
+✅ Handle edge cases and errors gracefully
+✅ Auto-trigger initial stream on first visit with message query param
+✅ Maintain chat history and question progress
+✅ Feature-based folder structure in `/features/persona-chatbot`
+
+**AI: Please determine component names, internal structure, and implement according to best practices.**

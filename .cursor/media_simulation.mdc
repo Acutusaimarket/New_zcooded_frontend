@@ -1,0 +1,940 @@
+---
+alwaysApply: false
+---
+
+# Media Simulation Analysis Dashboard - Requirements Document
+
+## Project Overview
+
+Create a comprehensive media simulation analysis dashboard that displays detailed performance metrics, KPI comparisons, persona insights, and strategic recommendations for media assets analyzed against specific target personas.
+
+## Technical Requirements
+
+### Core Technology Stack
+
+- **Frontend Framework**: React 18+ with TypeScript
+- **UI Component Library**: shadcn/ui
+- **Styling**: Tailwind CSS
+- **Charts/Visualization**: Recharts (built into shadcn/ui ecosystem)
+- **Type Safety**: Full TypeScript implementation
+- **Architecture**: Feature-based folder structure
+- **State Management**: React hooks (useState, useReducer, useContext as needed)
+
+### API Integration
+
+```typescript
+// API Endpoint Configuration
+const API_ENDPOINT = "/api/v1/media/{simulation_id}";
+const HTTP_METHOD = "GET";
+
+SAMPLE API RESPONSE
+{
+	"status": 200,
+	"success": true,
+	"message": "Media simulations retrieved successfully.",
+	"data": {
+		"_id": "68d24739aa642e99ba004341",
+		"model_used": "gemini-2.0-flash",
+		"media_files": [
+			{
+				"media_id": "syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d",
+				"media_type": "image/png",
+				"media_url": "",
+				"s3_key": "uploads/20250923070714_2dafff62_syn_2.png",
+				"media_size": 1903178
+			},
+			{
+				"media_id": "syn_1.jpeg_97b5ec46-284d-447a-8c95-370abc911f28",
+				"media_type": "image/jpeg",
+				"media_url": "",
+				"s3_key": "uploads/20250923070714_f78a3d2d_syn_1.jpeg",
+				"media_size": 7519
+			}
+		],
+		"individual_analysis": [
+			{
+				"kpi_metrics": {
+					"engagement_potential": 6,
+					"message_clarity": 4,
+					"emotional_impact": 3,
+					"brand_consistency": 7,
+					"conversion_potential": 5,
+					"production_quality": 6,
+					"relevance_score": 5,
+					"overall_effectiveness": 47
+				},
+				"insights": {
+					"key_strengths": [
+						"Visually depicts a range of Apple products and their interconnected ecosystem.",
+						"Uses the central iPhone as a focal point to draw attention.",
+						"Attempts to create a sense of excitement and anticipation with the surrounding crowd."
+					],
+					"key_concerns": [
+						"The text is largely unintelligible, making it difficult to understand the intended message.",
+						"The image's artistic style is somewhat chaotic and lacks a clear focus.",
+						"The connection between the product features and the persona's needs is not evident."
+					],
+					"positive_aspects": [
+						"The use of the Apple logo and product designs clearly identifies the brand.",
+						"The depiction of a crowd suggests popularity and widespread appeal.",
+						"The color scheme is consistent with Apple's brand aesthetic."
+					],
+					"negative_aspects": [
+						"The nonsensical text undermines the overall message clarity.",
+						"The busy composition can be overwhelming and confusing.",
+						"The image doesn't highlight any specific benefits or use cases relevant to the target persona."
+					],
+					"recommendations": [
+						"Replace the gibberish text with clear, concise messaging that highlights key product features and benefits.",
+						"Simplify the visual composition to create a stronger focal point and reduce clutter.",
+						"Tailor the imagery and messaging to resonate with the specific needs and values of the target persona (Emergency Obesity Complication patient).",
+						"Focus on how the iPhone can help them manage their health, stay connected, or improve their quality of life.",
+						"Consider using real-life scenarios or testimonials to build trust and credibility."
+					]
+				},
+				"executive_summary": "The image attempts to showcase the Apple iPhone 15 and its ecosystem within a bustling environment. However, the nonsensical text, chaotic visual style, and lack of persona-specific messaging hinder its effectiveness. To improve, focus on clear communication, simplification, and targeted messaging that resonates with the intended audience.",
+				"target_audience_fit": "The image doesn't directly address the persona's specific needs or concerns. The Emergency Obesity Complication patient prioritizes quick relief, convenience, and straightforward instructions. The image fails to convey these elements, making it unlikely to resonate with this persona.",
+				"campaign_suitability": [
+					"Social media campaigns (with significant revisions to messaging and visuals)",
+					"Online banner ads (with simplified imagery and clear call-to-actions)"
+				],
+				"risk_assessment": "The current image may confuse or alienate the target audience due to the nonsensical text and lack of clear messaging. It could also damage brand credibility if perceived as unprofessional or poorly executed.",
+				"product_alignment": 6,
+				"persona_resonance": 3,
+				"analysis_id": "57783780-2a27-495a-88c9-daf46f33d76a",
+				"persona_id": "68be842179804fe36564a081",
+				"media_id": "syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d",
+				"product_id": "68b161f18863a919e565d637",
+				"timestamp": "2025-09-23T07:07:24.386327+00:00",
+				"media_type": "image",
+				"metadata": {
+					"file_size": 1903178.0,
+					"file_name": "syn_2.png",
+					"content_type": "image/png"
+				}
+			},
+			{
+				"kpi_metrics": {
+					"engagement_potential": 6,
+					"message_clarity": 7,
+					"emotional_impact": 4,
+					"brand_consistency": 6,
+					"conversion_potential": 5,
+					"production_quality": 6,
+					"relevance_score": 5,
+					"overall_effectiveness": 56
+				},
+				"insights": {
+					"key_strengths": [
+						"Visually appealing colors and design.",
+						"Presents different iPhone models with varying price points."
+					],
+					"key_concerns": [
+						"The 'iPhone 17 Series' is misleading since it doesn't exist yet.",
+						"Prices are listed in Indian Rupees (₹) which is not relevant for the persona residing in the Southern metro (U.S.).",
+						"Low resolution image reduces credibility."
+					],
+					"positive_aspects": [
+						"The different color options might be attractive.",
+						"Clearly displays the starting price for each model."
+					],
+					"negative_aspects": [
+						"Misleading product name (iPhone 17 Series).",
+						"Currency and product availability don't align with the defined persona's location.",
+						"The image uses a fictional product, lacking credibility and potentially alienating viewers.",
+						"Low-resolution image quality detracts from overall appeal."
+					],
+					"recommendations": [
+						"Use accurate product information (iPhone 15).",
+						"Target the correct geographical market with appropriate currency and product availability.",
+						"Use a high-resolution image.",
+						"Focus on relevant product benefits that address the persona's needs, such as durability and reliability.",
+						"Tailor the messaging to highlight how the product can help the persona quickly return to work."
+					]
+				},
+				"executive_summary": "The image promotes a fictional 'iPhone 17 Series' with prices in Indian Rupees, making it irrelevant to the U.S.-based persona. The low resolution and misleading product information are significant drawbacks. The image needs to be updated with accurate product details, high resolution visuals, and location-specific pricing to be effective.",
+				"target_audience_fit": "The image is a poor fit for the persona. The product information (iPhone 17 Series), pricing (Indian Rupees), and geographical context (India) do not align with the persona's U.S. location and needs. The product does not address the persona's desire for quick relief or minimal time off work.",
+				"campaign_suitability": [
+					"This image is not suitable for any campaign in its current form. After significant revisions to address the product accuracy, pricing, and target location, it might be suitable for online advertisements, social media promotions, or email marketing, but ONLY after being updated."
+				],
+				"risk_assessment": "Using this image carries a high risk of confusing and alienating potential customers due to inaccurate and misleading information. Promoting a non-existent product and displaying prices in the wrong currency could damage brand credibility and lead to negative perception. Also, the persona may not find this product helpful with their health complications.",
+				"product_alignment": 3,
+				"persona_resonance": 2,
+				"analysis_id": "b1cdada9-1493-4505-a473-3e1871436c45",
+				"persona_id": "68be842179804fe36564a081",
+				"media_id": "syn_1.jpeg_97b5ec46-284d-447a-8c95-370abc911f28",
+				"product_id": "68b161f18863a919e565d637",
+				"timestamp": "2025-09-23T07:07:22.098775+00:00",
+				"media_type": "image",
+				"metadata": {
+					"file_size": 7519.0,
+					"file_name": "syn_1.jpeg",
+					"content_type": "image/jpeg"
+				}
+			}
+		],
+		"comparison_analysis": {
+			"kpi_comparison_matrix": [
+				{
+					"analysis_id": "57783780-2a27-495a-88c9-daf46f33d76a",
+					"kpi_scores": {
+						"engagement_potential": 6,
+						"message_clarity": 4,
+						"emotional_impact": 3,
+						"brand_consistency": 7,
+						"conversion_potential": 5,
+						"production_quality": 6,
+						"overall_effectiveness": 47
+					}
+				},
+				{
+					"analysis_id": "b1cdada9-1493-4505-a473-3e1871436c45",
+					"kpi_scores": {
+						"engagement_potential": 6,
+						"message_clarity": 7,
+						"emotional_impact": 4,
+						"brand_consistency": 6,
+						"conversion_potential": 5,
+						"production_quality": 6,
+						"overall_effectiveness": 56
+					}
+				}
+			],
+			"ranking": [
+				{
+					"rank": 1,
+					"analysis_id": "b1cdada9-1493-4505-a473-3e1871436c45",
+					"justification": "While still problematic, this analysis has a higher overall effectiveness score (56) than the other (47). Despite the inaccuracies (iPhone 17, Indian Rupees), the visual appeal and clear display of pricing are better starting points than the nonsensical text and chaotic visuals of the other."
+				},
+				{
+					"rank": 2,
+					"analysis_id": "57783780-2a27-495a-88c9-daf46f33d76a",
+					"justification": "This analysis suffers from unintelligible text and a chaotic visual style, making it difficult to understand the message and diminishing its overall effectiveness.  The attempt to depict the Apple ecosystem is overshadowed by these significant flaws."
+				}
+			],
+			"strengths_weaknesses": [
+				{
+					"analysis_id": "57783780-2a27-495a-88c9-daf46f33d76a",
+					"strengths": [
+						"Clearly identifies the brand with the Apple logo and product designs.",
+						"The crowd depiction suggests popularity.",
+						"Color scheme is consistent with Apple's brand aesthetic."
+					],
+					"weaknesses": [
+						"Nonsensical text undermines message clarity.",
+						"Busy composition is overwhelming and confusing.",
+						"Doesn't highlight benefits or use cases relevant to the target persona."
+					]
+				},
+				{
+					"analysis_id": "b1cdada9-1493-4505-a473-3e1871436c45",
+					"strengths": [
+						"Visually appealing colors and design.",
+						"Presents different iPhone models with varying price points."
+					],
+					"weaknesses": [
+						"Misleading product name (iPhone 17 Series).",
+						"Prices listed in Indian Rupees, irrelevant for the target persona.",
+						"Low resolution image reduces credibility."
+					]
+				}
+			],
+			"persona_recommendations": [
+				{
+					"persona_id": "68be842179804fe36564a081",
+					"media_id": "syn_1.jpeg_97b5ec46-284d-447a-8c95-370abc911f28",
+					"reason": "With significant revisions focusing on accurate product information (iPhone 15), US-based pricing, and a high-resolution image, this media has the potential to resonate with the persona if the messaging highlights how the product's durability and reliability can minimize downtime and ensure a quick return to work."
+				},
+				{
+					"persona_id": "68be842179804fe36564a081",
+					"media_id": "syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d",
+					"reason": "Even with substantial revisions, this media is less suitable due to its chaotic visual style.  The persona prioritizes straightforward instructions and clear communication, which this image struggles to provide, even after improvements."
+				}
+			],
+			"product_alignment": "Both analyses have flaws in product alignment. Analysis '57783780-2a27-495a-88c9-daf46f33d76a' suffers from nonsensical text, hindering its ability to convey product features. Analysis 'b1cdada9-1493-4505-a473-3e1871436c45' promotes a non-existent product (iPhone 17) and incorrect currency, misaligning it with the actual iPhone 15 and the US-based persona.",
+			"final_recommendation": {
+				"analysis_id": "b1cdada9-1493-4505-a473-3e1871436c45",
+				"rationale": "Despite its current flaws, analysis 'b1cdada9-1493-4505-a473-3e1871436c45' offers a better foundation for improvement. The visual appeal, clear pricing display (once corrected), and identifiable product (even if misnamed) make it a more salvageable option compared to the nonsensical text and chaotic visuals of '57783780-2a27-495a-88c9-daf46f33d76a'. Significant revisions are necessary to ensure accuracy and relevance.",
+				"expected_outcomes": [
+					"Increased engagement with corrected product and pricing information.",
+					"Improved brand credibility through accurate representation.",
+					"Higher conversion rates by targeting the right audience with relevant offers."
+				]
+			},
+			"risk_factors": [
+				{
+					"analysis_id": "57783780-2a27-495a-88c9-daf46f33d76a",
+					"risks": [
+						"Confusion and alienation of the target audience due to nonsensical text.",
+						"Damage to brand credibility if perceived as unprofessional.",
+						"Ineffective communication of product benefits."
+					],
+					"risk_level": "High"
+				},
+				{
+					"analysis_id": "b1cdada9-1493-4505-a473-3e1871436c45",
+					"risks": [
+						"Confusion and mistrust due to inaccurate product information (iPhone 17 Series).",
+						"Negative perception and alienation of the target audience due to incorrect currency (Indian Rupees).",
+						"Damage to brand credibility and potential legal issues by promoting non-existent product.",
+						"Poor image quality decreases the perceived value of the product."
+					],
+					"risk_level": "High"
+				}
+			],
+			"confidence_score": 65,
+			"media_recommendations": [
+				{
+					"media_id": "syn_1.jpeg_97b5ec46-284d-447a-8c95-370abc911f28",
+					"rationale": "After extensive revisions to address the inaccuracies and align with the persona's needs, this media format is potentially suitable for online advertisements and social media promotions. The key is to explicitly showcase features that address the persona's desire for quick symptom relief and minimal disruption to their work life.\n\n*   **Focus on Durability and Reliability:** The persona needs a product they can rely on. Highlight the phone's durability to minimize the risk of breakage, thus avoiding the need for repairs and time off work. \n*   **Communicate Efficiently:** Use short, direct language in the ad copy that resonates with their preference for brief and practical communication.\n*   **Simple & Quick Benefits:** Focus on how the phone can quickly help them manage their health needs and stay connected with their healthcare providers for efficient communication and updates. For example, reminders about medication, or easy access to contact their doctors.\n"
+				},
+				{
+					"media_id": "syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d",
+					"rationale": "Given the current chaotic nature of this media, even with improvements, it is not likely to align with the persona's need for clarity and straightforwardness. Thus it is not recommended. "
+				}
+			]
+		},
+		"media_recommendations": {
+			"primary_recommendations": [
+				{
+					"media_id": "syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d",
+					"analysis_id": "57783780-2a27-495a-88c9-daf46f33d76a",
+					"overall_score": 4.71,
+					"persona_match": "68be842179804fe36564a081",
+					"selection_rationale": [
+						"Higher engagement potential compared to the other image.",
+						"Better brand consistency due to the clear presence of Apple products and logos.",
+						"Potential for improvement with revised messaging."
+					],
+					"confidence_score": 0.6
+				}
+			],
+			"persona_specific_insights": [
+				{
+					"persona_id": "68be842179804fe36564a081",
+					"best_performing_media": "syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d",
+					"key_messaging_opportunities": [
+						"Focus on iPhone's ability to quickly connect the patient with emergency services or healthcare providers.",
+						"Highlight the ease of use for managing health-related information and appointments.",
+						"Emphasize the reliability and durability of the iPhone in emergency situations."
+					],
+					"content_gaps": [
+						"Lack of focus on addressing immediate health concerns.",
+						"Absence of direct mention of relevant health features (e.g., Emergency SOS, health apps).",
+						"Failure to connect the iPhone with the patient's need for quick relief and return to work."
+					],
+					"recommended_improvements": [
+						"Replace the gibberish text with clear, concise messaging that highlights key product features and benefits.",
+						"Simplify the visual composition to create a stronger focal point and reduce clutter.",
+						"Tailor the imagery and messaging to resonate with the specific needs and values of the target persona (Emergency Obesity Complication patient).",
+						"Focus on how the iPhone can help them manage their health, stay connected, or improve their quality of life.",
+						"Consider using real-life scenarios or testimonials to build trust and credibility."
+					]
+				}
+			],
+			"performance_matrix": {
+				"high_performers": [],
+				"moderate_performers": [
+					"syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d"
+				],
+				"underperformers": [
+					"syn_1.jpeg_97b5ec46-284d-447a-8c95-370abc911f28"
+				]
+			},
+			"strategic_recommendations": {
+				"campaign_focus": "Leverage the iPhone's reliable connectivity and health features to provide quick relief and improve health management for emergency obesity complication patients.",
+				"content_optimization": [
+					"Replace nonsensical text in syn_2.png with clear, concise messaging about the iPhone's health benefits.",
+					"Simplify the visual composition to focus on key features and reduce clutter.",
+					"Tailor imagery to resonate with the specific needs and values of the target persona."
+				],
+				"risk_mitigation": [
+					"Avoid using inaccurate product information or irrelevant pricing.",
+					"Ensure all visuals are high-resolution and professional.",
+					"Clearly communicate the product's value proposition and benefits."
+				],
+				"messaging_themes": [
+					"Reliable connectivity in emergencies",
+					"Easy access to healthcare providers",
+					"Convenient health management tools"
+				],
+				"target_audience_priorities": [
+					"Quick access to emergency services",
+					"Reliable health information management",
+					"Easy communication with healthcare providers"
+				]
+			},
+			"execution_priorities": {
+				"immediate_use": [],
+				"needs_modification": [
+					"syn_2.png_a418da2a-de73-49f6-b714-e5cb94993c4d"
+				],
+				"avoid_usage": [
+					"syn_1.jpeg_97b5ec46-284d-447a-8c95-370abc911f28"
+				],
+				"ab_testing_opportunities": [],
+				"production_priorities": [
+					"Revise syn_2.png with targeted messaging and simplified visuals."
+				]
+			},
+			"quality_metrics": {
+				"average_effectiveness_score": 5.15,
+				"recommendation_confidence": 0.7,
+				"coverage_score": 0.65,
+				"alignment_score": 0.55
+			},
+			"additional_insights": {
+				"surprising_findings": [
+					"The 'Emergency Obesity Complication' persona may be more receptive to technology-based health solutions than initially expected, given their reliance on ER visits."
+				],
+				"market_opportunities": [
+					"Developing a tailored health management app or service specifically for patients with obesity-related complications."
+				],
+				"competitive_advantages": [
+					"Highlighting the iPhone's reliability and security compared to cheaper alternatives."
+				],
+				"scalability_factors": [
+					"Ensuring the messaging is easily adaptable to different healthcare providers and insurance plans."
+				]
+			},
+			"total_media_analyzed": 2,
+			"recommendation_version": "1.0"
+		},
+		"created_at": "2025-09-23T07:07:37.222000",
+		"updated_at": "2025-09-23T07:07:37.222000",
+		"participated_personas": [
+			{
+				"persona_category": "Emergency Obesity Complication (Cigna)",
+				"name": "Emergency Obesity Complication (A+, Cigna)",
+				"description": "Male 35–45 with obesity-related complications using Cigna. Emergency admissions, A+ blood type. Billing typically 17–33k; tests often inconclusive. Prioritizes quick relief and return to work. Confidence: 0.67",
+				"demographic": {
+					"age_range": "35-45",
+					"gender": "Male",
+					"occupation": "Warehouse night-shift associate",
+					"income_tier": "Lower-middle income",
+					"location": "Southern metro (U.S.)",
+					"education": "High school diploma"
+				},
+				"behavior_patterns": {
+					"communication_style": "Brief and practical; prefers after-hours calls/texts",
+					"response_tendency": "Delays care until symptoms escalate; uses ED over clinics",
+					"decision_making_process": "Defers to ED physicians; low PCP continuity; barrier: scheduling during shifts",
+					"lifestyle": "Irregular meals; sedentary off-shift; uses OTC pain relievers",
+					"values": [
+						"Convenience",
+						"Quick symptom relief",
+						"Minimal time off work",
+						"Straightforward instructions"
+					],
+					"purchasing_behavior": "Uses in-network ER; avoids elective programs due to time/cost",
+					"price_sensitivity": "Medium-high",
+					"media_consumption": "Phone calls, discharge papers; limited portal use"
+				},
+				"traits": [
+					{
+						"name": "health_consciousness",
+						"value": 0.34,
+						"reason": "Care is crisis-driven versus preventive"
+					},
+					{
+						"name": "treatment_adherence",
+						"value": 0.55,
+						"reason": "Follows discharge meds short-term; follow-up lapses"
+					},
+					{
+						"name": "medical_skepticism",
+						"value": 0.44,
+						"reason": "Skeptical of diets; accepts ED advice"
+					},
+					{
+						"name": "pain_tolerance",
+						"value": 0.78,
+						"reason": "Waits until pain/discomfort is high"
+					},
+					{
+						"name": "wellness_investment",
+						"value": 0.32,
+						"reason": "Limited time/money for preventive programs"
+					}
+				],
+				"psychological_attributes": {
+					"personality_type": "Pragmatic, hands-on (ISTP-like)",
+					"emotional_tendencies": "Stoic until acute distress; frustration with long waits",
+					"cognitive_style": "Reactive problem-solving; favors simple steps",
+					"motivations": [
+						"Resume work quickly",
+						"Reduce acute pain",
+						"Avoid repeat ER visits if possible"
+					],
+					"fears": [
+						"High hospital bills",
+						"Work instability",
+						"Stigma around weight"
+					],
+					"stress_triggers": [
+						"Inconclusive results",
+						"Lengthy ED wait times",
+						"Complex diet plans"
+					],
+					"coping_mechanisms": [
+						"OTC meds",
+						"Symptom monitoring at home",
+						"Skipping meals to manage time"
+					],
+					"learning_style": "Concise verbal instructions plus one-page handouts"
+				},
+				"status": "published",
+				"_id": "68be842179804fe36564a081",
+				"metadata": null,
+				"user": null,
+				"created_at": "2025-09-08T07:22:09.560000",
+				"updated_at": "2025-09-08T07:22:09.560000"
+			}
+		],
+		"participated_product": {
+			"name": "Apple iPhone 15",
+			"description": "The latest iPhone 15 with A16 Bionic chip, advanced dual-camera system, and stunning Super Retina XDR display.",
+			"price": 999.0,
+			"currency": "USD",
+			"country": "USA",
+			"city": "Cupertino",
+			"images": [
+				"https://www.apple.com/v/iphone-15/d/images/specs/finish_iphone_plus__eeg40kwwxe4i_medium.jpg",
+				"https://www.apple.com/v/iphone-15/d/images/specs/finish_iphone__bvnqblbns6r6_medium.jpg"
+			],
+			"features": [
+				"A16 Bionic chip",
+				"6.1-inch Super Retina XDR display",
+				"48MP main camera",
+				"5G connectivity"
+			],
+			"specification": {
+				"battery": "3200mAh",
+				"storage": "128GB",
+				"ram": "6GB"
+			},
+			"color": "Black",
+			"size": "6.1 inch",
+			"weight": 171.0,
+			"metadata": {
+				"warranty": "1 year",
+				"brand": "Apple",
+				"model": "iPhone 15"
+			},
+			"product_type": "product",
+			"_id": "68b161f18863a919e565d637",
+			"created_at": "2025-08-29T08:16:49.927000",
+			"updated_at": "2025-08-29T08:16:49.927000"
+		}
+	}
+}
+
+// Main data structure interface
+interface MediaSimulationResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  data: MediaSimulationData;
+}
+```
+
+### Folder Structure
+
+```
+src/
+├── features/
+│   └── media-simulation/
+│       ├── components/
+│       │   ├── overview/
+│       │   │   ├── SimulationHeader.tsx
+│       │   │   ├── MediaMetrics.tsx
+│       │   │   └── StatusIndicators.tsx
+│       │   ├── analysis/
+│       │   │   ├── IndividualAnalysis.tsx
+│       │   │   ├── KPIMetricsCard.tsx
+│       │   │   ├── InsightsPanel.tsx
+│       │   │   └── RecommendationsCard.tsx
+│       │   ├── comparison/
+│       │   │   ├── ComparisonMatrix.tsx
+│       │   │   ├── RankingChart.tsx
+│       │   │   └── StrengthsWeaknessesGrid.tsx
+│       │   ├── persona/
+│       │   │   ├── PersonaProfile.tsx
+│       │   │   ├── PersonaTraits.tsx
+│       │   │   └── PersonaRecommendations.tsx
+│       │   ├── charts/
+│       │   │   ├── KPIRadarChart.tsx
+│       │   │   ├── EffectivenessBarChart.tsx
+│       │   │   ├── PerformanceLineChart.tsx
+│       │   │   └── ComparisonDoughnutChart.tsx
+│       │   └── layout/
+│       │       ├── DashboardLayout.tsx
+│       │       ├── TabNavigation.tsx
+│       │       └── FilterPanel.tsx
+│       ├── hooks/
+│       │   ├── useMediaSimulation.ts
+│       │   ├── useChartData.ts
+│       │   └── useAnalyticsFilters.ts
+│       ├── types/
+│       │   ├── media-simulation.types.ts
+│       │   ├── kpi-metrics.types.ts
+│       │   └── persona.types.ts
+│       ├── utils/
+│       │   ├── chart-helpers.ts
+│       │   ├── score-calculations.ts
+│       │   └── data-formatters.ts
+│       └── constants/
+│           ├── chart-colors.ts
+│           ├── kpi-definitions.ts
+│           └── performance-thresholds.ts
+```
+
+### Layout Structure
+
+#### Main Dashboard Layout (Mobile-First Responsive)
+
+```
+┌─────────────────────────────────────────────┐
+│ Header: Simulation Title + Status + Actions │
+├─────────────────────────────────────────────┤
+│ Navigation Tabs: Overview | Analysis |      │
+│ Comparison | Persona | Recommendations      │
+├─────────────────────────────────────────────┤
+│                                             │
+│           Tab Content Area                  │
+│         (Dynamic Components)               │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+#### Tab Structure and Components
+
+### 1. Overview Tab
+
+**Purpose**: High-level summary with key metrics and status
+
+**Layout**:
+
+```
+┌─────────────────┬─────────────────┬─────────────────┐
+│  Media Files    │   Performance   │    Risk Level   │
+│   Summary       │    Metrics      │   Assessment    │
+│  (2 files)      │  (Avg: 51.5)    │   (Both High)   │
+├─────────────────┼─────────────────┼─────────────────┤
+│           Quick Insights Cards                      │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐  │
+│  │Best Perform │ │Worst Perform│ │Top Risk Factor│  │
+│  └─────────────┘ └─────────────┘ └─────────────┘  │
+├─────────────────────────────────────────────────────┤
+│        Performance Overview Chart                   │
+│       (Horizontal bar comparing both media)         │
+└─────────────────────────────────────────────────────┘
+```
+
+**Components**:
+
+- `MediaMetricsSummary`: Total files, overall scores, status indicators
+- `PerformanceOverviewChart`: Horizontal bar chart showing comparative performance
+- `RiskAssessmentAlert`: Color-coded risk level indicators
+- `QuickInsightsCards`: Top 3 actionable insights
+
+### 2. Analysis Tab
+
+**Purpose**: Detailed individual media analysis with KPI breakdowns
+
+**Layout**:
+
+```
+┌─────────────────────────────────────────────────────┐
+│        Media Selection Dropdown/Tabs               │
+├─────────────────┬─────────────────────────────────┤
+│                 │                                 │
+│   KPI Radar     │        Detailed Metrics         │
+│     Chart       │         Score Grid              │
+│   (7 metrics)   │    ┌─────┬─────┬─────┬─────┐   │
+│                 │    │ Eng │Clar │Emot │Brand│   │
+│                 │    ├─────┼─────┼─────┼─────┤   │
+│                 │    │ Conv│Qual │Relev│ Tot │   │
+│                 │    └─────┴─────┴─────┴─────┘   │
+├─────────────────┴─────────────────────────────────┤
+│              Insights & Recommendations            │
+│  ┌─────────────────┐  ┌─────────────────────────┐ │
+│  │ Key Strengths   │  │    Key Concerns         │ │
+│  │ • Brand clarity │  │ • Unclear messaging     │ │
+│  │ • Visual appeal │  │ • Poor target fit       │ │
+│  └─────────────────┘  └─────────────────────────┘ │
+├─────────────────────────────────────────────────────┤
+│                Action Items                         │
+│  • Replace gibberish text with clear messaging     │
+│  • Simplify visual composition                      │
+│  • Focus on persona-specific benefits              │
+└─────────────────────────────────────────────────────┘
+```
+
+**Components**:
+
+- `MediaSelector`: Dropdown or tab navigation for media switching
+- `KPIRadarChart`: 7-point radar chart showing all KPI metrics
+- `DetailedMetricsGrid`: Numerical scores with color coding
+- `StrengthsConcernsCards`: Side-by-side comparison
+- `RecommendationsList`: Actionable improvement suggestions
+- `TargetAudienceFit`: Persona alignment assessment
+
+### 3. Comparison Tab
+
+**Purpose**: Side-by-side media comparison with ranking and competitive analysis
+
+**Layout**:
+
+```
+┌─────────────────────────────────────────────────────┐
+│              Ranking & Performance                  │
+│  ┌─────────────────────────────────────────────────┐ │
+│  │ #1 syn_1.jpeg (56) ████████████████████▓▓▓▓▓ │ │
+│  │ #2 syn_2.png  (47) ████████████████▓▓▓▓▓▓▓▓▓ │ │
+│  └─────────────────────────────────────────────────┘ │
+├─────────────────┬─────────────────────────────────────┤
+│                 │                                     │
+│  KPI Comparison │       Strengths vs Weaknesses       │
+│     Chart       │    ┌─────────────┬─────────────┐   │
+│  (Side by side  │    │ Media A     │   Media B   │   │
+│   bar chart)    │    │ Strengths   │  Strengths  │   │
+│                 │    ├─────────────┼─────────────┤   │
+│                 │    │ Media A     │   Media B   │   │
+│                 │    │ Weaknesses  │  Weaknesses │   │
+│                 │    └─────────────┴─────────────┘   │
+├─────────────────┴─────────────────────────────────────┤
+│              Strategic Recommendations                 │
+│  • Focus on Media A for social campaigns after fixes  │
+│  • Avoid Media B due to misleading information        │
+│  • Prioritize accuracy and relevance improvements     │
+└─────────────────────────────────────────────────────┘
+```
+
+**Components**:
+
+- `RankingProgressBars`: Horizontal progress bars with rankings
+- `KPIComparisonChart`: Side-by-side bar chart for all metrics
+- `StrengthsWeaknessesMatrix`: 2x2 grid comparison
+- `CompetitiveInsights`: Strategic recommendations based on comparison
+- `WinnerBadge`: Visual indicator of top performer
+
+### 4. Persona Tab
+
+**Purpose**: Deep dive into target persona and alignment analysis
+
+**Layout**:
+
+```
+┌─────────────────────────────────────────────────────┐
+│                 Persona Profile                     │
+│  ┌───────────────────────────────────────────────┐ │
+│  │ Emergency Obesity Complication (A+, Cigna)   │ │
+│  │ Male 35-45 | Warehouse Associate             │ │
+│  │ Southern Metro | Lower-middle Income         │ │
+│  └───────────────────────────────────────────────┘ │
+├─────────────────┬───────────────────────────────────┤
+│                 │                                   │
+│  Persona Traits │      Behavioral Patterns         │
+│   Radar Chart   │   ┌─────────────────────────────┐ │
+│                 │   │ • Brief, practical comms   │ │
+│ Health Conscious│   │ • Crisis-driven care       │ │
+│ Treatment Adher │   │ • Defers to ED physicians   │ │
+│ Medical Skeptic │   │ • Values convenience        │ │
+│ Pain Tolerance  │   └─────────────────────────────┘ │
+│ Wellness Invest │                                   │
+├─────────────────┴───────────────────────────────────┤
+│                Media Alignment Analysis              │
+│  ┌─────────────────┐  ┌─────────────────────────────┐│
+│  │ Content Gaps    │  │   Messaging Opportunities   ││
+│  │ • Emergency SOS │  │ • Quick relief focus        ││
+│  │ • Health apps   │  │ • Reliability emphasis      ││
+│  │ • Work return   │  │ • Simple instructions       ││
+│  └─────────────────┘  └─────────────────────────────┘│
+└─────────────────────────────────────────────────────┘
+```
+
+**Components**:
+
+- `PersonaProfileCard`: Demographics and basic info
+- `PersonaTraitsRadar`: 5-point radar chart of psychological traits
+- `BehavioralPatternsList`: Key behaviors and preferences
+- `ContentGapsAnalysis`: Missing elements identification
+- `MessagingOpportunities`: Persona-specific suggestions
+- `AlignmentScore`: Overall persona-media fit percentage
+
+### 5. Recommendations Tab
+
+**Purpose**: Strategic recommendations and execution priorities
+
+**Layout**:
+
+```
+┌─────────────────────────────────────────────────────┐
+│              Executive Summary                      │
+│  "Media B shows better potential after significant │
+│   revisions focusing on accuracy and localization" │
+├─────────────────────────────────────────────────────┤
+│                Action Priorities                    │
+│  ┌─────────────────┬─────────────────────────────┐ │
+│  │ Immediate Use   │     Needs Modification     │ │
+│  │   (None)        │   • syn_2.png - High      │ │
+│  ├─────────────────┼─────────────────────────────┤ │
+│  │ Avoid Usage     │    A/B Testing Ideas       │ │
+│  │ • syn_1.jpeg    │     (None available)       │ │
+│  └─────────────────┴─────────────────────────────┘ │
+├─────────────────────────────────────────────────────┤
+│               Strategic Themes                      │
+│  • Reliable connectivity in emergencies            │
+│  • Easy access to healthcare providers             │
+│  • Convenient health management tools              │
+└─────────────────────────────────────────────────────┘
+```
+
+**Components**:
+
+- `ExecutiveSummary`: High-level strategic recommendation
+- `ActionPrioritiesMatrix`: 2x2 grid of execution priorities
+- `StrategicThemes`: Key messaging themes
+- `ExpectedOutcomes`: Projected results
+- `ConfidenceScore`: Algorithm confidence indicator
+- `QualityMetrics`: Overall analysis quality indicators
+
+### Interactive Features
+
+#### Chart Interactions
+
+- **Hover Effects**: Show detailed tooltips with exact values
+- **Click Interactions**: Drill down into specific metrics
+- **Legend Toggles**: Show/hide chart series
+- **Zoom Controls**: For detailed data exploration
+- **Export Options**: PNG/PDF export for charts
+
+#### Data Filters
+
+- **Media Filter**: Toggle between individual media or show all
+- **Metric Filter**: Focus on specific KPI categories
+- **Time Comparison**: If historical data available
+- **Persona Filter**: Compare against different personas
+
+#### Responsive Behavior
+
+- **Mobile (320-768px)**: Single column, stacked cards, simplified charts
+- **Tablet (768-1024px)**: Two-column grid, compressed navigation
+- **Desktop (1024px+)**: Full multi-column layout, detailed charts
+
+### Visual Design Elements
+
+#### Color Coding System
+
+```typescript
+const SCORE_COLORS = {
+  excellent: "#10B981", // 8-10
+  good: "#3B82F6", // 6-7
+  average: "#F59E0B", // 4-5
+  poor: "#EF4444", // 0-3
+};
+
+const STATUS_COLORS = {
+  success: "#10B981",
+  warning: "#F59E0B",
+  danger: "#EF4444",
+  info: "#3B82F6",
+};
+```
+
+#### Icon System
+
+- **KPI Metrics**: Custom icons for each metric type
+- **Status Indicators**: Color-coded dots and badges
+- **Action Items**: Priority level indicators
+- **Media Types**: File type icons (image, video, audio)
+
+#### Animation & Transitions
+
+- **Chart Animations**: Smooth data transitions (300ms ease-in-out)
+- **Card Hover**: Subtle lift effect and shadow increase
+- **Loading States**: Skeleton loaders matching component structure
+- **Tab Transitions**: Slide animations between tabs (200ms)
+
+## Data Handling & Performance
+
+### Type Definitions
+
+```typescript
+interface KPIMetrics {
+  engagement_potential: number; // 0-10
+  message_clarity: number; // 0-10
+  emotional_impact: number; // 0-10
+  brand_consistency: number; // 0-10
+  conversion_potential: number; // 0-10
+  production_quality: number; // 0-10
+  relevance_score: number; // 0-10
+  overall_effectiveness: number; // 0-100
+}
+
+interface MediaAnalysis {
+  kpi_metrics: KPIMetrics;
+  insights: AnalysisInsights;
+  executive_summary: string;
+  target_audience_fit: string;
+  campaign_suitability: string[];
+  risk_assessment: string;
+  product_alignment: number; // 0-10
+  persona_resonance: number; // 0-10
+  analysis_id: string;
+  persona_id: string;
+  media_id: string;
+  timestamp: string;
+  media_type: "image" | "video" | "audio";
+  metadata: MediaMetadata;
+}
+```
+
+### Error Handling
+
+- **API Errors**: User-friendly error messages with retry options
+- **Loading States**: Comprehensive loading indicators
+- **Empty States**: Helpful empty state illustrations and CTAs
+- **Validation**: Form validation with clear error messaging
+
+### Performance Optimizations
+
+- **Code Splitting**: Lazy load tab components
+- **Memoization**: React.memo for expensive components
+- **Virtual Scrolling**: For large recommendation lists
+- **Image Optimization**: Responsive images with proper loading
+
+### Accessibility Requirements
+
+- **WCAG 2.1 AA Compliance**: Full accessibility support
+- **Keyboard Navigation**: Complete keyboard accessibility
+- **Screen Reader**: Proper ARIA labels and descriptions
+- **Color Contrast**: Minimum 4.5:1 ratio for all text
+- **Focus Management**: Visible focus indicators
+
+## Development Guidelines
+
+### Component Design Principles
+
+1. **Single Responsibility**: Each component has one clear purpose
+2. **Composition over Inheritance**: Build complex UI from simple components
+3. **Props Interface**: Clear, typed props with defaults where appropriate
+4. **Error Boundaries**: Graceful error handling at component level
+
+### State Management Strategy
+
+- **Local State**: Component-specific state with useState
+- **Shared State**: Cross-component state with useContext
+- **Server State**: API data management with custom hooks
+- **Form State**: Controlled components with validation
+
+### Code Quality Standards
+
+- **TypeScript**: Strict mode, no any types
+- **ESLint**: Airbnb config with custom rules
+- **Prettier**: Consistent code formatting
+- **Husky**: Pre-commit hooks for quality checks
+- **Jest**: Unit and integration testing
+
+This comprehensive requirements document provides a detailed roadmap for building a modern, accessible, and performant media simulation analysis dashboard using React, TypeScript, and shadcn/ui components.

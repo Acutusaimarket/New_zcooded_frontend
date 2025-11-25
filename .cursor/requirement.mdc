@@ -1,0 +1,411 @@
+---
+alwaysApply: false
+---
+
+# React Flow Simulation Page Development Tasks
+
+## Overview
+
+Create a simulation page using React Flow where users can visually configure and run product simulations with personas. The flow starts with product selection and progresses through simulation type, model selection, persona selection, and displays results.
+
+## API Reference
+
+```typescript
+// POST /api/v1/simulation/run
+interface SimulationRequest {
+  persona_ids: string[];
+  product_id: string;
+  simulation_type: "overview" | "detailed";
+  model: "gpt-4o" | "gpt-5";
+}
+
+interface SimulationResponse {
+  data: {
+    product_id: string;
+    participated_persona_ids: string[];
+    product_name: string;
+    simulation_type: string;
+    persona_results: Array<{
+      persona_id: string;
+      result: {
+        interest_level: number;
+        purchase_intent: number;
+        price_perception: "too high" | "too low" | "just right";
+        key_concerns: string[];
+        motivation_drivers: string[];
+        recommendation_likelihood: number;
+        decision_timeline:
+          | "very quick (same day)"
+          | "quick (within a week)"
+          | "medium (within a month)"
+          | "slow (more than a month)";
+        summary: string;
+      };
+    }>;
+    summary: {
+      best_fit_personas: Array<{
+        persona_id: string;
+        persona_name: string;
+        reason: string;
+        other_insights: string[];
+      }>;
+      overall_recommendation: string;
+      reason_to_reject: string;
+      overall_summary: string;
+      overall_interest_level: number;
+      overall_purchase_intent: number;
+      overall_price_perception: "too high" | "too low" | "just right";
+      key_concerns: string[];
+    };
+  };
+  message: string;
+  success: boolean;
+}
+```
+
+---
+
+## Task 1: Setup Project Structure and Types
+
+**Objective**: Create the foundational TypeScript types and project structure for the React Flow simulation page.
+
+**Requirements**:
+
+1. Install dependencies: `@xyflow/react`, `@types/react`, `lucide-react`
+2. Create comprehensive TypeScript interfaces for:
+   - All API request/response types (use the API reference above)
+   - Node data types for each node variant
+   - Flow state management types
+   - Component prop types
+
+**File Structure to Create**:
+
+```
+/src
+  /feature
+    /components
+      /simulation
+        /nodes
+          - ProductSelectionNode.tsx
+          - SimulationTypeNode.tsx
+          - ModelSelectionNode.tsx
+          - PersonaSelectionNode.tsx
+          - IndividualResultNode.tsx
+          - OverallResultNode.tsx
+        /edges
+          - CustomEdge.tsx
+        - SimulationFlow.tsx
+    /types
+      - simulation.types.ts
+      - flow.types.ts
+    /hooks
+      - useSimulationFlow.ts
+    /utils
+      - flowUtils.ts
+```
+
+**TypeScript Requirements**:
+
+- Strict mode enabled
+- All components fully typed with proper props interfaces
+- Generic types for reusable components
+- Enum types for simulation options
+
+**Deliverables**:
+
+- Complete type definitions in `simulation.types.ts` and `flow.types.ts`
+- Basic project structure with empty component files
+- Package.json with required dependencies
+
+---
+
+## Task 2: Create Custom Node Components
+
+**Objective**: Build individual React Flow node components with proper styling and interactivity.
+
+**Node Specifications**:
+
+### ProductSelectionNode
+
+- **Purpose**: Entry point node for selecting products
+- **Props**: `{ data: { selectedProductId?: string; products: Product[]; onProductSelect: (id: string) => void } }`
+- **UI**: Dropdown/select for product selection with search capability
+- **Validation**: Must have a product selected to proceed
+
+### SimulationTypeNode
+
+- **Purpose**: Select simulation type (overview, detailed, etc.)
+- **Props**: `{ data: { selectedType?: string; types: string[]; onTypeSelect: (type: string) => void } }`
+- **UI**: Radio buttons or dropdown for simulation types
+- **Default**: "overview" selected by default
+
+### ModelSelectionNode
+
+- **Purpose**: Choose AI model for simulation
+- **Props**: `{ data: { selectedModel?: string; models: string[]; onModelSelect: (model: string) => void } }`
+- **UI**: Radio buttons with model descriptions
+- **Default**: "gpt-4o" selected by default
+
+### PersonaSelectionNode
+
+- **Purpose**: Multi-select personas for simulation
+- **Props**: `{ data: { selectedPersonas: string[]; personas: Persona[]; onPersonaToggle: (id: string) => void } }`
+- **UI**: Checkboxes with persona cards showing basic info
+- **Validation**: At least one persona must be selected
+
+**Styling Requirements**:
+
+- Use Tailwind CSS for consistent styling
+- Each node should have a distinctive color scheme
+- Hover and selected states
+- Loading states for async operations
+- Error states for validation failures
+
+**Deliverables**:
+
+- All 4 input node components with full functionality
+- Custom handles for connecting nodes
+- Proper TypeScript props and event handlers
+- Responsive design that works in React Flow
+
+---
+
+## Task 3: Implement Result Node Components
+
+**Objective**: Create result display nodes that appear after simulation completion.
+
+### IndividualResultNode
+
+- **Purpose**: Display results for a specific persona
+- **Props**: `{ data: { personaResult: PersonaResult; personaName: string } }`
+- **UI**:
+  - Persona name header
+  - Interest level progress bar (1-10 scale)
+  - Purchase intent indicator
+  - Price perception badge
+  - Expandable sections for concerns and motivations
+  - Decision timeline badge
+  - Summary text area
+
+### OverallResultNode
+
+- **Purpose**: Display aggregated simulation results
+- **Props**: `{ data: { summary: SimulationSummary } }`
+- **UI**:
+  - Overall metrics dashboard
+  - Best fit personas section
+  - Recommendation card with reasoning
+  - Key concerns list
+  - Overall summary text
+  - Action buttons (Save Results, Export, etc.)
+
+**Features Required**:
+
+- Collapsible sections for detailed information
+- Visual indicators (progress bars, badges, icons)
+- Copy-to-clipboard functionality for results
+- Print/export options
+- Color coding for different metric levels
+
+**Deliverables**:
+
+- IndividualResultNode with comprehensive result display
+- OverallResultNode with summary dashboard
+- Reusable UI components for metrics display
+- Proper data handling and formatting
+
+---
+
+## Task 4: React Flow Integration and State Management
+
+**Objective**: Integrate all nodes into a cohesive React Flow experience with proper state management.
+
+**SimulationFlow Component Requirements**:
+
+- Initialize with default nodes (ProductSelection → ModelSelection)
+- Handle node connections and validation
+- Manage global flow state
+- Handle node addition/removal dynamically
+- Implement auto-layout for new result nodes
+
+**State Management**:
+
+```typescript
+interface FlowState {
+  nodes: Node[];
+  edges: Edge[];
+  selectedProduct?: string;
+  selectedSimulationType?: string;
+  selectedModel?: string;
+  selectedPersonas: string[];
+  simulationResults?: SimulationResponse;
+  isLoading: boolean;
+  errors: Record<string, string>;
+}
+```
+
+**Flow Logic**:
+
+1. Start with ProductSelection and ModelSelection nodes connected
+2. User can add SimulationType and PersonaSelection nodes
+3. Validate all required inputs before allowing simulation run
+4. On "Run Simulation", call API and add result nodes
+5. Auto-connect individual result nodes to overall result node
+
+NOTE: for data fetching and mutating use react query
+
+**Hook Requirements** (`useSimulationFlow`):
+
+- Node CRUD operations
+- Edge management
+- API integration for simulation execution
+- Validation logic
+- Error handling and loading states
+
+**Deliverables**:
+
+- Complete SimulationFlow component with React Flow integration
+- useSimulationFlow hook with all state management
+- Node validation and connection logic
+- Auto-layout algorithm for result nodes
+
+---
+
+## Task 5: API Integration and Simulation Execution
+
+**Objective**: Implement the simulation API call and result handling with proper error management.
+
+**API Service Requirements**:
+
+```typescript
+class SimulationService {
+  static async runSimulation(
+    request: SimulationRequest
+  ): Promise<SimulationResponse>;
+  static async getProducts(): Promise<Product[]>;
+  static async getPersonas(): Promise<Persona[]>;
+  static async getModels(): Promise<string[]>;
+}
+```
+
+**Integration Points**:
+
+- Form validation before API call
+- Loading states during simulation
+- Error handling with user-friendly messages
+- Success handling with result node creation
+- Result caching for re-runs
+
+**Run Simulation Flow**:
+
+1. Validate all required inputs are selected
+2. Show loading state on relevant nodes
+3. Make API call with collected data
+4. On success:
+   - Create individual result nodes for each persona
+   - Create overall result node
+   - Auto-connect all result nodes
+   - Position nodes using auto-layout
+5. On error: Display error messages on relevant nodes
+
+**Error Handling**:
+
+- Network errors
+- Validation errors
+- API response errors
+- Timeout handling
+- Retry mechanisms
+
+**Deliverables**:
+
+- SimulationService with full API integration
+- Error handling with user feedback
+- Loading states throughout the flow
+- Result processing and node creation
+- Retry and recovery mechanisms
+
+---
+
+## Task 6: UI/UX Polish and Advanced Features
+
+**Objective**: Add professional polish, advanced features, and ensure excellent user experience.
+
+**Advanced Features**:
+
+- **Multi-simulation support**: Allow multiple simulation branches
+- **Node templates**: Save and reuse common node configurations
+- **Export functionality**: Export flow as image or data
+- **History/Undo**: Implement flow change history
+- **Auto-save**: Persist flow state locally
+- **Simulation comparison**: Compare multiple simulation results
+
+**UI/UX Enhancements**:
+
+- Smooth animations for node creation/deletion
+- Drag and drop for node reordering
+- Context menus for node operations
+- Keyboard shortcuts
+- Responsive design for different screen sizes
+- Dark/light theme support
+
+**Performance Optimizations**:
+
+- Lazy loading for result nodes
+- Virtualization for large persona lists
+- Memoization of expensive computations
+- Efficient re-rendering strategies
+
+**Accessibility**:
+
+- ARIA labels for all interactive elements
+- Keyboard navigation support
+- Screen reader compatibility
+- High contrast mode support
+
+**Deliverables**:
+
+- Polished UI with smooth interactions
+- Advanced features implementation
+- Performance optimizations
+- Accessibility compliance
+- Comprehensive error boundaries
+
+---
+
+## Development Guidelines
+
+**Code Quality**:
+
+- Use TypeScript strict mode
+- Follow React best practices
+- Implement proper error boundaries
+- Add comprehensive PropTypes/interfaces
+- Use meaningful variable and function names
+
+**Performance Considerations**:
+
+- Optimize React Flow rendering
+- Implement proper memoization
+- Use React.lazy for code splitting
+- Optimize bundle size
+
+**Security**:
+
+- Validate all user inputs
+- Sanitize API responses
+- Implement proper error handling without exposing sensitive data
+
+---
+
+## Final Integration Checklist
+
+- [ ] All nodes render correctly in React Flow
+- [ ] Node connections work properly
+- [ ] API integration is complete and handles all scenarios
+- [ ] Loading and error states are implemented
+- [ ] Results display correctly with proper formatting
+- [ ] Multiple simulations can be created and managed
+- [ ] UI is responsive and accessible
+- [ ] Performance is optimized
+- [ ] Code is fully type-safe
+- [ ] Error handling covers all edge cases
