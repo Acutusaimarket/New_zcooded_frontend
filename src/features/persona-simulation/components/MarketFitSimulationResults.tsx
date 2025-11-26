@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Download, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -408,18 +409,17 @@ export const MarketFitSimulationResults = ({
   const { simulation_analysis, recommendation, s3_keys } = data;
   const { metadata, kpi_summary } = simulation_analysis;
 
-  const exportResults = () => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `market-fit-simulation-${metadata.generated_at}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const handleDownloadReport = async () => {
+    try {
+      const { generateMarketFitPDF } = await import(
+        "../utils/generateMarketFitPDF"
+      );
+      generateMarketFitPDF(data);
+      toast.success("PDF report downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF report");
+    }
   };
 
   return (
@@ -440,9 +440,9 @@ export const MarketFitSimulationResults = ({
             <RefreshCw className="mr-2 h-4 w-4" />
             Restart
           </Button>
-          <Button size="sm" onClick={exportResults}>
+          <Button size="sm" onClick={handleDownloadReport}>
             <Download className="mr-2 h-4 w-4" />
-            Export JSON
+            Download Report
           </Button>
         </div>
       </div>
