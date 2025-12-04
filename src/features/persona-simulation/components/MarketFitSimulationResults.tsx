@@ -17,6 +17,7 @@ import type {
   MarketFitSegmentRecommendation,
   MarketFitSimulationPayload,
   MarketFitValuePropRewrite,
+  MarketFitAnsweredQuestion,
 } from "../types";
 
 interface MarketFitSimulationResultsProps {
@@ -407,7 +408,71 @@ export const MarketFitSimulationResults = ({
   onRestart,
 }: MarketFitSimulationResultsProps) => {
   const { simulation_analysis, recommendation, s3_keys } = data;
+  
+  // Add null/undefined checks to prevent destructuring errors
+  if (!simulation_analysis) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-destructive">
+          <CardContent className="p-4">
+            <div className="text-destructive">
+              <strong>Error:</strong> Simulation analysis data is missing. Please try running the simulation again.
+            </div>
+          </CardContent>
+        </Card>
+        <div className="flex justify-end">
+          <Button variant="outline" size="sm" onClick={onRestart}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Restart
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
   const { metadata, kpi_summary } = simulation_analysis;
+  
+  // Additional safety checks
+  if (!metadata || !kpi_summary) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-destructive">
+          <CardContent className="p-4">
+            <div className="text-destructive">
+              <strong>Error:</strong> Simulation metadata or KPI summary is missing. Please try running the simulation again.
+            </div>
+          </CardContent>
+        </Card>
+        <div className="flex justify-end">
+          <Button variant="outline" size="sm" onClick={onRestart}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Restart
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Check for recommendation to prevent errors when rendering recommendations tab
+  if (!recommendation) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-destructive">
+          <CardContent className="p-4">
+            <div className="text-destructive">
+              <strong>Error:</strong> Recommendation data is missing. Please try running the simulation again.
+            </div>
+          </CardContent>
+        </Card>
+        <div className="flex justify-end">
+          <Button variant="outline" size="sm" onClick={onRestart}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Restart
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const handleDownloadReport = async () => {
     try {
@@ -455,9 +520,17 @@ export const MarketFitSimulationResults = ({
 
         <TabsContent value="kpi-summary" className="space-y-4">
           <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
-            {kpi_summary.map((kpi) => (
-              <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
-            ))}
+            {kpi_summary
+              .filter(
+                (kpi) =>
+                  !(
+                    kpi.kpi_metric.toLowerCase() === "roas" ||
+                    kpi.metric_type.toLowerCase() === "calculated"
+                  )
+              )
+              .map((kpi) => (
+                <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
+              ))}
           </div>
           <AttachmentList attachments={s3_keys} />
         </TabsContent>
@@ -590,6 +663,36 @@ export const MarketFitSimulationResults = ({
               ))}
             </div>
           </section>
+
+          {recommendation.answered_questions &&
+            recommendation.answered_questions.length > 0 && (
+              <section className="space-y-3">
+                <div>
+                  <p className="text-sm font-semibold">
+                    Questions &amp; Answers from Simulation
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    Natural language answers generated from the simulation run.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  {recommendation.answered_questions.map(
+                    (qa: MarketFitAnsweredQuestion, index: number) => (
+                      <Card key={`${qa.question}-${index}`}>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm font-semibold">
+                            {qa.question}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-sm leading-relaxed text-muted-foreground">
+                          <EmphasizedText text={qa.answer} />
+                        </CardContent>
+                      </Card>
+                    )
+                  )}
+                </div>
+              </section>
+            )}
         </TabsContent>
       </Tabs>
     </div>

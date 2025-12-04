@@ -8,7 +8,7 @@ import {
   ImageIcon,
   User,
 } from "lucide-react";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,21 @@ export const SimulationCard: React.FC<SimulationCardProps> = ({
 }) => {
   const primaryPersona = simulation.participated_personas[0];
   const totalFileSize = getTotalFileSize(simulation.media_files);
+  const navigate = useNavigate();
+
+  const handleViewSimulation = () => {
+    console.log("View Simulation button clicked!");
+    console.log("Simulation ID:", simulation._id);
+    console.log(
+      "Navigating to:",
+      `/dashboard/media-simulation/history/result/${simulation._id}`
+    );
+
+    // Navigate to the Media Simulation Result page with the simulation ID
+    navigate(`/dashboard/media-simulation/history/result/${simulation._id}`);
+
+    console.log("Navigation called");
+  };
 
   return (
     <Card
@@ -189,10 +204,12 @@ export const SimulationCard: React.FC<SimulationCardProps> = ({
       </CardContent>
 
       <CardFooter>
-        <Button asChild className="w-full" variant="default">
-          <Link to={`/dashboard/media-simulation/${simulation._id}`}>
-            View Details
-          </Link>
+        <Button
+          className="w-full"
+          variant="default"
+          onClick={handleViewSimulation}
+        >
+          View Simulation
         </Button>
       </CardFooter>
     </Card>

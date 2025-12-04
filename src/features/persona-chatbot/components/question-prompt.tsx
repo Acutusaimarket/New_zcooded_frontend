@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckIcon } from "lucide-react";
+import { ArrowUpIcon, CheckIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { LoadingSwap } from "@/components/shared/loading-swap";
@@ -214,23 +214,44 @@ export const QuestionPrompt = ({
             Question {questionNumber} of {totalQuestions} •{" "}
             {Math.round((questionNumber / totalQuestions) * 100)}% Complete
           </span>
-          &nbsp;&nbsp;
-          <Button
-            type="submit"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setTextAnswer("Skipped");
-            }}
-            disabled={answerMutation.isPending}
-            className="text-muted-foreground hover:text-foreground h-auto cursor-pointer px-2 py-1 text-xs"
-          >
-            <LoadingSwap
-              isLoading={answerMutation.isPending && textAnswer === "Skipped"}
+          <div className="flex items-center gap-2">
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setTextAnswer("Skipped");
+              }}
+              disabled={answerMutation.isPending}
+              className="text-muted-foreground hover:text-foreground h-auto cursor-pointer px-2 py-1 text-xs"
             >
-              Skip the question
-            </LoadingSwap>
-          </Button>
+              <LoadingSwap
+                isLoading={answerMutation.isPending && textAnswer === "Skipped"}
+              >
+                Skip the question
+              </LoadingSwap>
+            </Button>
+            <Button
+              type="submit"
+              variant="default"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+              disabled={
+                answerMutation.isPending ||
+                (!textAnswer.trim() && selectedOptions.length === 0)
+              }
+              className="h-auto cursor-pointer gap-1 px-3 py-1 text-xs"
+            >
+              <LoadingSwap
+                isLoading={answerMutation.isPending && textAnswer !== "Skipped"}
+              >
+                <ArrowUpIcon className="size-4" />
+              </LoadingSwap>
+            </Button>
+          </div>
         </div>
       </ChatInput>
     </div>

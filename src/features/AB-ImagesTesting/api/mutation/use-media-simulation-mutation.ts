@@ -38,6 +38,13 @@ export const useMediaSimulationMutation = (
         });
       }
 
+      // Add environment_names if any
+      if (data.environment_names && data.environment_names.length > 0) {
+        data.environment_names.forEach((env) => {
+          formData.append("environment_names", env);
+        });
+      }
+
       // Add simulation type
       formData.append("simulation_type", data.simulation_type);
 
@@ -65,11 +72,6 @@ export const useMediaSimulationMutation = (
           // Ensure filename is preserved for backend recognition
           formData.append("media_files", file, file.name);
         });
-      }
-
-      // Add context_layer if provided
-      if (data.context_layer) {
-        formData.append("context_layer", data.context_layer);
       }
 
         const response = await axiosPrivateInstance.post<

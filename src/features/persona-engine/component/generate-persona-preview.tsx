@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,14 +18,21 @@ import type { PersonaData } from "@/types/persona.type";
 import { useSavePersonaMutation } from "../api/mutation/use-save-persona";
 
 interface GeneratePersonaPreviewProps {
-  generateResult: PersonaData[];
+  generateResult: PersonaData[] | null | undefined;
 }
 
 export const GeneratePersonaPreview = ({
   generateResult,
 }: GeneratePersonaPreviewProps) => {
-  const [generatePersonaResult, setGeneratePersonaResult] =
-    useState<PersonaData[]>(generateResult);
+  const [generatePersonaResult, setGeneratePersonaResult] = useState<
+    PersonaData[]
+  >(() => {
+    // Ensure we always initialize with an array
+    if (Array.isArray(generateResult)) {
+      return generateResult;
+    }
+    return [];
+  });
   const [editPersona, setEditPersona] = useState<
     | {
         personaData: PersonaFormData;
@@ -36,6 +43,17 @@ export const GeneratePersonaPreview = ({
   const updatePersonaMutation = useUpdatePersonaMutation();
   const deletePersonaMutation = useDeletePersonaMutation();
   const savePersonaMutation = useSavePersonaMutation();
+
+  // Sync prop with state when it changes
+  useEffect(() => {
+    // Always ensure we have an array
+    if (Array.isArray(generateResult)) {
+      setGeneratePersonaResult(generateResult);
+    } else {
+      // Handle null, undefined, or any non-array value
+      setGeneratePersonaResult([]);
+    }
+  }, [generateResult]);
 
   const handleUpdateStatusPersona = useCallback(
     (personaId: string, updatedData: Partial<PersonaData>) => {
@@ -48,12 +66,14 @@ export const GeneratePersonaPreview = ({
         },
         {
           onSuccess: (updatedData) => {
-            const newPersonas = generatePersonaResult.map((p) => {
-              if (p._id === updatedData._id) {
-                return updatedData;
-              }
-              return p;
-            });
+            const newPersonas = Array.isArray(generatePersonaResult)
+              ? generatePersonaResult.map((p) => {
+                  if (p._id === updatedData._id) {
+                    return updatedData;
+                  }
+                  return p;
+                })
+              : [];
             setGeneratePersonaResult(newPersonas);
           },
         }
@@ -69,7 +89,7 @@ export const GeneratePersonaPreview = ({
         {
           onSuccess: () => {
             setGeneratePersonaResult((prev) => {
-              if (!prev) return prev;
+              if (!Array.isArray(prev)) return [];
               return prev.filter((persona) => persona._id !== personaId);
             });
           },
@@ -126,16 +146,20 @@ export const GeneratePersonaPreview = ({
   }, []);
 
   const handleSaveAllPersonas = useCallback(() => {
-    if (generatePersonaResult.length === 0) return;
+    if (
+      !Array.isArray(generatePersonaResult) ||
+      generatePersonaResult.length === 0
+    )
+      return;
     savePersonaMutation.mutate(
       {
-        personaIds: generatePersonaResult?.map((p) => p._id),
+        personaIds: generatePersonaResult.map((p) => p._id),
         status: "published",
       },
       {
         onSuccess(data) {
           setGeneratePersonaResult((prev) => {
-            if (!prev) return prev;
+            if (!Array.isArray(prev)) return [];
             return prev.map((persona) => {
               const updatedPersona = data?.updated_personas?.find(
                 (updated) => updated._id === persona._id
@@ -172,19 +196,20 @@ export const GeneratePersonaPreview = ({
           </Button>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
-          {generatePersonaResult?.map((person) => (
-            <PersonaCard
-              onEdit={handleEdit}
-              onDelete={() => handleDeletePersona(person._id)}
-              onStatusChange={() =>
-                handleUpdateStatusPersona(person._id, {
-                  status: person.status === "draft" ? "published" : "draft",
-                })
-              }
-              key={person._id}
-              persona={person}
-            />
-          ))}
+          {Array.isArray(generatePersonaResult) &&
+            generatePersonaResult.map((person) => (
+              <PersonaCard
+                onEdit={handleEdit}
+                onDelete={() => handleDeletePersona(person._id)}
+                onStatusChange={() =>
+                  handleUpdateStatusPersona(person._id, {
+                    status: person.status === "draft" ? "published" : "draft",
+                  })
+                }
+                key={person._id}
+                persona={person}
+              />
+            ))}
         </CardContent>
       </Card>
       <PersonaCreateAndUpdate
@@ -196,12 +221,14 @@ export const GeneratePersonaPreview = ({
         onSuccess={(persona) => {
           // console.log({ persona });
           // console.log({ generatePersonaResult });
-          const newPersonas = generatePersonaResult.map((p) => {
-            if (p._id === persona._id) {
-              return persona;
-            }
-            return p;
-          });
+          const newPersonas = Array.isArray(generatePersonaResult)
+            ? generatePersonaResult.map((p) => {
+                if (p._id === persona._id) {
+                  return persona;
+                }
+                return p;
+              })
+            : [];
           setGeneratePersonaResult(newPersonas);
         }}
       />

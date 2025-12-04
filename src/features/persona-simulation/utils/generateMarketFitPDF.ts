@@ -102,7 +102,16 @@ export const generateMarketFitPDF = (
   doc.text("KPI Summary", margin, yPosition);
   yPosition += 10;
 
-  data.simulation_analysis.kpi_summary.forEach((kpi) => {
+  // Filter out ROAS and calculated metrics
+  const filteredKpiSummary = data.simulation_analysis.kpi_summary.filter(
+    (kpi) =>
+      !(
+        kpi.kpi_metric.toLowerCase() === "roas" ||
+        kpi.metric_type.toLowerCase() === "calculated"
+      )
+  );
+
+  filteredKpiSummary.forEach((kpi) => {
     checkPageBreak(30);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");

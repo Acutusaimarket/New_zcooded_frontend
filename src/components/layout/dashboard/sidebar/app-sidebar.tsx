@@ -31,17 +31,17 @@ const data = {
       icon: PlayCircle,
       submenu: [
         {
-          title: "Market Fit simulator",
+          title: "Concept Test",
           url: "/dashboard/simulation",
           icon: PlayCircle,
         },
+        // {
+        //   title: "Price Simulator",
+        //   url: "/dashboard/ab-testing",
+        //   icon: PlayCircle,
+        // },
         {
-          title: "Price Simulator",
-          url: "/dashboard/ab-testing",
-          icon: PlayCircle,
-        },
-        {
-          title: "Media & campaign Simulator",
+          title: "Adcampaign & Media Simulator",
           url: "/dashboard/media-simulation",
           icon: PlayCircle,
         },

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { useRunSimulation } from "../api/mutation/use-run-simulation";
-import type { SimulationFormData } from "../types";
+import type { MarketFitSimulationPayload, SimulationFormData } from "../types";
 import { MarketFitSimulationResults } from "./MarketFitSimulationResults";
 
 interface SimulationResultsProps {
@@ -35,8 +35,8 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
       simulation_type: formData.simulationType,
       model: formData.model,
       questions: formData?.questions || [],
+      environment_names: formData.environments || [],
       no_of_simulations: formData.noOfSimulations,
-      context_layer: formData.contextLayer || "[]",
     });
   };
 
@@ -173,9 +173,12 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
 
   if (!runSimulationMutation.data) return null;
 
+  // Note: This is a type mismatch - runSimulationMutation returns SimulationJob,
+  // but MarketFitSimulationResults expects MarketFitSimulationPayload.
+  // This should be refactored to fetch results separately when the job completes.
   return (
     <MarketFitSimulationResults
-      data={runSimulationMutation.data.data}
+      data={runSimulationMutation.data.data as unknown as MarketFitSimulationPayload}
       onRestart={onRestart}
     />
   );

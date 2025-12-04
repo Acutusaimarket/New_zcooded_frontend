@@ -362,10 +362,10 @@ export interface MediaSimulationFormData {
   persona_ids: string[];
   // product_id: string;
   questions: string[];
+  environment_names: string[];
   simulation_type: "overview" | "detailed";
   model: string;
   media_files: File[];
-  context_layer?: string; // JSON string of ContextLayerItem[]
 }
 
 // Available options for form dropdowns
@@ -487,7 +487,7 @@ export interface AlternativeStrategy {
   recommendation?: string;
   targeting_refinements?: {
     negative_audience_exclusions?: string[];
-    positive_targeting?: Record<string, any>;
+    positive_targeting?: Record<string, unknown>;
   };
   justification?: string;
 }

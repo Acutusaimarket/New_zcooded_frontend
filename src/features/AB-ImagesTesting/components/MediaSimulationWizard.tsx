@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 
 import { ArrowLeft, ArrowRight, CheckCircle, Circle, Play } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ interface MediaSimulationWizardFormData {
   selectedPersonaIds: string[];
   // selectedProductId: string;
   questions: string[];
-  contextLayer: string; // JSON string
+  environments: string[];
 }
 
 export const MediaSimulationWizard: React.FC = () => {
@@ -69,13 +70,17 @@ export const MediaSimulationWizard: React.FC = () => {
     selectedPersonaIds: [],
     // selectedProductId: "",
     questions: [],
-    contextLayer: "[]",
+    environments: [],
   });
+
+  const navigate = useNavigate();
 
   const mediaSimulationMutation = useMediaSimulationMutation({
     onSuccess: () => {
-      setCurrentStep(3);
-      toast.success("Media simulation completed successfully!");
+      toast.success(
+        "Media simulation job created. Redirecting to history..."
+      );
+      navigate("/dashboard/media-simulation/history");
     },
     onError: (error) => {
       console.error("Media simulation failed:", error);
@@ -83,7 +88,11 @@ export const MediaSimulationWizard: React.FC = () => {
       // Provide more specific error messages based on the error
       let errorMessage = "Media simulation failed. Please try again.";
 
-      if (error.message.includes("image file")) {
+      // Check for 422 errors (Unprocessable Entity) - typically validation errors
+      if (error.message.includes("422") || error.message.includes("External simulation service error")) {
+        errorMessage =
+          "The simulation service could not process your request. Please check that all required fields are filled correctly, your files are in supported formats, and try again.";
+      } else if (error.message.includes("image file")) {
         errorMessage =
           "There was an issue processing your image files. Please ensure they are in supported formats (JPEG, PNG, GIF, WebP) and try again.";
       } else if (error.message.includes("File too large")) {
@@ -92,7 +101,7 @@ export const MediaSimulationWizard: React.FC = () => {
       } else if (error.message.includes("Unsupported file format")) {
         errorMessage =
           "One or more files are in an unsupported format. Please use supported image or video formats.";
-      } else if (error.message.includes("Invalid request")) {
+      } else if (error.message.includes("Invalid request") || error.message.includes("Validation failed")) {
         errorMessage =
           "Invalid request. Please check your file formats and try again.";
       }
@@ -145,10 +154,10 @@ export const MediaSimulationWizard: React.FC = () => {
       persona_ids: formData.selectedPersonaIds,
       // product_id: formData.selectedProductId,
       questions: formData.questions,
+      environment_names: formData.environments,
       simulation_type: "detailed" as const,
       model: "gemini-2.0-flash",
       media_files: formData.mediaFiles.map((f) => f.file),
-      context_layer: formData.contextLayer || "[]",
     };
 
     mediaSimulationMutation.mutate(simulationData);
@@ -194,10 +203,8 @@ export const MediaSimulationWizard: React.FC = () => {
           <MediaConfigurationStep
             questions={formData.questions}
             onQuestionsChange={(questions) => updateFormData({ questions })}
-            contextLayer={formData.contextLayer}
-            onContextLayerChange={(contextLayer) =>
-              updateFormData({ contextLayer })
-            }
+            environments={formData.environments}
+            onEnvironmentsChange={(environments) => updateFormData({ environments })}
           />
         );
       case 3:

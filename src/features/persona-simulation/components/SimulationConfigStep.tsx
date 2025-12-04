@@ -1,84 +1,87 @@
 import React, { useState } from "react";
 
-import {
-  Check,
-  HelpCircle,
-  MessageSquare,
-  Plus,
-  Settings,
-  Trash2,
-  X,
-  Zap,
-} from "lucide-react";
-
-import { ContextLayerInput } from "@/components/shared/context-layer-input";
+import { Globe, HelpCircle, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// import {  SelectContent, SelectItem, } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { TooltipWrapper } from "@/components/ui/tooltip";
 
 interface SimulationConfigStepProps {
-  simulationType: "overview" | "detailed";
-  onConfigChange: (config: {
-    simulationType?: "overview" | "detailed";
-  }) => void;
   questions: string[];
   onQuestionsChange: (questions: string[]) => void;
-  noOfSimulations: number;
-  onNoOfSimulationsChange: (noOfSimulations: number) => void;
-  contextLayer: string;
-  onContextLayerChange: (contextLayer: string) => void;
+  environments: string[];
+  onEnvironmentsChange: (environments: string[]) => void;
+  onRunSimulation: () => void;
+  isRunning?: boolean;
 }
 
-const simulationTypes = [
+interface EnvironmentOption {
+  id: string;
+  label: string;
+  description: string;
+}
+
+const environmentOptions: EnvironmentOption[] = [
   {
-    id: "overview",
-    title: "Overview Simulation",
-    description: "Quick analysis with high-level insights and recommendations",
-    features: [
-      "Basic interest level assessment",
-      "Purchase intent scoring",
-      "Price perception analysis",
-      "Key concerns identification",
-      "Overall recommendation",
-    ],
-    estimatedTime: "2-3 minutes",
-    icon: <Zap className="h-5 w-5" />,
+    id: "Social Feed Scroll",
+    label: "Social Feed Scroll",
+    description:
+      "Simulates user behavior while scrolling through social media feeds, capturing impulsive purchase decisions and social influence patterns.",
   },
   {
-    id: "detailed",
-    title: "Detailed Simulation",
-    description: "Comprehensive analysis with in-depth behavioral insights",
-    features: [
-      "Detailed behavioral analysis",
-      "Decision timeline prediction",
-      "Motivation drivers analysis",
-      "Recommendation likelihood scoring",
-      "Comprehensive summary reports",
-      "Individual persona breakdowns",
-    ],
-    estimatedTime: "5-8 minutes",
-    icon: <Zap className="h-5 w-5" />,
+    id: "Device & Tech Context",
+    label: "Device & Tech Context",
+    description:
+      "Considers the device type, screen size, and technical capabilities that influence how users interact with and perceive the product.",
   },
-];
+  {
+    id: "Marketplace Browse",
+    label: "Marketplace Browse",
+    description:
+      "Represents browsing behavior in e-commerce marketplaces where users compare multiple options and make informed purchase decisions.",
+  },
+  {
+    id: "Influencer Click",
+    label: "Influencer Click",
+    description:
+      "Models user behavior when discovering products through influencer recommendations and sponsored content, focusing on trust and social proof.",
+  },
+  {
+    id: "Urgent Need / Emergency",
+    label: "Urgent Need / Emergency",
+    description:
+      "Captures decision-making patterns when users have immediate, time-sensitive needs, prioritizing speed and availability over price considerations.",
+  },
+  {
+    id: "Budget Crunch",
+    label: "Budget Crunch",
+    description:
+      "Simulates constrained financial situations where users prioritize value, discounts, and cost-effectiveness in their purchase decisions.",
+  },
+  {
+    id: "Festival / Big Sale Event",
+    label: "Festival / Big Sale Event",
+    description:
+      "Represents shopping behavior during major sales events and festivals, where users are more price-sensitive and deal-driven.",
+  },
+]
+
 export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
-  simulationType,
-  onConfigChange,
   questions,
   onQuestionsChange,
-  noOfSimulations,
-  onNoOfSimulationsChange,
-  contextLayer,
-  onContextLayerChange,
+  environments,
+  onEnvironmentsChange,
+  onRunSimulation,
+  isRunning,
 }) => {
   const [newQuestion, setNewQuestion] = useState("");
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
@@ -103,131 +106,18 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
     onQuestionsChange(updatedQuestions);
   };
 
-  const handleNoOfSimulationsChange = (noOfSimulations: number) => {
-    onNoOfSimulationsChange(noOfSimulations);
+  const handleEnvironmentToggle = (environmentId: string) => {
+    if (environments.includes(environmentId)) {
+      onEnvironmentsChange(
+        environments.filter((id) => id !== environmentId)
+      );
+    } else {
+      onEnvironmentsChange([...environments, environmentId]);
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Simulation Type Selection */}
-      <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <Settings className="text-primary h-5 w-5" />
-          <h3 className="text-lg font-semibold">Simulation Type</h3>
-        </div>
-
-        <div className="space-y-4">
-          {simulationTypes.map((type) => (
-            <Card
-              key={type.id}
-              className={`cursor-pointer transition-all hover:shadow-md ${
-                simulationType === type.id
-                  ? "ring-primary bg-primary/5 ring-2"
-                  : "hover:bg-muted/50"
-              }`}
-              onClick={() =>
-                onConfigChange({
-                  simulationType: type.id as "overview" | "detailed",
-                })
-              }
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-4">
-                  <div className="mt-1">
-                    <div
-                      className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                        simulationType === type.id
-                          ? "border-primary bg-primary"
-                          : "border-muted-foreground"
-                      }`}
-                    >
-                      {simulationType === type.id && (
-                        <Check className="text-primary-foreground h-2.5 w-2.5" />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center space-x-2 text-lg font-semibold">
-                          {type.icon}
-                          <span>{type.title}</span>
-                        </div>
-                        <p className="text-muted-foreground mt-1 text-sm">
-                          {type.description}
-                        </p>
-                      </div>
-
-                      <Badge variant="outline" className="ml-2">
-                        {type.estimatedTime}
-                      </Badge>
-                    </div>
-
-                    <div>
-                      <p className="text-muted-foreground mb-2 text-sm font-medium">
-                        Features:
-                      </p>
-                      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                        {type.features.map((feature, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center space-x-2 text-sm"
-                          >
-                            <div className="bg-primary h-1.5 w-1.5 rounded-full"></div>
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* No of Simulations */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Settings className="text-primary h-5 w-5" />
-            <h3 className="text-lg font-semibold">No of Simulations</h3>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Input
-            type="number"
-            value={noOfSimulations}
-            onChange={(e) =>
-              handleNoOfSimulationsChange(Number(e.target.value))
-            }
-            min={1}
-            max={10}
-            step={1}
-          />
-          <p className="text-muted-foreground text-sm">
-            Specify how many simulations you want to run.
-          </p>
-        </div>
-      </div>
-
-      <Separator />
-
-      <CardTitle className="flex items-center gap-2">
-        <Zap className="h-5 w-5" />
-        Context Layer (Optional)
-      </CardTitle>
-      <CardDescription>
-        Configure context variables that influence persona behavior and
-        decision-making
-      </CardDescription>
-      <ContextLayerInput value={contextLayer} onChange={onContextLayerChange} />
-      <Separator />
-
       {/* Questions Management */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -388,6 +278,90 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
             </CardContent>
           </Card>
         )}
+      </div>
+
+      <Separator />
+
+      {/* Environments Section */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <Globe className="text-primary h-5 w-5" />
+          <h3 className="text-lg font-semibold">Environments</h3>
+          <Badge variant="secondary" className="ml-2">
+            {environments.length} selected
+          </Badge>
+        </div>
+        <p className="text-muted-foreground text-sm">
+          Select one or more environments to simulate different user contexts
+          and behaviors. Hover over options to see descriptions.
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {environmentOptions.map((option) => {
+            const isSelected = environments.includes(option.id);
+            return (
+              <TooltipWrapper
+                key={option.id}
+                asChild
+                content={
+                  <div className="max-w-xs">
+                    <p className="font-semibold">{option.label}</p>
+                    <p className="text-xs">{option.description}</p>
+                  </div>
+                }
+                contentProps={{
+                  className: "bg-popover text-popover-foreground max-w-xs",
+                }}
+              >
+                <span className="block">
+                  <Card
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      isSelected
+                        ? "ring-primary bg-primary/5 ring-2"
+                        : "hover:bg-muted/50"
+                    }`}
+                    onClick={() => handleEnvironmentToggle(option.id)}
+                  >
+                    <CardContent className="flex items-center space-x-3 p-4">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() =>
+                          handleEnvironmentToggle(option.id)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <Label
+                        htmlFor={option.id}
+                        className="cursor-pointer flex-1 font-medium text-sm"
+                      >
+                        {option.label}
+                      </Label>
+                    </CardContent>
+                  </Card>
+                </span>
+              </TooltipWrapper>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Run Simulation CTA */}
+      <div className="flex items-center justify-end border-t pt-4">
+        <Button
+          size="lg"
+          onClick={onRunSimulation}
+          disabled={isRunning}
+          className="flex items-center gap-2"
+        >
+          {isRunning ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Running Simulation...</span>
+            </>
+          ) : (
+            <span>Run Simulation</span>
+          )}
+        </Button>
       </div>
     </div>
   );

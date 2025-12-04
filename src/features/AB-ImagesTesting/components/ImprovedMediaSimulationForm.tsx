@@ -328,6 +328,7 @@ export const ImprovedMediaSimulationForm: React.FC<
     onSubmit({
       ...data,
       questions,
+      environment_names: [],
       media_files: mediaFiles.map((f) => f.file),
     });
   };

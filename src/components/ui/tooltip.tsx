@@ -69,6 +69,7 @@ interface TooltipWrapperProps {
   tooltipProps?: Omit<React.ComponentProps<typeof Tooltip>, "children">;
   triggerProps?: Omit<React.ComponentProps<typeof TooltipTrigger>, "children">;
   contentProps?: Omit<React.ComponentProps<typeof TooltipContent>, "children">;
+  asChild?: boolean;
 }
 
 const TooltipWrapper = ({
@@ -78,11 +79,14 @@ const TooltipWrapper = ({
   tooltipProps,
   triggerProps,
   contentProps,
+  asChild = false,
 }: TooltipWrapperProps) => {
   return (
     <TooltipProvider {...providerProps}>
       <Tooltip {...tooltipProps}>
-        <TooltipTrigger {...triggerProps}>{children}</TooltipTrigger>
+        <TooltipTrigger asChild={asChild} {...triggerProps}>
+          {children}
+        </TooltipTrigger>
         <TooltipContent side="bottom" {...contentProps}>
           {content}
         </TooltipContent>

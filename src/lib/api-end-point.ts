@@ -1,5 +1,5 @@
 export const personasApiEndPoint = {
-  GeneratePersonas: "/ai/personas/generate-personas",
+  GeneratePersonas: "ai/personas/generate-personas-with-clustering",
   CreatePersonas: "/ai/personas/create",
   /**
    * eg. /ai/personas/{persona_id}
@@ -54,10 +54,11 @@ export const productApiEndPoint = {
 } as const;
 
 export const simulationApiEndPoint = {
-  runSimulation: "/simulation/run/test",
+  runSimulation: "/simulation/run/new",
   getSimulationHistory: "/simulation/history",
-  getSimulationById: "/simulation/history",
+  getSimulationById: "/simulation-new/simulation/job",
   getAvailableModels: "/simulation/models",
+  getJobStatus: "/simulation/job",
 } as const;
 
 export const abTestingApiEndPoint = {
@@ -67,9 +68,15 @@ export const abTestingApiEndPoint = {
 } as const;
 
 export const mediaSimulationApiEndPoint = {
-  runMediaSimulation: "/media/run/test",
+  runMediaSimulation: "/media/run/new",
   getMediaSimulationById: "/media",
   getMediaHistory: "/media/history",
+  getJobStatus: "/media/job",
+} as const;
+
+export const jobsApiEndPoint = {
+  list: "/simulation-new/jobs/list",
+  getById: "/simulation-new/simulation/job",
 } as const;
 
 export const chatbotApiEndPoint = {

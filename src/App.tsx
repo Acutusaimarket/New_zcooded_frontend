@@ -19,8 +19,10 @@ import ABTestingOverviewPage from "./pages/ab-testing-overview.page";
 import BlogsPage from "./pages/blogs.page";
 import HomePage from "./pages/home";
 import LoginPage from "./pages/login.page";
+import MarketFitSimulationResultPage from "./pages/marketfit-simulation-result.page";
 import MediaSimulationPage from "./pages/media-simulation.page";
 import MediaSimulationDetailsPage from "./pages/media-simulation/media-simulation-detailed.page";
+import MediaSimulationResultPage from "./pages/media-simulation/media-simulation-result.page";
 import PersonaChatPage from "./pages/persona-chat-page";
 import PersonaChatSessionCreatePage from "./pages/persona-chat-session-create";
 import PersonaGeneratorPage from "./pages/persona-engine.page";
@@ -149,6 +151,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="history/result/:jobId"
+            element={
+              <ProtectedRoute>
+                <MarketFitSimulationResultPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         <Route
@@ -221,6 +231,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <MediaSimulationDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/media-simulation/history/result/:id"
+          element={
+            <ProtectedRoute>
+              <MediaSimulationResultPage />
             </ProtectedRoute>
           }
         />

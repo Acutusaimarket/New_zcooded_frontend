@@ -4,8 +4,8 @@ export interface SimulationRequest {
   simulation_type: "overview" | "detailed";
   model: "gpt-4o" | "gpt-5";
   questions: string[];
+  environment_names: string[];
   no_of_simulations: number;
-  context_layer: string;
 }
 
 export interface PersonaResult {
@@ -70,7 +70,7 @@ export interface SimulationFormData {
   model: "gpt-4o" | "gpt-5";
   questions: string[];
   noOfSimulations: number;
-  contextLayer: string;
+  environments: string[];
 }
 
 export interface AvailableModel {
@@ -122,6 +122,8 @@ export interface MarketFitRecommendation {
   critical_issues: MarketFitCriticalIssue[];
   product_modification: MarketFitProductModification[];
   value_proposition_rewrite: MarketFitValuePropRewrite[];
+  // Optional answered questions section from simulation run
+  answered_questions?: MarketFitAnsweredQuestion[];
 }
 
 export interface MarketFitSegmentAnalysis {
@@ -171,6 +173,11 @@ export interface MarketFitValuePropRewrite {
     primary_hook: string;
     key_messages_to_add: string[];
   }>;
+}
+
+export interface MarketFitAnsweredQuestion {
+  question: string;
+  answer: string;
 }
 
 export interface MarketFitAttachment {

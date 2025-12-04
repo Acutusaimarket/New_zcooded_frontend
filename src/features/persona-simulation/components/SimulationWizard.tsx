@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+import { useRunSimulation } from "../api/mutation/use-run-simulation";
 import type { SimulationFormData, SimulationStep } from "../types";
 import { PersonaSelectionStep } from "./PersonaSelectionStep";
 import { ProductSelectionStep } from "./ProductSelectionStep";
 import { SimulationConfigStep } from "./SimulationConfigStep";
-import { SimulationResults } from "./SimulationResults";
 
 const steps: SimulationStep[] = [
   {
@@ -31,14 +31,7 @@ const steps: SimulationStep[] = [
   {
     id: "config",
     title: "Configuration",
-    description: "Set simulation type and model",
-    completed: false,
-    current: false,
-  },
-  {
-    id: "results",
-    title: "Results",
-    description: "View simulation results",
+    description: "Fine-tune your simulation questions",
     completed: false,
     current: false,
   },
@@ -46,6 +39,7 @@ const steps: SimulationStep[] = [
 
 export const SimulationWizard: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const runSimulationMutation = useRunSimulation();
   const [formData, setFormData] = useState<SimulationFormData>({
     selectedPersonas: [],
     selectedProduct: "",
@@ -53,7 +47,7 @@ export const SimulationWizard: React.FC = () => {
     model: "gpt-5",
     questions: [],
     noOfSimulations: 1000,
-    contextLayer: "[]",
+    environments: [],
   });
 
   const updateFormData = (updates: Partial<SimulationFormData>) => {
@@ -79,7 +73,7 @@ export const SimulationWizard: React.FC = () => {
       case 1:
         return formData.selectedProduct !== "";
       case 2:
-        return Boolean(formData.simulationType);
+        return true;
       default:
         return false;
     }
@@ -87,6 +81,18 @@ export const SimulationWizard: React.FC = () => {
 
   const canProceed = (): boolean => {
     return isStepCompleted(currentStep);
+  };
+
+  const handleRunSimulation = () => {
+    runSimulationMutation.mutate({
+      persona_ids: formData.selectedPersonas,
+      product_id: formData.selectedProduct,
+      simulation_type: formData.simulationType,
+      model: formData.model,
+      questions: formData?.questions || [],
+      environment_names: formData.environments || [],
+      no_of_simulations: formData.noOfSimulations,
+    });
   };
 
   const renderStepContent = useMemo(() => {
@@ -112,31 +118,20 @@ export const SimulationWizard: React.FC = () => {
       case 2:
         return (
           <SimulationConfigStep
-            simulationType={formData.simulationType}
-            onConfigChange={(config) => updateFormData(config)}
             questions={formData.questions}
             onQuestionsChange={(questions) => updateFormData({ questions })}
-            noOfSimulations={formData.noOfSimulations}
-            onNoOfSimulationsChange={(noOfSimulations) =>
-              updateFormData({ noOfSimulations })
+            environments={formData.environments}
+            onEnvironmentsChange={(environments) =>
+              updateFormData({ environments })
             }
-            contextLayer={formData.contextLayer}
-            onContextLayerChange={(contextLayer) =>
-              updateFormData({ contextLayer })
-            }
-          />
-        );
-      case 3:
-        return (
-          <SimulationResults
-            formData={formData}
-            onRestart={() => setCurrentStep(0)}
+            onRunSimulation={handleRunSimulation}
+            isRunning={runSimulationMutation.isPending}
           />
         );
       default:
         return null;
     }
-  }, [currentStep, formData]);
+  }, [currentStep, formData, runSimulationMutation.isPending]);
 
   return (
     <div className="container mx-auto space-y-6 p-6">
@@ -204,30 +199,28 @@ export const SimulationWizard: React.FC = () => {
       </Card>
 
       {/* Navigation */}
-      {currentStep < 3 && (
-        <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 0}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Previous</span>
-          </Button>
+      <div className="flex justify-between">
+        <Button
+          variant="outline"
+          onClick={prevStep}
+          disabled={currentStep === 0}
+          className="flex items-center space-x-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Previous</span>
+        </Button>
 
+        {currentStep < steps.length - 1 && (
           <Button
             onClick={nextStep}
             disabled={!canProceed()}
             className="flex items-center space-x-2"
           >
-            <span>
-              {currentStep === steps.length - 2 ? "Run Simulation" : "Next"}
-            </span>
+            <span>Next</span>
             <ArrowRight className="h-4 w-4" />
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

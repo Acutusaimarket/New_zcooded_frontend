@@ -45,12 +45,19 @@ interface MediaSimulationDashboardProps {
 export const MediaSimulationDashboard = ({
   simulationId,
 }: MediaSimulationDashboardProps) => {
+  console.log("MediaSimulationDashboard rendered with simulationId:", simulationId);
+
+  
   const {
     data,
     isPending: loading,
     error,
     refetch,
   } = useMediaSimulationQuery(simulationId);
+  
+  // console.log("Query state:", { loading, error: error?.message, hasData: !!data });
+  
+  // useChartData hook must be called unconditionally
   const chartData = useChartData(data || null);
 
   const [activeTab, setActiveTab] = useQueryState(
@@ -63,11 +70,29 @@ export const MediaSimulationDashboard = ({
       // "recommendations",
     ]).withDefault("overview")
   );
+  
+  if (!simulationId) {
+    return (
+      <DashboardLayout>
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Invalid simulation ID provided
+          </AlertDescription>
+        </Alert>
+      </DashboardLayout>
+    );
+  }
+
+
+  console.log("Rendering MediaSimulationDashboard - loading:", loading, "error:", error?.message, "hasData:", !!data);
 
   if (loading) {
+    console.log("Showing loading state");
     return (
       <DashboardLayout>
         <div className="space-y-6">
+          <div className="text-lg font-semibold">Loading simulation data...</div>
           <Skeleton className="h-96 w-full" />
           <div className="flex space-x-8 border-b">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -84,37 +109,50 @@ export const MediaSimulationDashboard = ({
   }
 
   if (error) {
+    console.error("Error state:", error);
     return (
       <DashboardLayout>
-        <Alert className="border-red-200 bg-red-50">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between">
-            <span>
-              Failed to load simulation data:{" "}
-              {error?.message || "Unknown error"}
-            </span>
-            <Button variant="outline" size="sm" onClick={() => refetch()}>
-              <RefreshCw className="mr-1 h-4 w-4" />
-              Retry
-            </Button>
-          </AlertDescription>
-        </Alert>
+        <div className="space-y-4">
+          <h1 className="text-2xl font-bold">Media Simulation Results</h1>
+          <Alert className="border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                Failed to load simulation data:{" "}
+                {error?.message || "Unknown error"}
+              </span>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                <RefreshCw className="mr-1 h-4 w-4" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+          <div className="text-sm text-muted-foreground">
+            Simulation ID: {simulationId}
+          </div>
+        </div>
       </DashboardLayout>
     );
   }
 
   if (!data) {
+    console.warn("No data returned from query");
     return (
       <DashboardLayout>
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            No simulation data found for ID: {simulationId}
-          </AlertDescription>
-        </Alert>
+        <div className="space-y-4">
+          <h1 className="text-2xl font-bold">Media Simulation Results</h1>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              No simulation data found for ID: {simulationId}
+            </AlertDescription>
+          </Alert>
+        </div>
       </DashboardLayout>
     );
   }
+
+  console.log("Rendering simulation data:", data);
 
   return (
     <DashboardLayout>

@@ -1,96 +1,116 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { RefreshCw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Pause } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { SimulationFilters } from "./components/simulation-filters";
-import { SimulationGrid } from "./components/simulation-grid";
-import { SimulationPagination } from "./components/simulation-pagination";
-import { useMediaHistoryWithParams } from "./hooks/use-media-history";
+import { JobsListByStatus } from "@/features/simulation-history/components/jobs-list-by-status";
+import type { SimulationJob } from "@/features/simulation-history/types/job.types";
+
+type TabValue = "active" | "completed" | "failed" | "interrupted";
 
 export const MediaHistoryPage: React.FC = () => {
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    params,
-    updateSort,
-    updateSortOrder,
-    updatePage,
-    updatePageSize,
-    resetFilters,
-  } = useMediaHistoryWithParams();
+  const [activeTab, setActiveTab] = useState<TabValue>("active");
 
-  const handleRefresh = () => {
-    refetch();
+  const getStatusForTab = (tab: TabValue): SimulationJob["status"] => {
+    switch (tab) {
+      case "active":
+        return "in_progress";
+      case "completed":
+        return "completed";
+      case "failed":
+        return "failed";
+      case "interrupted":
+      default:
+        return "pending";
+    }
   };
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Media History</h1>
-          <p className="text-muted-foreground">
-            Browse and manage your media simulation history
-          </p>
+    <div className="bg-background min-h-screen">
+      {/* Header Section */}
+      <div className="bg-card/50 border-b backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Media History</h1>
+              <p className="text-muted-foreground mt-2">
+                Browse and manage your media simulation history
+              </p>
+            </div>
+          </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={isLoading}
-          className="flex items-center gap-2"
-        >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-          Refresh
-        </Button>
       </div>
-
-      {/* Filters */}
-      <div>
-        {/* <CardTitle className="text-lg">Filters & Sorting</CardTitle> */}
-        <CardContent className="flex justify-end p-0">
-          <SimulationFilters
-            sortBy={params.sort_by}
-            sortOrder={params.sort_order}
-            onSortByChange={updateSort}
-            onSortOrderChange={updateSortOrder}
-            onClearFilters={resetFilters}
-          />
-        </CardContent>
-      </div>
-
-      {/* <Separator /> */}
 
       {/* Main Content */}
-      <div className="space-y-6">
-        {/* Simulation Grid */}
-        <SimulationGrid
-          simulations={data?.items}
-          isLoading={isLoading}
-          isError={isError}
-          error={error}
-          onRetry={handleRefresh}
-        />
+      <div className="container mx-auto px-4 py-8">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as TabValue)}
+        >
+          {/* Tabs Navigation */}
+          <TabsList className="bg-muted/50 h-auto w-full justify-start gap-2 rounded-lg p-2">
+            <TabsTrigger
+              value="active"
+              className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
+            >
+              <Clock className="h-4 w-4" />
+              Active
+            </TabsTrigger>
+            <TabsTrigger
+              value="completed"
+              className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Completed
+            </TabsTrigger>
+            <TabsTrigger
+              value="failed"
+              className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              Failed
+            </TabsTrigger>
+            <TabsTrigger
+              value="interrupted"
+              className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
+            >
+              <Pause className="h-4 w-4" />
+              Interrupted
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Pagination */}
-        {data && !isLoading && !isError && data.items.length > 0 && (
-          <SimulationPagination
-            currentPage={data.pagination.page}
-            totalPages={data.pagination.total_pages}
-            totalCount={data.total_count}
-            pageSize={data.pagination.page_size}
-            hasNext={data.pagination.has_next}
-            hasPrevious={data.pagination.has_previous}
-            onPageChange={updatePage}
-            onPageSizeChange={updatePageSize}
-          />
-        )}
+          {/* Tab Contents */}
+          <div className="mt-6">
+            <TabsContent value="active" className="mt-0">
+              <JobsListByStatus
+                status={getStatusForTab("active")}
+                jobType="media_simulation"
+              />
+            </TabsContent>
+
+            <TabsContent value="completed" className="mt-0">
+              <JobsListByStatus
+                status={getStatusForTab("completed")}
+                jobType="media_simulation"
+              />
+            </TabsContent>
+
+            <TabsContent value="failed" className="mt-0">
+              <JobsListByStatus
+                status={getStatusForTab("failed")}
+                jobType="media_simulation"
+              />
+            </TabsContent>
+
+            <TabsContent value="interrupted" className="mt-0">
+              <JobsListByStatus
+                status={getStatusForTab("interrupted")}
+                jobType="media_simulation"
+              />
+            </TabsContent>
+          </div>
+        </Tabs>
       </div>
     </div>
   );
