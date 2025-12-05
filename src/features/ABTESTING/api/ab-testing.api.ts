@@ -16,7 +16,6 @@ export const useRunABTest = () => {
         APISuccessResponse<ABTestHistoryItem>
       >(abTestingApiEndPoint.runAbTest, {
         ...data,
-        context_layer: JSON.parse(data.context_layer || "[]"),
       });
       return res;
     }),

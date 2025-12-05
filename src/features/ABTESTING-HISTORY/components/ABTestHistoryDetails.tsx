@@ -1,17 +1,14 @@
 import React from "react";
 
 import { formatDate } from "date-fns";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-// import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { useABTestTabs } from "../hooks/use-abtest-tabs";
 import type { ABTestHistoryItem } from "../types";
-import { ABTestOverview, ProductDetails } from "./test-details";
+import { ABTestResults } from "./test-details/ab-test-results";
 
 interface ABTestHistoryDetailsProps {
   test: ABTestHistoryItem;
@@ -22,8 +19,6 @@ export const ABTestHistoryDetails: React.FC<ABTestHistoryDetailsProps> = ({
   test,
   onRestart,
 }) => {
-  const { activeTab, setActiveTab, tabs } = useABTestTabs();
-
   return (
     <div className="bg-background min-h-screen">
       {/* Header Section */}
@@ -42,17 +37,6 @@ export const ABTestHistoryDetails: React.FC<ABTestHistoryDetailsProps> = ({
 
             {/* Title and Basic Info */}
             <div className="space-y-2">
-              {onRestart && (
-                <Button
-                  variant="outline"
-                  className="ml-auto"
-                  size="sm"
-                  onClick={onRestart}
-                >
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Restart Test
-                </Button>
-              )}
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-bold tracking-tight">
                   {test.test_name}
@@ -74,37 +58,13 @@ export const ABTestHistoryDetails: React.FC<ABTestHistoryDetailsProps> = ({
                 {formatDate(new Date(test.created_at), "dd/MM/yyyy")}
               </p>
             </div>
-
-            {/* Quick Stats - Removed as requested */}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) =>
-            setActiveTab(value as "overview" | "product-details")
-          }
-          className="space-y-6"
-        >
-          <TabsList className="grid w-full grid-cols-2">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <ABTestOverview test={test} />
-          </TabsContent>
-
-          <TabsContent value="product-details" className="space-y-6">
-            <ProductDetails test={test} />
-          </TabsContent>
-        </Tabs>
+        <ABTestResults test={test} onRestart={onRestart} />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { AlertTriangle, CheckCircle2, Clock, Pause } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -75,8 +75,8 @@ export const MediaHistoryPage: React.FC = () => {
               value="interrupted"
               className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
             >
-              <Pause className="h-4 w-4" />
-              Interrupted
+              <Clock className="h-4 w-4" />
+              Pending
             </TabsTrigger>
           </TabsList>
 
@@ -84,7 +84,7 @@ export const MediaHistoryPage: React.FC = () => {
           <div className="mt-6">
             <TabsContent value="active" className="mt-0">
               <JobsListByStatus
-                status={getStatusForTab("active")}
+                status="active"
                 jobType="media_simulation"
               />
             </TabsContent>

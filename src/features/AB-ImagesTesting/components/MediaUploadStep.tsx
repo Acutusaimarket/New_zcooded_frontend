@@ -52,9 +52,11 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
           return;
         }
 
-        // Check file size (limit to 10MB)
-        if (file.size > 10 * 1024 * 1024) {
-          alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+        // Check file size - videos have a 30MB limit
+        const maxSize = 30 * 1024 * 1024; // 30MB maximum for all files
+        if (file.size > maxSize) {
+          const fileType = isVideo ? "Video" : "File";
+          alert(`${fileType} ${file.name} is too large. Maximum size is 30MB.`);
           return;
         }
 
@@ -156,7 +158,7 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
           </CardTitle>
           <CardDescription>
             Upload images or videos to analyze. Supported formats: JPG, PNG,
-            GIF, MP4, MOV, AVI (Max: 10MB per file)
+            GIF, MP4. Maximum size is 30MB for videos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -254,7 +256,7 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Please upload at least one media file to proceed with the
+                Please upload one media file to proceed with the
                 simulation.
               </AlertDescription>
             </Alert>

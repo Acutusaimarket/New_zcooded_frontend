@@ -292,8 +292,7 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
           </Badge>
         </div>
         <p className="text-muted-foreground text-sm">
-          Select one or more environments to simulate different user contexts
-          and behaviors. Hover over options to see descriptions.
+        ⚠️ Select at least one environment to avoid simulation failure or inaccurate outputs.
         </p>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -33,7 +33,7 @@ const steps: ABTestStep[] = [
   {
     id: "config",
     title: "Configuration",
-    description: "Set sample size and test parameters",
+    description: "Select environments for testing",
     completed: false,
     current: false,
   },
@@ -51,8 +51,7 @@ export const ABTestWizard: React.FC = () => {
   const [formData, setFormData] = useState<ABTestFormData>({
     selectedProducts: [],
     selectedPersona: "",
-    sampleSize: 1000,
-    contextLayer: "[]",
+    environments: [],
   });
 
   const runABTestMutation = useRunABTest();
@@ -80,7 +79,7 @@ export const ABTestWizard: React.FC = () => {
       case 1:
         return formData.selectedPersona !== "";
       case 2:
-        return formData.sampleSize >= 100;
+        return true; // Environments are optional, so step is always complete
       default:
         return false;
     }
@@ -95,8 +94,6 @@ export const ABTestWizard: React.FC = () => {
       {
         product_ids: formData.selectedProducts,
         persona_id: formData.selectedPersona,
-        sample_size: formData.sampleSize,
-        context_layer: formData.contextLayer || "[]",
       },
       {
         onSuccess: () => {
@@ -114,8 +111,7 @@ export const ABTestWizard: React.FC = () => {
     setFormData({
       selectedProducts: [],
       selectedPersona: "",
-      sampleSize: 1000,
-      contextLayer: "[]",
+      environments: [],
     });
   };
 
@@ -142,12 +138,10 @@ export const ABTestWizard: React.FC = () => {
       case 2:
         return (
           <TestConfigurationStep
-            contextLayer={formData.contextLayer}
-            onContextLayerChange={(contextLayer) =>
-              updateFormData({ contextLayer })
+            environments={formData.environments}
+            onEnvironmentsChange={(environments) =>
+              updateFormData({ environments })
             }
-            sampleSize={formData.sampleSize}
-            onSampleSizeChange={(size) => updateFormData({ sampleSize: size })}
           />
         );
       case 3:

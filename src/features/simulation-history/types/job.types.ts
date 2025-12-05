@@ -16,7 +16,7 @@ export interface JobMetadata {
 export interface SimulationJob {
   _id: string;
   job_type: string;
-  status: "pending" | "in_progress" | "completed" | "failed" | "interrupted";
+  status: "pending" | "in_progress" | "finalizing" | "completed" | "failed" | "interrupted";
   intermediate_steps: IntermediateSteps;
   meta_data: JobMetadata;
   failed_reasons: string | null;

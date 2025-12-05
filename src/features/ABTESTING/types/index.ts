@@ -87,8 +87,7 @@ export interface ABTestResult {
 export interface ABTestFormData {
   selectedProducts: string[];
   selectedPersona: string;
-  sampleSize: number;
-  contextLayer: string;
+  environments: string[];
 }
 
 export interface ABTestStep {

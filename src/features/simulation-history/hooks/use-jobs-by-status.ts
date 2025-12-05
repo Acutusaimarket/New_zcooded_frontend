@@ -17,8 +17,9 @@ export const useJobsByStatus = (
         status,
         jobType,
       }),
-    // Poll only for active (in_progress) jobs
-    refetchInterval: status === "in_progress" ? 20000 : false,
+    // Poll for active jobs (in_progress or finalizing)
+    refetchInterval:
+      status === "in_progress" || status === "finalizing" ? 20000 : false,
     refetchIntervalInBackground: true,
   });
 };

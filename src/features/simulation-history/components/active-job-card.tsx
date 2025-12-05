@@ -13,20 +13,55 @@ interface ActiveJobCardProps {
   variant?: "default" | "compact";
 }
 
+// Define the step names in the order they should appear
+const STEP_ORDER = [
+  "Persona Deviation",
+  "Persona Generation",
+  "World Creation",
+  "Media Loading",
+  "Visual Analysis",
+  "Upload Visuals",
+  "Question Broadcast",
+  "Simulation Complete",
+  "Stats Extraction",
+  "Recommendation Generation",
+  "Upload Complete",
+  "Report Generation",
+] as const;
+
+// Helper function to normalize step names for matching
+const normalizeStepName = (name: string): string => {
+  return name.toLowerCase().replace(/[_\s-]/g, "");
+};
+
 export const ActiveJobCard = ({ job, variant = "default" }: ActiveJobCardProps) => {
-  const intermediateSteps = Object.entries(job.intermediate_steps || {});
-  const completedSteps = intermediateSteps.filter(([, completed]) => completed)
-    .length;
-  const totalSteps = intermediateSteps.length;
+  const intermediateStepsMap = job.intermediate_steps || {};
+  
+  // Create ordered steps array with completion status
+  const orderedSteps = STEP_ORDER.map((displayName) => {
+    // Find matching backend key by normalizing both names
+    const normalizedDisplayName = normalizeStepName(displayName);
+    const backendKey = Object.keys(intermediateStepsMap).find((key) => {
+      const normalizedKey = normalizeStepName(key);
+      return (
+        normalizedKey === normalizedDisplayName ||
+        normalizedKey.includes(normalizedDisplayName) ||
+        normalizedDisplayName.includes(normalizedKey)
+      );
+    });
+
+    const completed = backendKey ? intermediateStepsMap[backendKey] : false;
+
+    return {
+      displayName,
+      completed,
+    };
+  });
+
+  const completedSteps = orderedSteps.filter((step) => step.completed).length;
+  const totalSteps = orderedSteps.length;
   const progressPercentage =
     totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
-
-  const formatStepName = (stepName: string): string => {
-    return stepName
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
 
   const getStatusBadge = () => {
     switch (job.status) {
@@ -42,6 +77,13 @@ export const ActiveJobCard = ({ job, variant = "default" }: ActiveJobCardProps) 
           <Badge variant="default" className="gap-1">
             <Loader2 className="h-3 w-3 animate-spin" />
             Running
+          </Badge>
+        );
+      case "finalizing":
+        return (
+          <Badge variant="default" className="gap-1 bg-blue-500">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Finalizing
           </Badge>
         );
       case "completed":
@@ -103,42 +145,31 @@ export const ActiveJobCard = ({ job, variant = "default" }: ActiveJobCardProps) 
 
         <Separator />
 
-        {/* Intermediate Steps */}
+        {/* Processing Steps */}
         <div className={isCompact ? "space-y-2" : "space-y-3"}>
           {!isCompact && (
-            <h4 className="text-sm font-semibold">Intermediate Steps</h4>
+            <h4 className="text-sm font-semibold">Processing Steps</h4>
           )}
-          <div className={isCompact ? "grid gap-2" : "grid gap-3 sm:grid-cols-2"}>
-            {intermediateSteps.map(([stepName, completed]) => (
+          <div className="space-y-2">
+            {orderedSteps.map((step) => (
               <div
-                key={stepName}
-                className="flex items-center gap-3 rounded-lg border p-3"
+                key={step.displayName}
+                className="flex items-center gap-3"
               >
-                <div
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                    completed
-                      ? "bg-green-100 text-green-600"
-                      : "bg-muted text-muted-foreground"
+                {step.completed ? (
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-green-500">
+                    <CheckCircle2 className="h-3 w-3 text-white" />
+                  </div>
+                ) : (
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-gray-300" />
+                )}
+                <p
+                  className={`text-sm ${
+                    step.completed ? "font-medium text-green-600" : "text-gray-700"
                   }`}
                 >
-                  {completed ? (
-                    <CheckCircle2 className="h-4 w-4" />
-                  ) : (
-                    <Clock className="h-4 w-4" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p
-                    className={`text-sm font-medium ${
-                      completed ? "text-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    {formatStepName(stepName)}
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    {completed ? "Completed" : "Pending"}
-                  </p>
-                </div>
+                  {step.displayName}
+                </p>
               </div>
             ))}
           </div>
@@ -149,26 +180,26 @@ export const ActiveJobCard = ({ job, variant = "default" }: ActiveJobCardProps) 
           <>
             <Separator />
             <div className="grid gap-3 sm:grid-cols-2">
-              <div>
+              {/* <div>
                 <p className="text-muted-foreground text-xs">Simulations</p>
                 <p className="font-medium">
                   {job.meta_data.no_of_simulations}
                 </p>
-              </div>
+              </div> */}
               <div>
                 <p className="text-muted-foreground text-xs">Personas</p>
                 <p className="font-medium">{job.meta_data.num_personas}</p>
               </div>
-              <div>
+              {/* <div>
                 <p className="text-muted-foreground text-xs">Media Files</p>
                 <p className="font-medium">{job.meta_data.num_media_files}</p>
-              </div>
-              <div>
+              </div> */}
+              {/* <div>
                 <p className="text-muted-foreground text-xs">User</p>
                 <p className="font-medium truncate">
                   {job.meta_data.user_email}
                 </p>
-              </div>
+              </div> */}
             </div>
           </>
         )}

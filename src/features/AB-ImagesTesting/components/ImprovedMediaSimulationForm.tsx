@@ -62,7 +62,7 @@ const MediaFileUpload: React.FC<MediaFileUploadProps> = ({
   mediaFiles,
   onFilesChange,
   title = "Media Files Upload",
-  description = "Upload images or videos to analyze. Supported formats: JPG, PNG, GIF, MP4, MOV, AVI (Max: 10MB per file)",
+  description = "Upload images or videos to analyze. Supported formats: JPG, PNG, GIF, MP4, MOV, AVI (Max: 30MB per file)",
 }) => {
   const formatFileSize = useCallback((bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
@@ -87,8 +87,8 @@ const MediaFileUpload: React.FC<MediaFileUploadProps> = ({
         }
 
         // Check file size (limit to 10MB)
-        if (file.size > 10 * 1024 * 1024) {
-          alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+        if (file.size > 30 * 1024 * 1024) {
+          alert(`File ${file.name} is too large. Maximum size is 30MB.`);
           return;
         }
 
@@ -275,7 +275,7 @@ const MediaFileUpload: React.FC<MediaFileUploadProps> = ({
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Please upload at least one media file to proceed with the
+              Please upload one media file to proceed with the
               simulation.
             </AlertDescription>
           </Alert>
@@ -321,7 +321,7 @@ export const ImprovedMediaSimulationForm: React.FC<
 
   const handleSubmit = (data: FormData) => {
     if (mediaFiles.length === 0) {
-      alert("Please upload at least one media file");
+      alert("Please upload one media file");
       return;
     }
 

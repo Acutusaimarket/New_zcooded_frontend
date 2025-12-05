@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Clock, PauseCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -6,18 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { useActiveJobs } from "../hooks/use-active-jobs";
 import { useJobsByStatus } from "../hooks/use-jobs-by-status";
 import type { SimulationJob } from "../types/job.types";
 import { ActiveJobCard } from "./active-job-card";
 
 interface JobsListByStatusProps {
-  status: SimulationJob["status"];
+  status: SimulationJob["status"] | "active";
   jobType?: string;
 }
 
-const getEmptyState = (status: SimulationJob["status"]) => {
+const getEmptyState = (status: SimulationJob["status"] | "active") => {
   switch (status) {
+    case "active":
     case "in_progress":
+    case "finalizing":
       return {
         icon: Clock,
         title: "No active simulations",
@@ -38,9 +41,9 @@ const getEmptyState = (status: SimulationJob["status"]) => {
     case "pending":
     case "interrupted":
       return {
-        icon: PauseCircle,
-        title: "No interrupted simulations",
-        description: "Interrupted or pending simulations will appear here.",
+        icon: Clock,
+        title: "No pending simulations",
+        description: "Pending simulations will appear here.",
       };
     default:
       return {
@@ -56,7 +59,19 @@ export const JobsListByStatus = ({
   jobType = "market_fit_simulation",
 }: JobsListByStatusProps) => {
   const navigate = useNavigate();
-  const { data, isLoading, isError, error } = useJobsByStatus(status, jobType);
+  
+  // Use useActiveJobs for "active" tab (shows both in_progress and finalizing)
+  // Otherwise use the regular useJobsByStatus hook
+  const activeJobsQuery = useActiveJobs(jobType);
+  const regularJobsQuery = useJobsByStatus(
+    status as SimulationJob["status"],
+    jobType
+  );
+
+  const isActiveTab = status === "active";
+  const { data, isLoading, isError, error } = isActiveTab
+    ? activeJobsQuery
+    : regularJobsQuery;
 
   if (isLoading) {
     return (

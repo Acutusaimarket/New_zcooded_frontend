@@ -35,13 +35,13 @@ const data = {
           url: "/dashboard/simulation",
           icon: PlayCircle,
         },
-        // {
-        //   title: "Price Simulator",
-        //   url: "/dashboard/ab-testing",
-        //   icon: PlayCircle,
-        // },
         {
-          title: "Adcampaign & Media Simulator",
+          title: "Price Simulator",
+          url: "/dashboard/ab-testing",
+          icon: PlayCircle,
+        },
+        {
+          title: "Media Measurement",
           url: "/dashboard/media-simulation",
           icon: PlayCircle,
         },

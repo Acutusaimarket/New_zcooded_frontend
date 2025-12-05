@@ -104,12 +104,12 @@ export const MediaConfigurationStep: React.FC<MediaConfigurationStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <h3 className="text-lg font-semibold">Configuration</h3>
         <p className="text-muted-foreground text-sm">
           Configure analysis parameters and add custom questions
         </p>
-      </div>
+      </div> */}
 
       {/* Custom Questions */}
       <Card>
@@ -172,11 +172,10 @@ export const MediaConfigurationStep: React.FC<MediaConfigurationStepProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5" />
-            Environments (Optional)
+            Environments
           </CardTitle>
           <CardDescription>
-            Select one or more environments to simulate different user contexts
-            and behaviors. Hover over options to see descriptions.
+          ⚠️ Select at least one environment to avoid simulation failure or inaccurate outputs.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
