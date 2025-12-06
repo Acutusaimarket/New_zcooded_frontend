@@ -31,6 +31,7 @@ interface MediaSimulationData {
       std_dev: number | null;
       min_response: number | null;
       max_response: number | null;
+      formatted_roas?: string | null;
     }>;
   };
   visual_analysis?: Array<Record<string, unknown>>;
@@ -166,7 +167,13 @@ const SemiCircleGauge = ({
   );
 };
 
-const getScoreVisuals = (value: number) => {
+const getScoreVisuals = (value: number, kpiMetric?: string) => {
+  // Always green for Ad Frequency and ROAS
+  const metricLower = kpiMetric?.toLowerCase() || "";
+  if (metricLower === "ad_frequency" || metricLower === "roas") {
+    return { colorHex: "#16a34a", textClass: "text-emerald-600" };
+  }
+
   if (value <= 30) {
     return { colorHex: "#dc2626", textClass: "text-red-600" };
   }
@@ -187,7 +194,7 @@ const KpiGaugeCard = ({
     rawValue <= 1 && rawValue >= 0
       ? Math.max(0, Math.min(100, Math.round(rawValue * 100)))
       : Math.max(0, Math.min(100, Math.round(rawValue)));
-  const visuals = getScoreVisuals(percentage);
+  const visuals = getScoreVisuals(percentage, kpi.kpi_metric);
 
   const minValue =
     kpi.min_response !== null
@@ -239,6 +246,47 @@ const KpiGaugeCard = ({
             </p>
             <p className="text-muted-foreground uppercase">Max</p>
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const RoasCard = ({
+  kpi,
+}: {
+  kpi: MediaSimulationData["simulation_analysis"]["kpi_summary"][0];
+}) => {
+  const rawValue = kpi.average_response ?? 0;
+  const percentage =
+    rawValue <= 1 && rawValue >= 0
+      ? Math.max(0, Math.min(100, Math.round(rawValue * 100)))
+      : Math.max(0, Math.min(100, Math.round(rawValue)));
+  const visuals = getScoreVisuals(percentage, kpi.kpi_metric);
+
+  return (
+    <Card className="shadow-sm">
+      <CardContent className="flex flex-col items-center space-y-3 px-3 py-4 text-center">
+        <div className="relative flex h-20 w-24 items-center justify-center">
+          <SemiCircleGauge
+            percentage={percentage}
+            accentColor={visuals.colorHex}
+          />
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
+            <span className={`text-2xl font-bold ${visuals.textClass}`}>
+              {kpi.formatted_roas || percentage}
+            </span>
+          </div>
+        </div>
+        <div className="space-y-1">
+          <p className="text-base font-semibold">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-muted-foreground text-xs">{kpi.metric_type}</p>
+        </div>
+        <div className="w-full text-center">
+          <p className="text-foreground text-sm font-semibold">
+            {kpi.formatted_roas || formatDecimal(kpi.average_response)}
+          </p>
+          <p className="text-muted-foreground text-[11px] uppercase">Value</p>
         </div>
       </CardContent>
     </Card>
@@ -539,14 +587,16 @@ export const MediaSimulationResults = ({
             {kpi_summary
               .filter(
                 (kpi) =>
-                  !(
-                    kpi.kpi_metric.toLowerCase() === "roas" ||
-                    kpi.metric_type.toLowerCase() === "calculated"
-                  )
+                  kpi.kpi_metric.toLowerCase() === "roas" ||
+                  kpi.metric_type.toLowerCase() !== "calculated"
               )
-              .map((kpi) => (
-                <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
-              ))}
+              .map((kpi) =>
+                kpi.kpi_metric.toLowerCase() === "roas" ? (
+                  <RoasCard key={kpi.kpi_metric} kpi={kpi} />
+                ) : (
+                  <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
+                )
+              )}
           </div>
         </TabsContent>
 

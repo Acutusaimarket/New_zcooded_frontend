@@ -13,48 +13,99 @@ interface ActiveJobCardProps {
   variant?: "default" | "compact";
 }
 
-// Define the step names in the order they should appear
-const STEP_ORDER = [
-  "Persona Deviation",
-  "Persona Generation",
-  "World Creation",
-  "Media Loading",
-  "Visual Analysis",
-  "Upload Visuals",
-  "Question Broadcast",
-  "Simulation Complete",
-  "Stats Extraction",
-  "Recommendation Generation",
-  "Upload Complete",
-  "Report Generation",
-] as const;
+// Mapping from API intermediate_steps keys to display names
+const STEP_MAPPING: Record<string, string> = {
+  world_creation: "World Creation",
+  persona_deviation: "Persona Deviation",
+  product_broadcast: "Product Broadcast", // Will be replaced with product name
+  question_broadcast: "Question Broadcast",
+  simulation_complete: "Simulation Complete",
+  stats_extraction: "Stats Extraction",
+  recommendation_generation: "Recommendation Generation",
+  cbvs_qa_generation: "Report Generation",
+  s3_upload_complete: "Upload Complete",
+};
+
+// Define the step order for market_fit_simulation
+const MARKET_FIT_STEP_ORDER: string[] = [
+  "world_creation",
+  "persona_deviation",
+  "product_broadcast",
+  "question_broadcast",
+  "simulation_complete",
+  "stats_extraction",
+  "recommendation_generation",
+  "cbvs_qa_generation",
+  "s3_upload_complete",
+];
 
 // Helper function to normalize step names for matching
 const normalizeStepName = (name: string): string => {
   return name.toLowerCase().replace(/[_\s-]/g, "");
 };
 
-export const ActiveJobCard = ({ job, variant = "default" }: ActiveJobCardProps) => {
+export const ActiveJobCard = ({
+  job,
+  variant = "default",
+}: ActiveJobCardProps) => {
   const intermediateStepsMap = job.intermediate_steps || {};
-  
-  // Create ordered steps array with completion status
-  const orderedSteps = STEP_ORDER.map((displayName) => {
-    // Find matching backend key by normalizing both names
-    const normalizedDisplayName = normalizeStepName(displayName);
-    const backendKey = Object.keys(intermediateStepsMap).find((key) => {
-      const normalizedKey = normalizeStepName(key);
-      return (
-        normalizedKey === normalizedDisplayName ||
-        normalizedKey.includes(normalizedDisplayName) ||
-        normalizedDisplayName.includes(normalizedKey)
-      );
-    });
 
-    const completed = backendKey ? intermediateStepsMap[backendKey] : false;
+  // Get product name if available (for market_fit_simulation)
+  // Fetch product name from product array first, then fallback to meta_data
+  const productName =
+    (job.product && job.product.length > 0 && job.product[0].name
+      ? job.product[0].name
+      : null) || job.meta_data?.product_name || null;
+
+  // Get persona names if available (for media_simulation)
+  const personaNames =
+    job.persona && job.persona.length > 0
+      ? job.persona
+          .map((p) => p.name)
+          .filter((name): name is string => !!name)
+      : [];
+
+  // Get steps in the correct order for market_fit_simulation
+  const filteredSteps =
+    job.job_type === "market_fit_simulation"
+      ? MARKET_FIT_STEP_ORDER
+      : Object.keys(intermediateStepsMap);
+
+  // Create ordered steps array with completion status
+  const orderedSteps = filteredSteps.map((stepKey: string) => {
+    const completed = intermediateStepsMap[stepKey] || false;
+    let displayName = STEP_MAPPING[stepKey] || stepKey;
+
+    // For product_broadcast, show product name if available
+    if (stepKey === "product_broadcast" && productName) {
+      displayName = productName;
+    } else if (
+      !STEP_MAPPING[stepKey] &&
+      job.job_type !== "market_fit_simulation"
+    ) {
+      // For non-market-fit jobs, try to match with normalized names
+      const normalizedKey = normalizeStepName(stepKey);
+      const matchedDisplayName = Object.values(STEP_MAPPING).find(
+        (display) => {
+          const normalizedDisplay = normalizeStepName(display);
+          return (
+            normalizedKey === normalizedDisplay ||
+            normalizedKey.includes(normalizedDisplay) ||
+            normalizedDisplay.includes(normalizedKey)
+          );
+        }
+      );
+      displayName =
+        matchedDisplayName ||
+        stepKey
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase());
+    }
 
     return {
       displayName,
       completed,
+      stepKey,
     };
   });
 
@@ -190,6 +241,22 @@ export const ActiveJobCard = ({ job, variant = "default" }: ActiveJobCardProps) 
                 <p className="text-muted-foreground text-xs">Personas</p>
                 <p className="font-medium">{job.meta_data.num_personas}</p>
               </div>
+              {productName && (
+                <div>
+                  <p className="text-muted-foreground text-xs">Product Name</p>
+                  <p className="font-medium">{productName}</p>
+                </div>
+              )}
+              {personaNames.length > 0 && (
+                <div>
+                  <p className="text-muted-foreground text-xs">Persona Name</p>
+                  <p className="font-medium">
+                    {personaNames.length === 1
+                      ? personaNames[0]
+                      : personaNames.join(", ")}
+                  </p>
+                </div>
+              )}
               {/* <div>
                 <p className="text-muted-foreground text-xs">Media Files</p>
                 <p className="font-medium">{job.meta_data.num_media_files}</p>

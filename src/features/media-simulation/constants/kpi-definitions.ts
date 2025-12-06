@@ -39,6 +39,11 @@ export const KPI_DEFINITIONS = {
     description: "Combined effectiveness across all metrics",
     maxScore: 100,
   },
+  roas: {
+    label: "ROAS",
+    description: "Return on Ad Spend - Revenue generated per dollar spent on advertising",
+    maxScore: 10,
+  },
 } as const;
 
 export const PERSONA_TRAIT_DEFINITIONS = {

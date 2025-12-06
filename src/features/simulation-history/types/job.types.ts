@@ -21,6 +21,8 @@ export interface SimulationJob {
   meta_data: JobMetadata;
   failed_reasons: string | null;
   user: string;
+  persona?: Array<{ name?: string; _id?: string; [key: string]: unknown }>;
+  product?: Array<{ name?: string; _id?: string; [key: string]: unknown }>;
   created_at: string;
   updated_at: string;
 }
