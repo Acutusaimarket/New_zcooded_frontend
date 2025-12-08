@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { jobsApiEndPoint } from "@/lib/api-end-point";
 import { axiosPrivateInstance } from "@/lib/axios";
 import type { MarketFitSimulationResponse } from "@/features/persona-simulation";
+import type { SimulationJob } from "@/features/simulation-history/types/job.types";
 import { MarketFitSimulationResults } from "@/features/persona-simulation/components/MarketFitSimulationResults";
 
 export default function MarketFitSimulationResultPage() {
@@ -32,6 +33,27 @@ export default function MarketFitSimulationResultPage() {
       return response.data;
     },
   });
+
+  // Fetch job data to get product name
+  const { data: jobData } = useQuery<{ data: SimulationJob }>({
+    queryKey: ["market-fit-job", jobId],
+    enabled: !!jobId && !!data?.data,
+    queryFn: async () => {
+      if (!jobId) {
+        throw new Error("Missing job id");
+      }
+      const response = await axiosPrivateInstance.get<{ data: SimulationJob }>(
+        `${jobsApiEndPoint.getById}/${jobId}`
+      );
+      return response.data;
+    },
+  });
+
+  // Get product name from job data
+  const productName =
+    (jobData?.data?.product && jobData.data.product.length > 0
+      ? jobData.data.product[0].name
+      : null) || jobData?.data?.meta_data?.product_name || null;
 
 
   
@@ -131,6 +153,7 @@ export default function MarketFitSimulationResultPage() {
       <MarketFitSimulationResults
         data={data.data}
         onRestart={() => navigate("/dashboard/simulation")}
+        productName={productName || undefined}
       />
     </div>
   );

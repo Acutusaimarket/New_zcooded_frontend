@@ -94,12 +94,13 @@ interface MediaSimulationResultsProps {
   onRestart: () => void;
 }
 
-const formatDateTime = (value: string) => {
+const formatDate = (value: string) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 };
 
@@ -210,41 +211,41 @@ const KpiGaugeCard = ({
       : null;
 
   return (
-    <Card className="shadow-sm">
-      <CardContent className="flex flex-col items-center space-y-3 px-3 py-4 text-center">
-        <div className="relative flex h-20 w-24 items-center justify-center">
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
+        <div className="relative flex h-24 w-28 items-center justify-center">
           <SemiCircleGauge
             percentage={percentage}
             accentColor={visuals.colorHex}
           />
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
-            <span className={`text-2xl font-bold ${visuals.textClass}`}>
+            <span className={`text-3xl font-bold ${visuals.textClass}`}>
               {percentage}
             </span>
           </div>
         </div>
-        <div className="space-y-1">
-          <p className="text-base font-semibold">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-muted-foreground text-xs">{kpi.metric_type}</p>
+        <div className="space-y-1.5">
+          <p className="text-base font-semibold text-foreground">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-muted-foreground text-xs font-medium">{kpi.metric_type}</p>
         </div>
-        <div className="grid w-full grid-cols-3 gap-2 text-[11px]">
+        <div className="grid w-full grid-cols-3 gap-3 rounded-lg bg-muted/50 p-3 text-[11px]">
           <div>
             <p className="text-foreground text-sm font-semibold">
               {formatDecimal(minValue)}
             </p>
-            <p className="text-muted-foreground uppercase">Min</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Min</p>
           </div>
           <div>
             <p className="text-foreground text-sm font-semibold">
               {percentage}
             </p>
-            <p className="text-muted-foreground uppercase">Avg</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Avg</p>
           </div>
           <div>
             <p className="text-foreground text-sm font-semibold">
               {formatDecimal(maxValue)}
             </p>
-            <p className="text-muted-foreground uppercase">Max</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Max</p>
           </div>
         </div>
       </CardContent>
@@ -265,28 +266,28 @@ const RoasCard = ({
   const visuals = getScoreVisuals(percentage, kpi.kpi_metric);
 
   return (
-    <Card className="shadow-sm">
-      <CardContent className="flex flex-col items-center space-y-3 px-3 py-4 text-center">
-        <div className="relative flex h-20 w-24 items-center justify-center">
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
+        <div className="relative flex h-24 w-28 items-center justify-center">
           <SemiCircleGauge
             percentage={percentage}
             accentColor={visuals.colorHex}
           />
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
-            <span className={`text-2xl font-bold ${visuals.textClass}`}>
+            <span className={`text-3xl font-bold ${visuals.textClass}`}>
               {kpi.formatted_roas || percentage}
             </span>
           </div>
         </div>
-        <div className="space-y-1">
-          <p className="text-base font-semibold">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-muted-foreground text-xs">{kpi.metric_type}</p>
+        <div className="space-y-1.5">
+          <p className="text-base font-semibold text-foreground">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-muted-foreground text-xs font-medium">{kpi.metric_type}</p>
         </div>
-        <div className="w-full text-center">
+        <div className="w-full rounded-lg bg-muted/50 p-3 text-center">
           <p className="text-foreground text-sm font-semibold">
             {kpi.formatted_roas || formatDecimal(kpi.average_response)}
           </p>
-          <p className="text-muted-foreground text-[11px] uppercase">Value</p>
+          <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Value</p>
         </div>
       </CardContent>
     </Card>
@@ -302,69 +303,45 @@ const ModificationCard = ({
 }: {
   modification: MediaFileModification;
 }) => (
-  <Card>
-    <CardHeader className="space-y-2">
-      <CardTitle className="text-lg">{modification.modification_area}</CardTitle>
-      <div className="flex flex-wrap gap-2">
-        <Badge variant="outline">Modification</Badge>
-      </div>
+  <Card className="shadow-sm transition-shadow hover:shadow-md">
+    <CardHeader className="space-y-3 pb-4">
+      <CardTitle className="text-xl font-semibold">{modification.modification_area}</CardTitle>
     </CardHeader>
-    <CardContent className="space-y-4 text-sm leading-relaxed">
-      <div>
-        <p className="text-muted-foreground mb-1 text-xs uppercase">
+    <CardContent className="space-y-5 text-sm leading-relaxed">
+      <div className="rounded-lg bg-muted/50 p-4">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">
           Current State
         </p>
-        <p>{modification.current_state}</p>
+        <p className="text-foreground">{modification.current_state}</p>
       </div>
-      <div>
-        <p className="text-muted-foreground mb-1 text-xs uppercase">
+      <div className="rounded-lg bg-primary/5 p-4">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">
           Recommended State
         </p>
-        <p>{modification.recommended_state}</p>
+        <p className="text-foreground font-medium">{modification.recommended_state}</p>
       </div>
 
-      {modification.expected_impact && modification.expected_impact.length > 0 && (
-        <div>
-          <p className="text-muted-foreground mb-2 text-xs uppercase">
-            Expected Impact
-          </p>
-          <div className="space-y-2">
-            {modification.expected_impact.map((impact: { metric_name: string; expected_change: string; confidence_level: string }, index: number) => (
-              <div
-                key={index}
-                className="rounded-md border border-dashed p-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{impact.metric_name}</span>
-                  <Badge variant="outline">{impact.confidence_level}</Badge>
-                </div>
-                <p className="text-muted-foreground mt-1 text-xs">
-                  Expected change: {impact.expected_change}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {modification.specific_changes && (
-        <div className="space-y-3">
-          <p className="text-muted-foreground mb-2 text-xs uppercase">
+        <div className="space-y-4 border-t pt-4">
+          <p className="text-muted-foreground mb-3 text-sm font-semibold uppercase tracking-wide">
             Specific Changes
           </p>
 
           {modification.specific_changes.visuals && (
-            <div className="space-y-2">
+            <div className="space-y-3 rounded-lg border bg-card p-4">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-foreground">
+                Visual Changes
+              </p>
               {modification.specific_changes.visuals.add &&
                 modification.specific_changes.visuals.add.length > 0 && (
-                  <div>
-                    <p className="mb-1 text-xs font-semibold text-green-600">
+                  <div className="rounded-md bg-green-50 p-3 dark:bg-green-950/20">
+                    <p className="mb-2 text-xs font-semibold text-green-700 dark:text-green-400">
                       Add:
                     </p>
-                    <ul className="list-disc space-y-1 pl-5 text-xs">
+                    <ul className="list-disc space-y-1.5 pl-5 text-xs">
                       {modification.specific_changes.visuals.add.map(
                         (item: string, idx: number) => (
-                          <li key={idx}>
+                          <li key={idx} className="text-foreground">
                             <EmphasizedText text={item} />
                           </li>
                         )
@@ -374,14 +351,14 @@ const ModificationCard = ({
                 )}
               {modification.specific_changes.visuals.remove &&
                 modification.specific_changes.visuals.remove.length > 0 && (
-                  <div>
-                    <p className="mb-1 text-xs font-semibold text-red-600">
+                  <div className="rounded-md bg-red-50 p-3 dark:bg-red-950/20">
+                    <p className="mb-2 text-xs font-semibold text-red-700 dark:text-red-400">
                       Remove:
                     </p>
-                    <ul className="list-disc space-y-1 pl-5 text-xs">
+                    <ul className="list-disc space-y-1.5 pl-5 text-xs">
                       {modification.specific_changes.visuals.remove.map(
                         (item: string, idx: number) => (
-                          <li key={idx}>
+                          <li key={idx} className="text-foreground">
                             <EmphasizedText text={item} />
                           </li>
                         )
@@ -391,14 +368,14 @@ const ModificationCard = ({
                 )}
               {modification.specific_changes.visuals.modify &&
                 modification.specific_changes.visuals.modify.length > 0 && (
-                  <div>
-                    <p className="mb-1 text-xs font-semibold text-blue-600">
+                  <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-950/20">
+                    <p className="mb-2 text-xs font-semibold text-blue-700 dark:text-blue-400">
                       Modify:
                     </p>
-                    <ul className="list-disc space-y-1 pl-5 text-xs">
+                    <ul className="list-disc space-y-1.5 pl-5 text-xs">
                       {modification.specific_changes.visuals.modify.map(
                         (item: string, idx: number) => (
-                          <li key={idx}>
+                          <li key={idx} className="text-foreground">
                             <EmphasizedText text={item} />
                           </li>
                         )
@@ -410,8 +387,8 @@ const ModificationCard = ({
           )}
 
           {modification.specific_changes.script_rewrite && (
-            <div className="rounded-md border border-dashed p-3">
-              <p className="mb-2 text-xs font-semibold">Script Rewrite</p>
+            <div className="rounded-lg border bg-card p-4">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-foreground">Script Rewrite</p>
               {modification.specific_changes.script_rewrite.current_hook && (
                 <div className="mb-2">
                   <p className="text-muted-foreground mb-1 text-xs">
@@ -458,8 +435,8 @@ const ModificationCard = ({
           )}
 
           {modification.specific_changes.audio_modifications && (
-            <div className="rounded-md border border-dashed p-3">
-              <p className="mb-2 text-xs font-semibold">Audio Modifications</p>
+            <div className="rounded-lg border bg-card p-4">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-foreground">Audio Modifications</p>
               {modification.specific_changes.audio_modifications
                 .voiceover_tone && (
                 <p className="text-xs">
@@ -482,6 +459,49 @@ const ModificationCard = ({
               )}
             </div>
           )}
+
+          {modification.specific_changes.opening_frame && (
+            <div className="rounded-md border border-dashed p-3">
+              <p className="mb-2 text-xs font-semibold">Opening Frame</p>
+              <p className="text-xs">
+                <EmphasizedText text={modification.specific_changes.opening_frame} />
+              </p>
+            </div>
+          )}
+
+          {modification.specific_changes.disclaimer_addition && (
+            <div className="rounded-md border border-dashed p-3">
+              <p className="mb-2 text-xs font-semibold">Disclaimer Addition</p>
+              <p className="text-xs">
+                <EmphasizedText text={modification.specific_changes.disclaimer_addition} />
+              </p>
+            </div>
+          )}
+
+          {modification.specific_changes.platform_optimization && (
+            <div className="rounded-md border border-dashed p-3">
+              <p className="mb-2 text-xs font-semibold">Platform Optimization</p>
+              <p className="text-xs">
+                <EmphasizedText text={modification.specific_changes.platform_optimization} />
+              </p>
+            </div>
+          )}
+
+          {modification.specific_changes.trust_indicators_to_add &&
+            modification.specific_changes.trust_indicators_to_add.length > 0 && (
+              <div className="rounded-md border border-dashed p-3">
+                <p className="mb-2 text-xs font-semibold">Trust Indicators to Add</p>
+                <ul className="list-disc space-y-1 pl-5 text-xs">
+                  {modification.specific_changes.trust_indicators_to_add.map(
+                    (indicator: string, idx: number) => (
+                      <li key={idx}>
+                        <EmphasizedText text={indicator} />
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+            )}
         </div>
       )}
     </CardContent>
@@ -543,7 +563,7 @@ export const MediaSimulationResults = ({
       const { generateMediaSimulationPDF } = await import(
         "../utils/generateMediaSimulationPDF"
       );
-      generateMediaSimulationPDF(data);
+      await generateMediaSimulationPDF(data);
       toast.success("PDF report downloaded successfully!");
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -560,8 +580,7 @@ export const MediaSimulationResults = ({
           </p>
           <h2 className="text-2xl font-bold">KPI & Recommendations Summary</h2>
           <p className="text-muted-foreground text-sm">
-            Generated {formatDateTime(metadata.generated_at)} —{" "}
-            {metadata.total_responses} responses processed
+            Generated {formatDate(metadata.generated_at)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -582,8 +601,8 @@ export const MediaSimulationResults = ({
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="kpi" className="space-y-4">
-          <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
+        <TabsContent value="kpi" className="space-y-6">
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
             {kpi_summary
               .filter(
                 (kpi) =>
@@ -603,13 +622,7 @@ export const MediaSimulationResults = ({
         <TabsContent value="recommendations" className="space-y-6">
           {recommendation?.media_file_modifications &&
           recommendation.media_file_modifications.length > 0 ? (
-            <section className="space-y-3">
-              <div>
-                <p className="text-sm font-semibold">Media File Modifications</p>
-                <p className="text-muted-foreground text-sm">
-                  Recommendations for improving your media content.
-                </p>
-              </div>
+            <section className="space-y-4">
               <div className="space-y-4">
                 {recommendation.media_file_modifications.map(
                   (modification, index) => (

@@ -23,14 +23,16 @@ import type {
 interface MarketFitSimulationResultsProps {
   data: MarketFitSimulationPayload;
   onRestart: () => void;
+  productName?: string;
 }
 
-const formatDateTime = (value: string) => {
+const formatDate = (value: string) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 };
 const formatDecimal = (value: number) => {
@@ -65,10 +67,10 @@ const ListSection = ({ title, items }: { title: string; items: string[] }) => {
   if (!items?.length) return null;
   return (
     <div>
-      <p className="text-muted-foreground mb-1 text-xs uppercase">{title}</p>
-      <ul className="list-disc space-y-1 pl-5 text-sm">
-        {items.map((item) => (
-          <li key={item}>
+      <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">{title}</p>
+      <ul className="list-disc space-y-1.5 pl-5 text-sm">
+        {items.map((item, idx) => (
+          <li key={idx} className="text-foreground">
             <EmphasizedText text={item} />
           </li>
         ))}
@@ -82,8 +84,8 @@ const RecommendationBlock = ({
 }: {
   recommendation: MarketFitSegmentRecommendation;
 }) => (
-  <Card>
-    <CardHeader className="pb-2">
+  <Card className="shadow-sm transition-shadow hover:shadow-md">
+    <CardHeader className="pb-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">{recommendation.category}</Badge>
         <Badge
@@ -99,21 +101,25 @@ const RecommendationBlock = ({
         </Badge>
       </div>
     </CardHeader>
-    <CardContent className="space-y-2 text-sm">
-      <p className="leading-relaxed font-medium">
+    <CardContent className="space-y-3 text-sm leading-relaxed">
+      <p className="font-medium text-foreground">
         <EmphasizedText text={recommendation.recommendation} />
       </p>
-      <p className="text-muted-foreground leading-relaxed">
-        <span className="font-semibold">Rationale:</span>{" "}
-        <EmphasizedText text={recommendation.rationale} />
-      </p>
+      <div className="rounded-lg bg-muted/50 p-3">
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-1">
+          Rationale
+        </p>
+        <p className="text-foreground">
+          <EmphasizedText text={recommendation.rationale} />
+        </p>
+      </div>
     </CardContent>
   </Card>
 );
 
 const CriticalIssueCard = ({ issue }: { issue: MarketFitCriticalIssue }) => (
-  <Card>
-    <CardHeader className="space-y-2">
+  <Card className="shadow-sm transition-shadow hover:shadow-md">
+    <CardHeader className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">{issue.category}</Badge>
         <Badge
@@ -129,15 +135,17 @@ const CriticalIssueCard = ({ issue }: { issue: MarketFitCriticalIssue }) => (
         </Badge>
         {issue.quick_win ? <Badge variant="default">Quick win</Badge> : null}
       </div>
-      <CardTitle className="text-lg">{issue.title}</CardTitle>
+      <CardTitle className="text-xl font-semibold">{issue.title}</CardTitle>
     </CardHeader>
-    <CardContent className="space-y-3 text-sm leading-relaxed">
-      <div>
-        <p className="text-muted-foreground text-xs uppercase">Description</p>
-        <p>{issue.description}</p>
+    <CardContent className="space-y-4 text-sm leading-relaxed">
+      <div className="rounded-lg bg-muted/50 p-3">
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+          Description
+        </p>
+        <p className="text-foreground">{issue.description}</p>
       </div>
       <div>
-        <p className="text-muted-foreground text-xs uppercase">
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
           Affected segments
         </p>
         <div className="flex flex-wrap gap-2 pt-1">
@@ -148,21 +156,25 @@ const CriticalIssueCard = ({ issue }: { issue: MarketFitCriticalIssue }) => (
           ))}
         </div>
       </div>
-      <div>
-        <p className="text-muted-foreground text-xs uppercase">
+      <div className="rounded-lg bg-muted/50 p-3">
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
           Business impact
         </p>
-        {issue.business_impact.split("\n").map((line) => (
-          <p key={line}>{line}</p>
-        ))}
+        <div className="space-y-1 text-foreground">
+          {issue.business_impact.split("\n").map((line, idx) => (
+            <p key={idx}>{line}</p>
+          ))}
+        </div>
       </div>
-      <div>
-        <p className="text-muted-foreground text-xs uppercase">
+      <div className="rounded-lg bg-primary/5 p-3">
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
           Recommendations
         </p>
-        {issue.recommendations.split("\n").map((line) => (
-          <p key={line}>{line}</p>
-        ))}
+        <div className="space-y-1 text-foreground">
+          {issue.recommendations.split("\n").map((line, idx) => (
+            <p key={idx}>{line}</p>
+          ))}
+        </div>
       </div>
     </CardContent>
   </Card>
@@ -173,24 +185,28 @@ const ProductModificationCard = ({
 }: {
   item: MarketFitProductModification;
 }) => (
-  <Card>
+  <Card className="shadow-sm transition-shadow hover:shadow-md">
     <CardHeader>
-      <CardTitle className="text-base">{item.modification_area}</CardTitle>
+      <CardTitle className="text-lg font-semibold">{item.modification_area}</CardTitle>
     </CardHeader>
-    <CardContent className="space-y-3 text-sm leading-relaxed">
-      <div>
-        <p className="text-muted-foreground text-xs uppercase">Current state</p>
-        <p>{item.current_state}</p>
+    <CardContent className="space-y-4 text-sm leading-relaxed">
+      <div className="rounded-lg bg-muted/50 p-3">
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+          Current state
+        </p>
+        <p className="text-foreground">{item.current_state}</p>
       </div>
-      <div>
-        <p className="text-muted-foreground text-xs uppercase">
+      <div className="rounded-lg bg-primary/5 p-3">
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
           Recommended state
         </p>
-        <p>{item.recommended_state}</p>
+        <p className="text-foreground font-medium">{item.recommended_state}</p>
       </div>
-      <div>
-        <p className="text-muted-foreground text-xs uppercase">Justification</p>
-        <p>{item.justification}</p>
+      <div className="rounded-lg bg-muted/50 p-3">
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+          Justification
+        </p>
+        <p className="text-foreground">{item.justification}</p>
       </div>
     </CardContent>
   </Card>
@@ -201,25 +217,27 @@ const ValuePropRewriteCard = ({
 }: {
   rewrite: MarketFitValuePropRewrite;
 }) => (
-  <Card>
+  <Card className="shadow-sm transition-shadow hover:shadow-md">
     <CardHeader className="space-y-3">
-      <CardTitle className="text-base">Current Messaging</CardTitle>
-      <p className="text-sm leading-relaxed">{rewrite.current_messaging}</p>
+      <CardTitle className="text-lg font-semibold">Current Messaging</CardTitle>
+      <div className="rounded-lg bg-muted/50 p-3">
+        <p className="text-sm leading-relaxed text-foreground">{rewrite.current_messaging}</p>
+      </div>
     </CardHeader>
     <CardContent className="space-y-4">
       {rewrite.recommendation_by_segment.map((segment) => (
         <div
           key={segment.segment_name}
-          className="rounded-lg border border-dashed p-4"
+          className="rounded-lg border bg-card p-4 transition-shadow hover:shadow-sm"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h4 className="text-sm font-semibold">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h4 className="text-sm font-semibold text-foreground">
               {segment.segment_name} · {segment.primary_hook}
             </h4>
           </div>
-          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm">
-            {segment.key_messages_to_add.map((message) => (
-              <li key={message}>
+          <ul className="list-disc space-y-1.5 pl-5 text-sm">
+            {segment.key_messages_to_add.map((message, idx) => (
+              <li key={idx} className="text-foreground">
                 <EmphasizedText text={message} />
               </li>
             ))}
@@ -358,46 +376,43 @@ const KpiGaugeCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
     `Higher values indicate stronger ${kpi.metric_type.toLowerCase()} performance.`;
 
   return (
-    <Card className="shadow-sm">
-      <CardContent className="flex flex-col items-center space-y-3 px-3 py-4 text-center">
-        <div className="relative flex h-20 w-24 items-center justify-center">
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
+        <div className="relative flex h-24 w-28 items-center justify-center">
           <SemiCircleGauge
             percentage={percentage}
             accentColor={visuals.colorHex}
           />
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
-            <span className={`text-2xl font-bold ${visuals.textClass}`}>
+            <span className={`text-3xl font-bold ${visuals.textClass}`}>
               {percentage}
             </span>
           </div>
         </div>
-        <div className="space-y-1">
-          <p className="text-base font-semibold">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-muted-foreground text-xs">{description}</p>
+        <div className="space-y-1.5">
+          <p className="text-base font-semibold text-foreground">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-muted-foreground text-xs font-medium">{description}</p>
         </div>
-        <div className="grid w-full grid-cols-3 gap-2 text-[11px]">
+        <div className="grid w-full grid-cols-3 gap-3 rounded-lg bg-muted/50 p-3 text-[11px]">
           <div>
             <p className="text-foreground text-sm font-semibold">
               {formatDecimal(kpi.min_response * 100)}
             </p>
-            <p className="text-muted-foreground uppercase">Min</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Min</p>
           </div>
           <div>
             <p className="text-foreground text-sm font-semibold">
               {percentage}
             </p>
-            <p className="text-muted-foreground uppercase">Avg</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Avg</p>
           </div>
           <div>
             <p className="text-foreground text-sm font-semibold">
               {formatDecimal(kpi.max_response * 100)}
             </p>
-            <p className="text-muted-foreground uppercase">Max</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Max</p>
           </div>
         </div>
-        {/* <p className="text-muted-foreground text-xs">
-          {kpi.num_responses} responses analyzed
-        </p> */}
       </CardContent>
     </Card>
   );
@@ -406,6 +421,7 @@ const KpiGaugeCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
 export const MarketFitSimulationResults = ({
   data,
   onRestart,
+  productName,
 }: MarketFitSimulationResultsProps) => {
   const { simulation_analysis, recommendation, s3_keys } = data;
   
@@ -479,7 +495,7 @@ export const MarketFitSimulationResults = ({
       const { generateMarketFitPDF } = await import(
         "../utils/generateMarketFitPDF"
       );
-      generateMarketFitPDF(data);
+      generateMarketFitPDF(data, productName);
       toast.success("PDF report downloaded successfully!");
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -496,8 +512,7 @@ export const MarketFitSimulationResults = ({
           </p>
           <h2 className="text-2xl font-bold">KPI & Recommendations Summary</h2>
           <p className="text-muted-foreground text-sm">
-            Generated {formatDateTime(metadata.generated_at)} —{" "}
-            {metadata.total_responses} responses processed
+            Generated {formatDate(metadata.generated_at)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -518,8 +533,8 @@ export const MarketFitSimulationResults = ({
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="kpi-summary" className="space-y-4">
-          <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
+        <TabsContent value="kpi-summary" className="space-y-6">
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
             {kpi_summary
               .filter(
                 (kpi) =>
@@ -536,9 +551,9 @@ export const MarketFitSimulationResults = ({
         </TabsContent>
 
         <TabsContent value="recommendations" className="space-y-6">
-          <section className="space-y-3">
+          <section className="space-y-4">
             <div>
-              <p className="text-sm font-semibold">Segment Analysis</p>
+              <p className="text-base font-semibold text-foreground">Segment Analysis</p>
               <p className="text-muted-foreground text-sm">
                 Deep dive into top personas, blockers, and activation paths.
               </p>
@@ -546,47 +561,57 @@ export const MarketFitSimulationResults = ({
             <div className="space-y-4">
               {recommendation.segment_analysis.map(
                 (segment: MarketFitSegmentAnalysis) => (
-                  <Card key={segment.segment_name}>
-                    <CardHeader className="space-y-2">
+                  <Card key={segment.segment_name} className="shadow-sm transition-shadow hover:shadow-md">
+                    <CardHeader className="space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                          <CardTitle className="text-xl">
+                          <CardTitle className="text-xl font-semibold">
                             {segment.segment_name}
                           </CardTitle>
-                          <p className="text-muted-foreground text-sm">
+                          <p className="text-muted-foreground text-sm font-medium">
                             {segment.segment_size}
                           </p>
                         </div>
-                        <Badge variant="outline">{segment.fit_level}</Badge>
+                        <Badge variant="outline" className="font-medium">{segment.fit_level}</Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-5 text-sm leading-relaxed">
                       <div className="grid gap-4 md:grid-cols-3">
-                        <ListSection
-                          title="Demographics"
-                          items={segment.key_characteristics.demographics}
-                        />
-                        <ListSection
-                          title="Behaviors"
-                          items={segment.key_characteristics.behaviors}
-                        />
-                        <ListSection
-                          title="Pain points"
-                          items={segment.key_characteristics.pain_points}
-                        />
+                        <div className="rounded-lg bg-muted/50 p-3">
+                          <ListSection
+                            title="Demographics"
+                            items={segment.key_characteristics.demographics}
+                          />
+                        </div>
+                        <div className="rounded-lg bg-muted/50 p-3">
+                          <ListSection
+                            title="Behaviors"
+                            items={segment.key_characteristics.behaviors}
+                          />
+                        </div>
+                        <div className="rounded-lg bg-muted/50 p-3">
+                          <ListSection
+                            title="Pain points"
+                            items={segment.key_characteristics.pain_points}
+                          />
+                        </div>
                       </div>
                       <div className="grid gap-4 md:grid-cols-2">
-                        <ListSection
-                          title="Strengths"
-                          items={segment.strengths}
-                        />
-                        <ListSection
-                          title="Weaknesses"
-                          items={segment.weaknesses}
-                        />
+                        <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950/20">
+                          <ListSection
+                            title="Strengths"
+                            items={segment.strengths}
+                          />
+                        </div>
+                        <div className="rounded-lg bg-red-50 p-3 dark:bg-red-950/20">
+                          <ListSection
+                            title="Weaknesses"
+                            items={segment.weaknesses}
+                          />
+                        </div>
                       </div>
-                      <div className="space-y-3">
-                        <p className="text-sm font-semibold">
+                      <div className="space-y-3 border-t pt-4">
+                        <p className="text-sm font-semibold text-foreground">
                           Specific recommendations
                         </p>
                         <div className="grid gap-3 md:grid-cols-2">
@@ -600,13 +625,13 @@ export const MarketFitSimulationResults = ({
                           )}
                         </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold">
+                      <div className="rounded-lg bg-primary/5 p-3">
+                        <p className="text-sm font-semibold text-foreground mb-2">
                           Acquisition channels
                         </p>
-                        <div className="flex flex-wrap gap-2 pt-2">
+                        <div className="flex flex-wrap gap-2 pt-1">
                           {segment.acquisition_channels.map((channel) => (
-                            <Badge key={channel} variant="outline">
+                            <Badge key={channel} variant="outline" className="font-medium">
                               {channel}
                             </Badge>
                           ))}
@@ -619,9 +644,9 @@ export const MarketFitSimulationResults = ({
             </div>
           </section>
 
-          <section className="space-y-3">
+          <section className="space-y-4">
             <div>
-              <p className="text-sm font-semibold">Critical Issues</p>
+              <p className="text-base font-semibold text-foreground">Critical Issues</p>
               <p className="text-muted-foreground text-sm">
                 Urgent risks that block conversion or adoption.
               </p>
@@ -633,9 +658,9 @@ export const MarketFitSimulationResults = ({
             </div>
           </section>
 
-          <section className="space-y-3">
+          <section className="space-y-4">
             <div>
-              <p className="text-sm font-semibold">Product & Experience</p>
+              <p className="text-base font-semibold text-foreground">Product & Experience</p>
               <p className="text-muted-foreground text-sm">
                 Near-term product changes to unlock adoption.
               </p>
@@ -650,9 +675,9 @@ export const MarketFitSimulationResults = ({
             </div>
           </section>
 
-          <section className="space-y-3">
+          <section className="space-y-4">
             <div>
-              <p className="text-sm font-semibold">Value Proposition</p>
+              <p className="text-base font-semibold text-foreground">Value Proposition</p>
               <p className="text-muted-foreground text-sm">
                 Messaging pivots aligned to each priority segment.
               </p>
@@ -666,9 +691,9 @@ export const MarketFitSimulationResults = ({
 
           {recommendation.answered_questions &&
             recommendation.answered_questions.length > 0 && (
-              <section className="space-y-3">
+              <section className="space-y-4">
                 <div>
-                  <p className="text-sm font-semibold">
+                  <p className="text-base font-semibold text-foreground">
                     Questions &amp; Answers from Simulation
                   </p>
                   <p className="text-muted-foreground text-sm">

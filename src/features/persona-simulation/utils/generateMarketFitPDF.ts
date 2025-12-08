@@ -2,14 +2,6 @@ import jsPDF from "jspdf";
 
 import type { MarketFitSimulationPayload } from "../types";
 
-const formatDateTime = (value: string): string => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-};
 
 const formatDecimal = (value: number): string => {
   if (typeof value !== "number" || Number.isNaN(value)) return "—";
@@ -24,7 +16,8 @@ const titleCase = (value: string): string =>
     .join(" ");
 
 export const generateMarketFitPDF = (
-  data: MarketFitSimulationPayload
+  data: MarketFitSimulationPayload,
+  productName?: string
 ): void => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -43,57 +36,68 @@ export const generateMarketFitPDF = (
     return false;
   };
 
-  // Helper to wrap text
+  // Add logo at the top (centered)
+  try {
+    const logoPath = "/hea.png";
+    const logoWidth = 40;
+    const logoHeight = 15;
+    const logoX = (pageWidth - logoWidth) / 2; // Center horizontally
+    doc.addImage(logoPath, "PNG", logoX, yPosition, logoWidth, logoHeight);
+    yPosition += logoHeight + 15;
+  } catch (error) {
+    console.error("Error loading logo:", error);
+    yPosition += 20;
+  }
+
+  // Product Name Section (centered)
+  if (productName) {
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    const productTitle = "Product";
+    const productTitleWidth = doc.getTextWidth(productTitle);
+    doc.text(productTitle, (pageWidth - productTitleWidth) / 2, yPosition);
+    yPosition += 8;
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+    // Wrap product name if it's too long
+    const productNameLines = doc.splitTextToSize(productName, contentWidth);
+    productNameLines.forEach((line: string) => {
+      checkPageBreak(7);
+      const lineWidth = doc.getTextWidth(line);
+      doc.text(line, (pageWidth - lineWidth) / 2, yPosition);
+      yPosition += 7;
+    });
+    yPosition += 8;
+    
+    doc.setTextColor(0, 0, 0);
+  }
+
+  // Helper to wrap text with better spacing and page break handling
   const addWrappedText = (
     text: string,
     x: number,
     fontSize = 10,
-    maxWidth = contentWidth
+    maxWidth = contentWidth,
+    lineHeight = 6
   ) => {
     doc.setFontSize(fontSize);
     const lines = doc.splitTextToSize(text, maxWidth);
     lines.forEach((line: string) => {
-      checkPageBreak(6);
+      // Check if we need a new page before adding each line
+      if (yPosition + lineHeight > pageHeight - margin) {
+        doc.addPage();
+        yPosition = margin;
+      }
       doc.text(line, x, yPosition);
-      yPosition += 6;
+      yPosition += lineHeight;
     });
+    return lines.length;
   };
 
-  // Title
-  doc.setFontSize(24);
-  doc.setFont("helvetica", "bold");
-  doc.text("Market Fit Simulation Report", margin, yPosition);
-  yPosition += 15;
-
-  // Metadata header
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(100, 100, 100);
-  const generated = formatDateTime(
-    data.simulation_analysis.metadata.generated_at
-  );
-  doc.text(`Generated: ${generated}`, margin, yPosition);
-  yPosition += 6;
-  doc.text(
-    `Total Responses: ${data.simulation_analysis.metadata.total_responses}`,
-    margin,
-    yPosition
-  );
-  yPosition += 6;
-  doc.text(
-    `Unique KPIs: ${data.simulation_analysis.metadata.unique_kpis}`,
-    margin,
-    yPosition
-  );
-  yPosition += 6;
-  doc.text(
-    `Unique Agents: ${data.simulation_analysis.metadata.unique_agents}`,
-    margin,
-    yPosition
-  );
-  yPosition += 20;
-
-  doc.setTextColor(0, 0, 0);
 
   // KPI Summary Section
   checkPageBreak(20);
@@ -130,12 +134,6 @@ export const generateMarketFitPDF = (
       margin + 5,
       yPosition
     );
-    yPosition += 6;
-    doc.text(
-      `Responses: ${kpi.num_responses} | Std Dev: ${formatDecimal(kpi.std_dev)}`,
-      margin + 5,
-      yPosition
-    );
     yPosition += 10;
     doc.setTextColor(0, 0, 0);
   });
@@ -152,8 +150,13 @@ export const generateMarketFitPDF = (
       checkPageBreak(40);
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
-      doc.text(segment.segment_name, margin, yPosition);
-      yPosition += 7;
+      // Wrap segment name if it's too long
+      const segmentNameLines = doc.splitTextToSize(segment.segment_name, contentWidth);
+      segmentNameLines.forEach((line: string) => {
+        checkPageBreak(7);
+        doc.text(line, margin, yPosition);
+        yPosition += 7;
+      });
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
@@ -171,7 +174,8 @@ export const generateMarketFitPDF = (
         yPosition += 7;
         doc.setFont("helvetica", "normal");
         segment.strengths.forEach((str) => {
-          addWrappedText(`• ${str}`, margin + 10, 10, contentWidth - 15);
+          checkPageBreak(8);
+          addWrappedText(`• ${str}`, margin + 10, 9, contentWidth - 20, 5);
         });
         yPosition += 3;
       }
@@ -183,10 +187,13 @@ export const generateMarketFitPDF = (
         doc.text("Weaknesses:", margin + 5, yPosition);
         yPosition += 7;
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
         segment.weaknesses.forEach((weak) => {
-          addWrappedText(`• ${weak}`, margin + 10, 10, contentWidth - 15);
+          checkPageBreak(8);
+          addWrappedText(`• ${weak}`, margin + 10, 9, contentWidth - 20, 5);
         });
         yPosition += 3;
+        doc.setFontSize(10);
       }
 
       if (segment.specific_recommendations?.length) {
@@ -200,15 +207,18 @@ export const generateMarketFitPDF = (
           checkPageBreak(10);
           doc.setFont("helvetica", "bold");
           doc.setFontSize(10);
-          doc.text(
-            `${rec.category} [${rec.priority}]:`,
-            margin + 10,
-            yPosition
-          );
-          yPosition += 6;
+          const categoryText = `${rec.category} [${rec.priority}]:`;
+          const categoryLines = doc.splitTextToSize(categoryText, contentWidth - 20);
+          categoryLines.forEach((line: string) => {
+            checkPageBreak(6);
+            doc.text(line, margin + 10, yPosition);
+            yPosition += 6;
+          });
           doc.setFont("helvetica", "normal");
-          addWrappedText(rec.recommendation, margin + 10, 9, contentWidth - 15);
+          doc.setFontSize(9);
+          addWrappedText(rec.recommendation, margin + 10, 9, contentWidth - 25, 5);
           yPosition += 3;
+          doc.setFontSize(10);
         });
       }
 
@@ -228,35 +238,47 @@ export const generateMarketFitPDF = (
       checkPageBreak(30);
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
-      doc.text(issue.title, margin, yPosition);
-      yPosition += 7;
+      // Wrap title if it's too long
+      const titleLines = doc.splitTextToSize(issue.title, contentWidth);
+      titleLines.forEach((line: string) => {
+        checkPageBreak(7);
+        doc.text(line, margin, yPosition);
+        yPosition += 7;
+      });
 
       doc.setFontSize(10);
       doc.setTextColor(80, 80, 80);
-      doc.text(
-        `Severity: ${issue.severity} | Category: ${issue.category}`,
-        margin + 5,
-        yPosition
-      );
-      yPosition += 6;
+      const severityText = `Severity: ${issue.severity} | Category: ${issue.category}`;
+      const severityLines = doc.splitTextToSize(severityText, contentWidth - 10);
+      severityLines.forEach((line: string) => {
+        checkPageBreak(6);
+        doc.text(line, margin + 5, yPosition);
+        yPosition += 6;
+      });
       doc.setTextColor(0, 0, 0);
 
       doc.setFont("helvetica", "normal");
-      addWrappedText(issue.description, margin + 5, 10);
+      doc.setFontSize(9);
+      addWrappedText(issue.description, margin + 5, 9, contentWidth - 15, 5);
       yPosition += 5;
+      doc.setFontSize(10);
 
       if (issue.affected_segments?.length) {
+        checkPageBreak(10);
         doc.setFont("helvetica", "bold");
         doc.text("Affected Segments:", margin + 5, yPosition);
         yPosition += 6;
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
         addWrappedText(
           issue.affected_segments.join(", "),
           margin + 10,
           9,
-          contentWidth - 15
+          contentWidth - 20,
+          5
         );
         yPosition += 5;
+        doc.setFontSize(10);
       }
 
       yPosition += 10;
@@ -275,8 +297,13 @@ export const generateMarketFitPDF = (
       checkPageBreak(25);
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
-      doc.text(mod.modification_area, margin, yPosition);
-      yPosition += 7;
+      // Wrap modification area if it's too long
+      const modAreaLines = doc.splitTextToSize(mod.modification_area, contentWidth);
+      modAreaLines.forEach((line: string) => {
+        checkPageBreak(7);
+        doc.text(line, margin, yPosition);
+        yPosition += 7;
+      });
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
@@ -284,15 +311,19 @@ export const generateMarketFitPDF = (
       doc.text("Current State:", margin + 5, yPosition);
       yPosition += 6;
       doc.setTextColor(0, 0, 0);
-      addWrappedText(mod.current_state, margin + 10, 9, contentWidth - 15);
+      doc.setFontSize(9);
+      addWrappedText(mod.current_state, margin + 10, 9, contentWidth - 20, 5);
       yPosition += 3;
+      doc.setFontSize(10);
 
       doc.setTextColor(80, 80, 80);
       doc.text("Recommended State:", margin + 5, yPosition);
       yPosition += 6;
       doc.setTextColor(0, 0, 0);
-      addWrappedText(mod.recommended_state, margin + 10, 9, contentWidth - 15);
+      doc.setFontSize(9);
+      addWrappedText(mod.recommended_state, margin + 10, 9, contentWidth - 20, 5);
       yPosition += 5;
+      doc.setFontSize(10);
     });
   }
 
@@ -319,26 +350,48 @@ export const generateMarketFitPDF = (
       vp.recommendation_by_segment.forEach((segRec) => {
         checkPageBreak(15);
         doc.setFont("helvetica", "bold");
-        doc.text(segRec.segment_name, margin + 5, yPosition);
-        yPosition += 6;
+        doc.setFontSize(11);
+        // Wrap segment name if it's too long
+        const segNameLines = doc.splitTextToSize(segRec.segment_name, contentWidth - 15);
+        segNameLines.forEach((line: string) => {
+          checkPageBreak(6);
+          doc.text(line, margin + 5, yPosition);
+          yPosition += 6;
+        });
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
         doc.setTextColor(80, 80, 80);
-        doc.text(`Hook: ${segRec.primary_hook}`, margin + 10, yPosition);
-        yPosition += 6;
+        const hookText = `Hook: ${segRec.primary_hook}`;
+        const hookLines = doc.splitTextToSize(hookText, contentWidth - 20);
+        hookLines.forEach((line: string) => {
+          checkPageBreak(6);
+          doc.text(line, margin + 10, yPosition);
+          yPosition += 6;
+        });
         doc.setTextColor(0, 0, 0);
 
         segRec.key_messages_to_add.forEach((msg) => {
-          addWrappedText(`• ${msg}`, margin + 10, 9, contentWidth - 15);
+          checkPageBreak(8);
+          addWrappedText(`• ${msg}`, margin + 10, 9, contentWidth - 25, 5);
         });
         yPosition += 5;
+        doc.setFontSize(10);
       });
 
       yPosition += 10;
     });
   }
 
-  // Save the PDF
-  const fileName = `market-fit-simulation-${data.simulation_analysis.metadata.generated_at}.pdf`;
+  // Save the PDF with product name
+  let fileName = "market-fit-simulation-report.pdf";
+  if (productName) {
+    // Sanitize product name for filename (remove special characters)
+    const sanitizedName = productName
+      .replace(/[^a-zA-Z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .substring(0, 50); // Limit length
+    fileName = `${sanitizedName}.pdf`;
+  }
   doc.save(fileName);
 };
 

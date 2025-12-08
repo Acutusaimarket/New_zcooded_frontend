@@ -13,6 +13,14 @@ export interface JobMetadata {
   context_layer: unknown | null;
 }
 
+export interface MediaFile {
+  filename: string;
+  filetype: string;
+  url: string;
+  size: number;
+  key?: string | null;
+}
+
 export interface SimulationJob {
   _id: string;
   job_type: string;
@@ -23,6 +31,7 @@ export interface SimulationJob {
   user: string;
   persona?: Array<{ name?: string; _id?: string; [key: string]: unknown }>;
   product?: Array<{ name?: string; _id?: string; [key: string]: unknown }>;
+  media_files?: MediaFile[];
   created_at: string;
   updated_at: string;
 }

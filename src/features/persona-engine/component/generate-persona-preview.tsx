@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,8 +15,6 @@ import { PersonaCreateAndUpdate } from "@/features/persona-management/components
 import { PersonaCard } from "@/features/persona-management/components/PersonaCard";
 import type { PersonaFormData } from "@/features/persona-management/schema";
 import type { PersonaData } from "@/types/persona.type";
-
-import { useSavePersonaMutation } from "../api/mutation/use-save-persona";
 
 interface GeneratePersonaPreviewProps {
   generateResult: PersonaData[] | null | undefined;
@@ -40,9 +39,9 @@ export const GeneratePersonaPreview = ({
       }
     | undefined
   >(undefined);
+  const navigate = useNavigate();
   const updatePersonaMutation = useUpdatePersonaMutation();
   const deletePersonaMutation = useDeletePersonaMutation();
-  const savePersonaMutation = useSavePersonaMutation();
 
   // Sync prop with state when it changes
   useEffect(() => {
@@ -145,35 +144,9 @@ export const GeneratePersonaPreview = ({
     setEditPersona({ personaData, id: persona._id });
   }, []);
 
-  const handleSaveAllPersonas = useCallback(() => {
-    if (
-      !Array.isArray(generatePersonaResult) ||
-      generatePersonaResult.length === 0
-    )
-      return;
-    savePersonaMutation.mutate(
-      {
-        personaIds: generatePersonaResult.map((p) => p._id),
-        status: "published",
-      },
-      {
-        onSuccess(data) {
-          setGeneratePersonaResult((prev) => {
-            if (!Array.isArray(prev)) return [];
-            return prev.map((persona) => {
-              const updatedPersona = data?.updated_personas?.find(
-                (updated) => updated._id === persona._id
-              );
-              return updatedPersona
-                ? { ...updatedPersona, status: "published" }
-                : persona;
-            });
-          });
-        },
-      }
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [savePersonaMutation]);
+  const handleViewPersona = useCallback(() => {
+    navigate("/dashboard/persona-studio/management");
+  }, [navigate]);
 
   // console.log(generatePersonaResult);
 
@@ -187,12 +160,9 @@ export const GeneratePersonaPreview = ({
           </CardDescription>
           <Button
             className="mt-2 w-fit"
-            disabled={savePersonaMutation.isPending}
-            onClick={handleSaveAllPersonas}
+            onClick={handleViewPersona}
           >
-            {savePersonaMutation.isPending
-              ? "Saving Personas..."
-              : "Save All Personas"}
+            View Persona
           </Button>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">

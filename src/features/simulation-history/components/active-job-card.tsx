@@ -1,8 +1,10 @@
-import { CheckCircle2, Clock, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, Clock, Loader2, User, ChevronDown, ChevronUp } from "lucide-react";
 import { format } from "date-fns";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 
@@ -11,6 +13,7 @@ import type { SimulationJob } from "../types/job.types";
 interface ActiveJobCardProps {
   job: SimulationJob;
   variant?: "default" | "compact";
+  onViewSimulation?: () => void;
 }
 
 // Mapping from API intermediate_steps keys to display names
@@ -23,7 +26,11 @@ const STEP_MAPPING: Record<string, string> = {
   stats_extraction: "Stats Extraction",
   recommendation_generation: "Recommendation Generation",
   cbvs_qa_generation: "Report Generation",
-  s3_upload_complete: "Upload Complete",
+  s3_upload_complete: "S3 Upload Complete",
+  persona_generation: "Persona Generation",
+  media_loading: "Media Loading",
+  visual_analysis: "Visual Analysis",
+  s3_upload_visuals: "S3 Upload Visuals",
 };
 
 // Define the step order for market_fit_simulation
@@ -47,8 +54,13 @@ const normalizeStepName = (name: string): string => {
 export const ActiveJobCard = ({
   job,
   variant = "default",
+  onViewSimulation,
 }: ActiveJobCardProps) => {
   const intermediateStepsMap = job.intermediate_steps || {};
+  const isMediaSimulation = job.job_type === "media_simulation";
+  const firstMediaFile = job.media_files && job.media_files.length > 0 ? job.media_files[0] : null;
+  const isImage = firstMediaFile?.filetype?.startsWith("image/");
+  const isVideo = firstMediaFile?.filetype?.startsWith("video/");
 
   // Get product name if available (for market_fit_simulation)
   // Fetch product name from product array first, then fallback to meta_data
@@ -162,7 +174,326 @@ export const ActiveJobCard = ({
   };
 
   const isCompact = variant === "compact";
+  const isMarketFitSimulation = job.job_type === "market_fit_simulation";
+  // Active jobs (in_progress, finalizing) should be expanded by default
+  const isActiveJob = job.status === "in_progress" || job.status === "finalizing";
+  const [isExpanded, setIsExpanded] = useState(
+    isActiveJob || (isMarketFitSimulation && isActiveJob)
+  );
 
+  // Special layout for market_fit_simulation jobs (all tabs)
+  if (isMarketFitSimulation) {
+    // Collapsed view - only product name
+    if (!isExpanded) {
+      return (
+        <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg">
+          <CardContent className="p-4">
+            {/* Product Name */}
+            {productName && (
+              <div className="mb-3">
+                <p className="text-base font-semibold text-foreground">
+                  {productName}
+                </p>
+              </div>
+            )}
+
+            {/* View Details Button */}
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => setIsExpanded(true)}
+            >
+              View Details
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // Expanded view - full card with all details
+    return (
+      <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-muted-foreground text-xs">
+                {format(new Date(job.created_at), "dd MMMM yyyy")}
+              </p>
+            </div>
+            {getStatusBadge()}
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Product Name */}
+          {productName && (
+            <div>
+              <p className="text-base font-semibold text-foreground">
+                {productName}
+              </p>
+            </div>
+          )}
+
+          {/* Intermediate Steps */}
+          {orderedSteps.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Processing Steps
+              </h4>
+              <div className="space-y-1.5">
+                {orderedSteps.map((step) => (
+                  <div key={step.stepKey} className="flex items-center gap-2">
+                    {step.completed ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
+                    ) : (
+                      <div className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-muted-foreground/30" />
+                    )}
+                    <p
+                      className={`text-xs ${
+                        step.completed
+                          ? "font-medium text-foreground"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {step.displayName}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Persona Info */}
+          {job.meta_data?.num_personas && (
+            <div className="flex items-center gap-2 pt-2">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">
+                  {job.meta_data.num_personas}{" "}
+                  {job.meta_data.num_personas === 1 ? "Persona" : "Personas"}
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+
+        <CardFooter className="flex flex-col gap-2 pt-4">
+          {/* Collapse Button */}
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => setIsExpanded(false)}
+          >
+            Collapse
+            <ChevronUp className="ml-2 h-4 w-4" />
+          </Button>
+
+          {/* View Simulation Button */}
+          {onViewSimulation && (
+            <Button
+              className="w-full"
+              variant="default"
+              onClick={onViewSimulation}
+              disabled={job.status !== "completed"}
+            >
+              View Simulation
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  // Special layout for all media_simulation jobs (all tabs)
+  if (isMediaSimulation) {
+    // Collapsed view - only image and filename
+    if (!isExpanded) {
+      return (
+        <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg">
+          {/* Media Preview */}
+          {firstMediaFile?.url && (
+            <div className="relative aspect-video w-full overflow-hidden bg-muted">
+              {isImage ? (
+                <img
+                  src={firstMediaFile.url}
+                  alt={firstMediaFile.filename || "Media preview"}
+                  className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                  }}
+                />
+              ) : isVideo ? (
+                <video
+                  src={firstMediaFile.url}
+                  className="h-full w-full object-cover"
+                  controls={false}
+                  muted
+                  playsInline
+                  onError={(e) => {
+                    const target = e.target as HTMLVideoElement;
+                    target.style.display = "none";
+                  }}
+                />
+              ) : null}
+            </div>
+          )}
+
+          <CardContent className="p-4">
+            {/* Filename */}
+            {firstMediaFile?.filename && (
+              <div className="mb-3">
+                <p className="text-sm font-semibold text-foreground">
+                  {firstMediaFile.filename}
+                </p>
+              </div>
+            )}
+
+            {/* View Full Card Button */}
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => setIsExpanded(true)}
+            >
+              View Details
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // Expanded view - full card with all details
+    return (
+      <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg">
+        {/* Media Preview */}
+        {firstMediaFile?.url && (
+          <div className="relative aspect-video w-full overflow-hidden bg-muted">
+            {isImage ? (
+              <img
+                src={firstMediaFile.url}
+                alt={firstMediaFile.filename || "Media preview"}
+                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+              />
+            ) : isVideo ? (
+              <video
+                src={firstMediaFile.url}
+                className="h-full w-full object-cover"
+                controls={false}
+                muted
+                playsInline
+                onError={(e) => {
+                  const target = e.target as HTMLVideoElement;
+                  target.style.display = "none";
+                }}
+              />
+            ) : null}
+          </div>
+        )}
+
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-muted-foreground text-xs">
+                {format(new Date(job.created_at), "dd MMMM yyyy")}
+              </p>
+            </div>
+            {getStatusBadge()}
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Filename */}
+          {firstMediaFile?.filename && (
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                {firstMediaFile.filename}
+              </p>
+            </div>
+          )}
+
+          {/* Intermediate Steps */}
+          {orderedSteps.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Processing Steps
+              </h4>
+              <div className="space-y-1.5">
+                {orderedSteps.map((step) => (
+                  <div key={step.stepKey} className="flex items-center gap-2">
+                    {step.completed ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
+                    ) : (
+                      <div className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-muted-foreground/30" />
+                    )}
+                    <p
+                      className={`text-xs ${
+                        step.completed
+                          ? "font-medium text-foreground"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {step.displayName}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Persona Info */}
+          {personaNames.length > 0 && (
+            <div className="flex items-center gap-2 pt-2">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">
+                  {job.meta_data?.num_personas || personaNames.length}{" "}
+                  {personaNames.length === 1 ? "Persona" : "Personas"}:{" "}
+                  {personaNames.length === 1
+                    ? personaNames[0]
+                    : personaNames.slice(0, 2).join(", ") +
+                      (personaNames.length > 2
+                        ? ` +${personaNames.length - 2} more`
+                        : "")}
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+
+        <CardFooter className="flex flex-col gap-2 pt-4">
+          {/* Collapse Button */}
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => setIsExpanded(false)}
+          >
+            Collapse
+            <ChevronUp className="ml-2 h-4 w-4" />
+          </Button>
+
+          {/* View Simulation Button */}
+          {onViewSimulation && (
+            <Button
+              className="w-full"
+              variant="default"
+              onClick={onViewSimulation}
+              disabled={job.status !== "completed"}
+            >
+              View Result
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  // Default layout for other job types or non-completed media_simulation
   return (
     <Card className={isCompact ? "w-full border-border/60" : "w-full"}>
       <CardHeader className={isCompact ? "px-4 py-3" : undefined}>
@@ -231,12 +562,6 @@ export const ActiveJobCard = ({
           <>
             <Separator />
             <div className="grid gap-3 sm:grid-cols-2">
-              {/* <div>
-                <p className="text-muted-foreground text-xs">Simulations</p>
-                <p className="font-medium">
-                  {job.meta_data.no_of_simulations}
-                </p>
-              </div> */}
               <div>
                 <p className="text-muted-foreground text-xs">Personas</p>
                 <p className="font-medium">{job.meta_data.num_personas}</p>
@@ -257,16 +582,6 @@ export const ActiveJobCard = ({
                   </p>
                 </div>
               )}
-              {/* <div>
-                <p className="text-muted-foreground text-xs">Media Files</p>
-                <p className="font-medium">{job.meta_data.num_media_files}</p>
-              </div> */}
-              {/* <div>
-                <p className="text-muted-foreground text-xs">User</p>
-                <p className="font-medium truncate">
-                  {job.meta_data.user_email}
-                </p>
-              </div> */}
             </div>
           </>
         )}

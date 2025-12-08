@@ -126,40 +126,60 @@ export const JobsListByStatus = ({
     }
   };
 
+  // Check if any job is media_simulation or market_fit_simulation to determine layout
+  const hasMediaSimulation = jobs.some(
+    (job) => jobType === "media_simulation" || job.job_type === "media_simulation"
+  );
+  const hasMarketFitSimulation = jobs.some(
+    (job) => jobType === "market_fit_simulation" || job.job_type === "market_fit_simulation"
+  );
+
   return (
     <div
       className={
-        status === "completed"
+        status === "completed" || hasMediaSimulation || hasMarketFitSimulation
           ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
           : "space-y-4"
       }
     >
       {jobs.map((job) => {
+        // For all media_simulation and market_fit_simulation jobs (all tabs), pass the handler to integrate button in card
+        const isMediaSimulation =
+          jobType === "media_simulation" || job.job_type === "media_simulation";
+        const isMarketFitSimulation =
+          jobType === "market_fit_simulation" || job.job_type === "market_fit_simulation";
+
         const card = (
           <ActiveJobCard
             key={job._id}
             job={job}
+            onViewSimulation={
+              isMediaSimulation || isMarketFitSimulation
+                ? () => handleViewSimulation(job)
+                : undefined
+            }
           />
         );
 
-        if (status !== "completed") {
-          return card;
+        // For non-media_simulation and non-market_fit_simulation completed jobs, show button separately
+        if (status === "completed" && !isMediaSimulation && !isMarketFitSimulation) {
+          return (
+            <div key={job._id} className="space-y-2">
+              {card}
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleViewSimulation(job)}
+                >
+                  View Simulation
+                </Button>
+              </div>
+            </div>
+          );
         }
 
-        return (
-          <div key={job._id} className="space-y-2">
-            {card}
-            <div className="flex justify-end">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleViewSimulation(job)}
-              >
-                View Simulation
-              </Button>
-            </div>
-          </div>
-        );
+        return card;
       })}
     </div>
   );

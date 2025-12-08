@@ -76,18 +76,17 @@ interface MediaSimulationData {
     answer: string;
   }>;
   simulation_status?: Record<string, any>;
+  media_files?: Array<{
+    filename: string;
+    filetype: string;
+    url: string;
+    size: number;
+    key?: string | null;
+  }>;
   created_at: string;
   updated_at: string;
 }
 
-const formatDateTime = (value: string): string => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-};
 
 const formatDecimal = (value: number | null): string => {
   if (value === null || typeof value !== "number" || Number.isNaN(value))
@@ -102,9 +101,9 @@ const titleCase = (value: string): string =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 
-export const generateMediaSimulationPDF = (
+export const generateMediaSimulationPDF = async (
   data: MediaSimulationData
-): void => {
+): Promise<void> => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -122,63 +121,65 @@ export const generateMediaSimulationPDF = (
     return false;
   };
 
-  // Helper to wrap text
+  // Add logo at the top (centered)
+  try {
+    const logoPath = "/hea.png";
+    const logoWidth = 40;
+    const logoHeight = 15;
+    const logoX = (pageWidth - logoWidth) / 2; // Center horizontally
+    doc.addImage(logoPath, "PNG", logoX, yPosition, logoWidth, logoHeight);
+    yPosition += logoHeight + 15;
+  } catch (error) {
+    console.error("Error loading logo:", error);
+    yPosition += 20;
+  }
+
+  // Helper to wrap text with better spacing and page break handling
   const addWrappedText = (
     text: string,
     x: number,
     fontSize = 10,
-    maxWidth = contentWidth
+    maxWidth = contentWidth,
+    lineHeight = 6
   ) => {
     doc.setFontSize(fontSize);
     const lines = doc.splitTextToSize(text, maxWidth);
     lines.forEach((line: string) => {
-      checkPageBreak(6);
+      // Check if we need a new page before adding each line
+      if (yPosition + lineHeight > pageHeight - margin) {
+        doc.addPage();
+        yPosition = margin;
+      }
       doc.text(line, x, yPosition);
-      yPosition += 6;
+      yPosition += lineHeight;
     });
+    return lines.length;
   };
 
-  // Title
-  doc.setFontSize(24);
-  doc.setFont("helvetica", "bold");
-  doc.text("Media Simulation Report", margin, yPosition);
-  yPosition += 15;
-
-  // Metadata header
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(100, 100, 100);
-  const generated = formatDateTime(
-    data.simulation_analysis.metadata.generated_at
-  );
-  doc.text(`Generated: ${generated}`, margin, yPosition);
-  yPosition += 6;
-  doc.text(
-    `Total Responses: ${data.simulation_analysis.metadata.total_responses}`,
-    margin,
-    yPosition
-  );
-  yPosition += 6;
-  doc.text(
-    `Unique KPIs: ${data.simulation_analysis.metadata.unique_kpis}`,
-    margin,
-    yPosition
-  );
-  yPosition += 6;
-  doc.text(
-    `Unique Agents: ${data.simulation_analysis.metadata.unique_agents}`,
-    margin,
-    yPosition
-  );
-  yPosition += 6;
-  doc.text(
-    `Number of Questions: ${data.simulation_analysis.metadata.num_questions}`,
-    margin,
-    yPosition
-  );
-  yPosition += 20;
-
-  doc.setTextColor(0, 0, 0);
+  // Media File Section - Filename only (centered)
+  if (data.media_files && data.media_files.length > 0) {
+    const firstMediaFile = data.media_files[0];
+    
+    // Show filename (centered)
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    const mediaFileTitle = "Media File";
+    const mediaFileTitleWidth = doc.getTextWidth(mediaFileTitle);
+    doc.text(mediaFileTitle, (pageWidth - mediaFileTitleWidth) / 2, yPosition);
+    yPosition += 8;
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+    const filenameText = firstMediaFile.filename;
+    const filenameWidth = doc.getTextWidth(filenameText);
+    doc.text(filenameText, (pageWidth - filenameWidth) / 2, yPosition);
+    yPosition += 15;
+    
+    doc.setTextColor(0, 0, 0);
+  }
 
   // KPI Summary Section
   checkPageBreak(20);
@@ -237,12 +238,6 @@ export const generateMediaSimulationPDF = (
       margin + 5,
       yPosition
     );
-    yPosition += 6;
-    doc.text(
-      `Responses: ${kpi.num_responses ?? "N/A"} | Std Dev: ${formatDecimal(kpi.std_dev)}`,
-      margin + 5,
-      yPosition
-    );
     yPosition += 10;
     doc.setTextColor(0, 0, 0);
   });
@@ -268,46 +263,31 @@ export const generateMediaSimulationPDF = (
       doc.text("Current State:", margin + 5, yPosition);
       yPosition += 6;
       doc.setTextColor(0, 0, 0);
+      doc.setFontSize(9);
       addWrappedText(
         modification.current_state,
         margin + 10,
         9,
-        contentWidth - 15
+        contentWidth - 20,
+        5
       );
-      yPosition += 3;
+      yPosition += 5;
 
       doc.setTextColor(80, 80, 80);
+      doc.setFontSize(10);
       doc.text("Recommended State:", margin + 5, yPosition);
       yPosition += 6;
       doc.setTextColor(0, 0, 0);
+      doc.setFontSize(9);
       addWrappedText(
         modification.recommended_state,
         margin + 10,
         9,
-        contentWidth - 15
+        contentWidth - 20,
+        5
       );
       yPosition += 5;
 
-      // Expected Impact
-      if (modification.expected_impact?.length) {
-        checkPageBreak(15);
-        doc.setFontSize(11);
-        doc.setFont("helvetica", "bold");
-        doc.text("Expected Impact:", margin + 5, yPosition);
-        yPosition += 7;
-        doc.setFont("helvetica", "normal");
-        modification.expected_impact.forEach((impact) => {
-          checkPageBreak(10);
-          doc.setFontSize(10);
-          doc.text(
-            `${impact.metric_name}: ${impact.expected_change} [${impact.confidence_level}]`,
-            margin + 10,
-            yPosition
-          );
-          yPosition += 6;
-        });
-        yPosition += 3;
-      }
 
       // Specific Changes
       if (modification.specific_changes) {
@@ -333,28 +313,34 @@ export const generateMediaSimulationPDF = (
             doc.setFont("helvetica", "normal");
 
             if (modification.specific_changes.visuals.add?.length) {
+              checkPageBreak(8);
               doc.text("Add:", margin + 15, yPosition);
               yPosition += 6;
               modification.specific_changes.visuals.add.forEach((item) => {
-                addWrappedText(`• ${item}`, margin + 15, 9, contentWidth - 20);
+                checkPageBreak(8);
+                addWrappedText(`• ${item}`, margin + 15, 9, contentWidth - 30, 5);
               });
               yPosition += 3;
             }
 
             if (modification.specific_changes.visuals.remove?.length) {
+              checkPageBreak(8);
               doc.text("Remove:", margin + 15, yPosition);
               yPosition += 6;
               modification.specific_changes.visuals.remove.forEach((item) => {
-                addWrappedText(`• ${item}`, margin + 15, 9, contentWidth - 20);
+                checkPageBreak(8);
+                addWrappedText(`• ${item}`, margin + 15, 9, contentWidth - 30, 5);
               });
               yPosition += 3;
             }
 
             if (modification.specific_changes.visuals.modify?.length) {
+              checkPageBreak(8);
               doc.text("Modify:", margin + 15, yPosition);
               yPosition += 6;
               modification.specific_changes.visuals.modify.forEach((item) => {
-                addWrappedText(`• ${item}`, margin + 15, 9, contentWidth - 20);
+                checkPageBreak(8);
+                addWrappedText(`• ${item}`, margin + 15, 9, contentWidth - 30, 5);
               });
               yPosition += 3;
             }
@@ -370,34 +356,50 @@ export const generateMediaSimulationPDF = (
           doc.setFont("helvetica", "normal");
 
           if (modification.specific_changes.script_rewrite.current_hook) {
-            doc.text(
-              `Current Hook: ${modification.specific_changes.script_rewrite.current_hook}`,
-              margin + 15,
-              yPosition
-            );
+            checkPageBreak(8);
+            doc.text("Current Hook:", margin + 15, yPosition);
             yPosition += 6;
+            doc.setFontSize(9);
+            addWrappedText(
+              modification.specific_changes.script_rewrite.current_hook,
+              margin + 20,
+              9,
+              contentWidth - 30,
+              5
+            );
+            yPosition += 2;
+            doc.setFontSize(10);
           }
 
           if (modification.specific_changes.script_rewrite.recommended_hook) {
+            checkPageBreak(8);
             doc.setFont("helvetica", "bold");
-            doc.text(
-              `Recommended Hook: ${modification.specific_changes.script_rewrite.recommended_hook}`,
-              margin + 15,
-              yPosition
-            );
+            doc.text("Recommended Hook:", margin + 15, yPosition);
             yPosition += 6;
             doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            addWrappedText(
+              modification.specific_changes.script_rewrite.recommended_hook,
+              margin + 20,
+              9,
+              contentWidth - 30,
+              5
+            );
+            yPosition += 2;
+            doc.setFontSize(10);
           }
 
           if (
             modification.specific_changes.script_rewrite.key_messages_to_add
               ?.length
           ) {
+            checkPageBreak(8);
             doc.text("Key Messages to Add:", margin + 15, yPosition);
             yPosition += 6;
             modification.specific_changes.script_rewrite.key_messages_to_add.forEach(
               (msg) => {
-                addWrappedText(`• ${msg}`, margin + 15, 9, contentWidth - 20);
+                checkPageBreak(8);
+                addWrappedText(`• ${msg}`, margin + 15, 9, contentWidth - 30, 5);
               }
             );
             yPosition += 3;
@@ -406,94 +408,119 @@ export const generateMediaSimulationPDF = (
 
         // Audio Modifications
         if (modification.specific_changes.audio_modifications) {
-          checkPageBreak(10);
+          checkPageBreak(15);
           doc.setFont("helvetica", "bold");
+          doc.setFontSize(11);
           doc.text("Audio Modifications:", margin + 10, yPosition);
-          yPosition += 6;
+          yPosition += 7;
           doc.setFont("helvetica", "normal");
+          doc.setFontSize(9);
 
           if (
             modification.specific_changes.audio_modifications.voiceover_tone
           ) {
-            doc.text(
-              `Voiceover Tone: ${modification.specific_changes.audio_modifications.voiceover_tone}`,
-              margin + 15,
-              yPosition
-            );
+            checkPageBreak(8);
+            doc.text("Voiceover Tone:", margin + 15, yPosition);
             yPosition += 6;
+            addWrappedText(
+              modification.specific_changes.audio_modifications.voiceover_tone,
+              margin + 20,
+              9,
+              contentWidth - 25,
+              5
+            );
+            yPosition += 2;
           }
 
           if (
             modification.specific_changes.audio_modifications.background_music
           ) {
-            doc.text(
-              `Background Music: ${modification.specific_changes.audio_modifications.background_music}`,
-              margin + 15,
-              yPosition
-            );
+            checkPageBreak(8);
+            doc.text("Background Music:", margin + 15, yPosition);
             yPosition += 6;
+            addWrappedText(
+              modification.specific_changes.audio_modifications.background_music,
+              margin + 20,
+              9,
+              contentWidth - 25,
+              5
+            );
+            yPosition += 2;
           }
         }
 
         // Other specific changes
         if (modification.specific_changes.opening_frame) {
-          checkPageBreak(10);
+          checkPageBreak(15);
           doc.setFont("helvetica", "bold");
+          doc.setFontSize(11);
           doc.text("Opening Frame:", margin + 10, yPosition);
-          yPosition += 6;
+          yPosition += 7;
           doc.setFont("helvetica", "normal");
+          doc.setFontSize(9);
           addWrappedText(
             modification.specific_changes.opening_frame,
             margin + 15,
             9,
-            contentWidth - 20
+            contentWidth - 25,
+            5
           );
           yPosition += 3;
         }
 
         if (modification.specific_changes.disclaimer_addition) {
-          checkPageBreak(10);
+          checkPageBreak(15);
           doc.setFont("helvetica", "bold");
+          doc.setFontSize(11);
           doc.text("Disclaimer Addition:", margin + 10, yPosition);
-          yPosition += 6;
+          yPosition += 7;
           doc.setFont("helvetica", "normal");
+          doc.setFontSize(9);
           addWrappedText(
             modification.specific_changes.disclaimer_addition,
             margin + 15,
             9,
-            contentWidth - 20
+            contentWidth - 25,
+            5
           );
           yPosition += 3;
         }
 
         if (modification.specific_changes.platform_optimization) {
-          checkPageBreak(10);
+          checkPageBreak(15);
           doc.setFont("helvetica", "bold");
+          doc.setFontSize(11);
           doc.text("Platform Optimization:", margin + 10, yPosition);
-          yPosition += 6;
+          yPosition += 7;
           doc.setFont("helvetica", "normal");
+          doc.setFontSize(9);
           addWrappedText(
             modification.specific_changes.platform_optimization,
             margin + 15,
             9,
-            contentWidth - 20
+            contentWidth - 25,
+            5
           );
           yPosition += 3;
         }
 
         if (modification.specific_changes.trust_indicators_to_add?.length) {
-          checkPageBreak(10);
+          checkPageBreak(15);
           doc.setFont("helvetica", "bold");
+          doc.setFontSize(11);
           doc.text("Trust Indicators to Add:", margin + 10, yPosition);
-          yPosition += 6;
+          yPosition += 7;
           doc.setFont("helvetica", "normal");
+          doc.setFontSize(9);
           modification.specific_changes.trust_indicators_to_add.forEach(
             (indicator) => {
+              checkPageBreak(8);
               addWrappedText(
                 `• ${indicator}`,
                 margin + 15,
                 9,
-                contentWidth - 20
+                contentWidth - 30,
+                5
               );
             }
           );
@@ -603,8 +630,14 @@ export const generateMediaSimulationPDF = (
     });
   }
 
-  // Save the PDF
-  const fileName = `media-simulation-${data.simulation_analysis.metadata.generated_at.replace(/[:.]/g, "-")}.pdf`;
+  // Save the PDF with media file filename
+  let fileName = "media-simulation-report.pdf";
+  if (data.media_files && data.media_files.length > 0) {
+    const firstMediaFile = data.media_files[0];
+    // Remove file extension and add .pdf
+    const baseName = firstMediaFile.filename.replace(/\.[^/.]+$/, "");
+    fileName = `${baseName}.pdf`;
+  }
   doc.save(fileName);
 };
 
