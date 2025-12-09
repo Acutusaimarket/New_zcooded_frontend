@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/auth-store";
+import { CreditDisplay } from "./credit-display";
 
 export function NavUser() {
   const logoutMutation = useLogoutMutation();
@@ -52,6 +53,9 @@ export function NavUser() {
 
   return (
     <SidebarMenu>
+      <SidebarMenuItem className="mb-2">
+        <CreditDisplay />
+      </SidebarMenuItem>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

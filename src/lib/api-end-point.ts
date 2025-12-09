@@ -41,6 +41,7 @@ export const authApiEndPoint = {
   refreshToken: "/auth/refresh",
   logout: "/auth/logout",
   getUserInfo: "/auth/me",
+  tokenUsage: "/auth/token-usage",
 } as const;
 
 export const productApiEndPoint = {
