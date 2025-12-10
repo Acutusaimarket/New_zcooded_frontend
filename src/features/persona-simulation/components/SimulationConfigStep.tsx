@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-import { Globe, HelpCircle, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react";
+import { AlertCircle, Globe, HelpCircle, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -287,13 +288,32 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
         <div className="flex items-center space-x-2">
           <Globe className="text-primary h-5 w-5" />
           <h3 className="text-lg font-semibold">Environments</h3>
-          <Badge variant="secondary" className="ml-2">
+          <Badge
+            variant={environments.length > 0 ? "secondary" : "destructive"}
+            className="ml-2"
+          >
             {environments.length} selected
           </Badge>
+          {environments.length === 0 && (
+            <span className="text-destructive text-sm font-medium">
+              * Required
+            </span>
+          )}
         </div>
         <p className="text-muted-foreground text-sm">
-        ⚠️ Select at least one environment to avoid simulation failure or inaccurate outputs.
+          Select at least one environment to proceed. This is required for the
+          simulation.
         </p>
+
+        {environments.length === 0 && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Please select at least one environment to proceed with the
+              simulation.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {environmentOptions.map((option) => {
@@ -349,7 +369,7 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
         <Button
           size="lg"
           onClick={onRunSimulation}
-          disabled={isRunning}
+          disabled={isRunning || environments.length === 0}
           className="flex items-center gap-2"
         >
           {isRunning ? (

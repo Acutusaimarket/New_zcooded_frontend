@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 
 import { ArrowLeft, ArrowRight, CheckCircle, Circle } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,7 @@ export const SimulationWizard: React.FC = () => {
       case 1:
         return formData.selectedProduct !== "";
       case 2:
-        return true;
+        return formData.environments.length > 0; // At least one environment is required
       default:
         return false;
     }
@@ -84,6 +85,12 @@ export const SimulationWizard: React.FC = () => {
   };
 
   const handleRunSimulation = () => {
+    // Validate that at least one environment is selected
+    if (formData.environments.length === 0) {
+      toast.error("Please select at least one environment to proceed");
+      return;
+    }
+
     runSimulationMutation.mutate({
       persona_ids: formData.selectedPersonas,
       product_id: formData.selectedProduct,

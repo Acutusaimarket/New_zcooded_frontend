@@ -42,6 +42,7 @@ export const authApiEndPoint = {
   logout: "/auth/logout",
   getUserInfo: "/auth/me",
   tokenUsage: "/auth/token-usage",
+  wishlist: "/auth/wishlist",
 } as const;
 
 export const productApiEndPoint = {
@@ -86,4 +87,8 @@ export const chatbotApiEndPoint = {
   getSessionById: "/ai/persona-chat/chat",
   answerQuestion: "/ai/persona-chat/answer",
   getChatHistory: "/ai/persona-chat/history",
+} as const;
+
+export const subscriptionApiEndPoint = {
+  getSubscriptionDetails: "/subscription/details",
 } as const;

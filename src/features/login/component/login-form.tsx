@@ -10,7 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 import { useLoginMutation } from "../api/mutations/use-login-mutation";
 import type { LoginSchemaType } from "../types/schema.type";
@@ -20,6 +28,8 @@ const LoginForm = () => {
     defaultValues: {
       email: "",
       password: "",
+      acceptPrivacyPolicy: false,
+      acceptTermsAndConditions: false,
     },
     mode: "onChange",
   });
@@ -54,6 +64,60 @@ const LoginForm = () => {
               required
               placeholder="Enter your password"
               type="password"
+            />
+            <FormField
+              control={loginForm.control}
+              name="acceptPrivacyPolicy"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel required className="text-sm font-normal">
+                    Accept{" "}
+                    <a
+                      href="https://privacy.acutusai.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:text-primary/80 underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Privacy & Policy
+                    </a>
+                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={loginForm.control}
+              name="acceptTermsAndConditions"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel required className="text-sm font-normal">
+                    Accept{" "}
+                    <a
+                      href="https://termandcondition.acutusai.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:text-primary/80 underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Term & condition
+                    </a>
+                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </CardContent>
           <CardFooter>

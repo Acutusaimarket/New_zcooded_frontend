@@ -6,8 +6,9 @@ import {
   ChevronsUpDown,
   CreditCard,
   Sparkles,
+  ArrowUpCircle,
 } from "lucide-react";
-import { Navigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 
 import useLogoutMutation from "@/api/mutation/use-logout-mutation";
 import { LoadingSwap } from "@/components/shared/loading-swap";
@@ -31,11 +32,22 @@ import { useAuthStore } from "@/store/auth-store";
 import { CreditDisplay } from "./credit-display";
 
 export function NavUser() {
+  const navigate = useNavigate();
   const logoutMutation = useLogoutMutation();
 
   const isLoading = useAuthStore((state) => state.isLoading);
   const user = useAuthStore((state) => state.user);
   const error = useAuthStore((state) => state.error);
+
+  const scrollToPricing = () => {
+    navigate("/");
+    setTimeout(() => {
+      const pricingSection = document.getElementById("pricing-section");
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
+  };
 
   if (isLoading) {
     return <Skeleton className="border-input h-12 w-full border shadow-xl" />;
@@ -71,9 +83,19 @@ export function NavUser() {
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user?.first_name}</span>
-                <span className="truncate text-xs">{user?.email}</span>
+                <span className="truncate font-medium">
+                  {user?.first_name} {user?.last_name}
+                </span>
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  scrollToPricing();
+                }}
+                className="ml-2 rounded-md border border-sidebar-border bg-sidebar-accent/50 px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+              >
+                Upgrade
+              </button>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -109,9 +131,21 @@ export function NavUser() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem disabled>
-                <BadgeCheck className="text-muted-foreground size-4" />
-                Account
+              <DropdownMenuItem disabled className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BadgeCheck className="text-muted-foreground size-4" />
+                  Account
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    scrollToPricing();
+                  }}
+                  className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-sidebar-accent"
+                >
+                  <ArrowUpCircle className="size-3" />
+                  Upgrade Plan
+                </button>
               </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <CreditCard className="text-muted-foreground size-4" />

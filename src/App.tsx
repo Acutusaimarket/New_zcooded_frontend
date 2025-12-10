@@ -19,6 +19,7 @@ import ABTestingOverviewPage from "./pages/ab-testing-overview.page";
 import BlogsPage from "./pages/blogs.page";
 import HomePage from "./pages/home";
 import LoginPage from "./pages/login.page";
+import SignupPage from "./pages/signup.page";
 import MarketFitSimulationResultPage from "./pages/marketfit-simulation-result.page";
 import MediaSimulationPage from "./pages/media-simulation.page";
 import MediaSimulationDetailsPage from "./pages/media-simulation/media-simulation-detailed.page";
@@ -42,6 +43,7 @@ const App = () => {
       {/* Public routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/blogs" element={<BlogsPage />} />
+      <Route path="/signup" element={<SignupPage />} />
       <Route
         path="/dashboard-redirect"
         element={<Navigate to="/dashboard" replace />}

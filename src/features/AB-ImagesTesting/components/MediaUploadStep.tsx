@@ -41,80 +41,91 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(event.target.files || []);
-      const newMediaFiles: MediaFile[] = [];
 
-      files.forEach((file) => {
-        const isImage = file.type.startsWith("image/");
-        const isVideo = file.type.startsWith("video/");
+      // Restrict to only one file
+      if (files.length === 0) return;
 
-        if (!isImage && !isVideo) {
-          alert("Please upload only image or video files");
-          return;
-        }
+      // If user tries to upload multiple files, only take the first one
+      const file = files[0];
 
-        // Check file size - videos have a 30MB limit
-        const maxSize = 30 * 1024 * 1024; // 30MB maximum for all files
-        if (file.size > maxSize) {
-          const fileType = isVideo ? "Video" : "File";
-          alert(`${fileType} ${file.name} is too large. Maximum size is 30MB.`);
-          return;
-        }
-
-        // Additional validation for image files
-        if (isImage) {
-          const validImageTypes = ["image/jpeg", "image/jpg", "image/png"];
-          if (!validImageTypes.includes(file.type)) {
-            alert(
-              `Unsupported image format: ${file.type}. Please use JPEG, PNG, GIF, or WebP.`
-            );
-            return;
-          }
-        }
-
-        // Additional validation for video files
-        if (isVideo) {
-          const validVideoTypes = ["video/mp4"];
-          if (!validVideoTypes.includes(file.type)) {
-            alert(`Unsupported video format: ${file.type}. Please use MP4`);
-            return;
-          }
-        }
-
-        // Validate file extension matches MIME type
-        const fileExtension = file.name.split(".").pop()?.toLowerCase();
-        if (
-          isImage &&
-          fileExtension &&
-          !["jpg", "jpeg", "png"].includes(fileExtension)
-        ) {
-          alert(
-            `File extension .${fileExtension} doesn't match image type ${file.type}`
-          );
-          return;
-        }
-
-        if (isVideo && fileExtension && !["mp4"].includes(fileExtension)) {
-          alert(
-            `File extension .${fileExtension} doesn't match video type ${file.type}`
-          );
-          return;
-        }
-
-        const mediaFile: MediaFile = {
-          id: Math.random().toString(36).substr(2, 9),
-          file,
-          preview: URL.createObjectURL(file),
-          type: isImage ? "image" : "video",
-          size: file.size,
-          name: file.name,
-        };
-
-        newMediaFiles.push(mediaFile);
-      });
-
-      if (newMediaFiles.length > 0) {
-        onFilesChange([...mediaFiles, ...newMediaFiles]);
+      // If there's already a file, remove it first
+      if (mediaFiles.length > 0) {
+        mediaFiles.forEach((f) => URL.revokeObjectURL(f.preview));
       }
+
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+
+      if (!isImage && !isVideo) {
+        alert("Please upload only image or video files");
+        event.target.value = "";
+        return;
+      }
+
+      // Check file size - videos have a 30MB limit
+      const maxSize = 30 * 1024 * 1024; // 30MB maximum for all files
+      if (file.size > maxSize) {
+        const fileType = isVideo ? "Video" : "File";
+        alert(`${fileType} ${file.name} is too large. Maximum size is 30MB.`);
+        event.target.value = "";
+        return;
+      }
+
+      // Additional validation for image files
+      if (isImage) {
+        const validImageTypes = ["image/jpeg", "image/jpg", "image/png"];
+        if (!validImageTypes.includes(file.type)) {
+          alert(
+            `Unsupported image format: ${file.type}. Please use JPEG, PNG, GIF, or WebP.`
+          );
+          event.target.value = "";
+          return;
+        }
+      }
+
+      // Additional validation for video files
+      if (isVideo) {
+        const validVideoTypes = ["video/mp4"];
+        if (!validVideoTypes.includes(file.type)) {
+          alert(`Unsupported video format: ${file.type}. Please use MP4`);
+          event.target.value = "";
+          return;
+        }
+      }
+
+      // Validate file extension matches MIME type
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
+      if (
+        isImage &&
+        fileExtension &&
+        !["jpg", "jpeg", "png"].includes(fileExtension)
+      ) {
+        alert(
+          `File extension .${fileExtension} doesn't match image type ${file.type}`
+        );
+        event.target.value = "";
+        return;
+      }
+
+      if (isVideo && fileExtension && !["mp4"].includes(fileExtension)) {
+        alert(
+          `File extension .${fileExtension} doesn't match video type ${file.type}`
+        );
+        event.target.value = "";
+        return;
+      }
+
+      const mediaFile: MediaFile = {
+        id: Math.random().toString(36).substr(2, 9),
+        file,
+        preview: URL.createObjectURL(file),
+        type: isImage ? "image" : "video",
+        size: file.size,
+        name: file.name,
+      };
+
+      // Replace existing files with the new single file
+      onFilesChange([mediaFile]);
 
       // Clear the input
       event.target.value = "";
@@ -157,8 +168,8 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
             Media Files Upload
           </CardTitle>
           <CardDescription>
-            Upload images or videos to analyze. Supported formats: JPG, PNG,
-            GIF, MP4. Maximum size is 30MB for videos.
+            Upload one image or video to analyze. Supported formats: JPG, PNG,
+            MP4. Maximum size is 30MB.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -175,7 +186,6 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
               </div>
               <Input
                 type="file"
-                multiple
                 accept="image/*,video/*"
                 onChange={handleFileUpload}
                 className="max-w-xs cursor-pointer"
@@ -186,19 +196,17 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
           {mediaFiles.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium">
-                  Uploaded Files ({mediaFiles.length})
-                </h4>
+                <h4 className="font-medium">Uploaded File</h4>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={clearAllFiles}
                 >
-                  Clear All
+                  Remove
                 </Button>
               </div>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {mediaFiles.map((file) => (
                   <div key={file.id} className="group relative">
                     <div className="bg-muted aspect-square overflow-hidden rounded-lg border">
@@ -256,8 +264,7 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Please upload one media file to proceed with the
-                simulation.
+                Please upload one media file to proceed with the simulation.
               </AlertDescription>
             </Alert>
           )}

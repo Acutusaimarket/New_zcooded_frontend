@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 
-import { Globe, Plus, X, Zap } from "lucide-react";
+import { AlertCircle, Globe, Plus, X, Zap } from "lucide-react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -175,15 +176,33 @@ export const MediaConfigurationStep: React.FC<MediaConfigurationStepProps> = ({
             Environments
           </CardTitle>
           <CardDescription>
-          ⚠️ Select at least one environment to avoid simulation failure or inaccurate outputs.
+            Select at least one environment to proceed. This is required for the
+            simulation.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">
+            <Badge
+              variant={environments.length > 0 ? "secondary" : "destructive"}
+            >
               {environments.length} selected
             </Badge>
+            {environments.length === 0 && (
+              <span className="text-destructive text-sm font-medium">
+                * Required
+              </span>
+            )}
           </div>
+
+          {environments.length === 0 && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Please select at least one environment to proceed with the
+                simulation.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {environmentOptions.map((option) => {

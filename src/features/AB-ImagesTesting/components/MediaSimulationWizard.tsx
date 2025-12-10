@@ -139,7 +139,7 @@ export const MediaSimulationWizard: React.FC = () => {
           // formData.selectedProductId !== ""
         );
       case 2:
-        return true; // Configuration step is always valid
+        return formData.environments.length > 0; // At least one environment is required
       default:
         return false;
     }
@@ -150,6 +150,12 @@ export const MediaSimulationWizard: React.FC = () => {
   };
 
   const handleRunSimulation = () => {
+    // Validate that at least one environment is selected
+    if (formData.environments.length === 0) {
+      toast.error("Please select at least one environment to proceed");
+      return;
+    }
+
     const simulationData = {
       persona_ids: formData.selectedPersonaIds,
       // product_id: formData.selectedProductId,
