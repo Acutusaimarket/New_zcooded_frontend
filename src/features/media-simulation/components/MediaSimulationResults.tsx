@@ -117,6 +117,119 @@ const titleCase = (value: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 
+// KPI Descriptions mapping
+const KPI_DESCRIPTIONS: Record<string, string> = {
+  // Brand Consistency
+  "Brand Consistency":
+    "Measures how well the ad's visuals, tone, and messaging align with overall brand guidelines and identity. Higher scores mean the creative feels clearly on-brand.",
+  brand_consistency:
+    "Measures how well the ad's visuals, tone, and messaging align with overall brand guidelines and identity. Higher scores mean the creative feels clearly on-brand.",
+
+  // Message Clarity
+  "Message Clarity":
+    "Evaluates how easy it is for the target audience to understand the core message. Higher scores indicate clearer, more easily understood communication.",
+  message_clarity:
+    "Evaluates how easy it is for the target audience to understand the core message. Higher scores indicate clearer, more easily understood communication.",
+
+  // Ad Frequency
+  "Ad Frequency":
+    "Represents the recommended average number of times an individual should see the ad within a campaign to maximize impact without causing fatigue.",
+  ad_frequency:
+    "Represents the recommended average number of times an individual should see the ad within a campaign to maximize impact without causing fatigue.",
+
+  // Ad Recall Lift
+  "Ad Recall Lift":
+    "Measures the increase in the percentage of people who remember the ad after exposure compared to a control group. Higher values indicate stronger memorability.",
+  ad_recall_lift:
+    "Measures the increase in the percentage of people who remember the ad after exposure compared to a control group. Higher values indicate stronger memorability.",
+
+  // Audience Fit
+  "Audience Fit":
+    "Assesses how well the ad matches the target audience's interests, needs, behaviors, and demographics. Higher scores show stronger alignment.",
+  audience_fit:
+    "Assesses how well the ad matches the target audience's interests, needs, behaviors, and demographics. Higher scores show stronger alignment.",
+
+  // Bounce Rate Predictor
+  "Bounce Rate Predictor":
+    "Estimates the likelihood that users will leave the landing page quickly after clicking the ad. Lower values indicate stronger engagement and relevance.",
+  bounce_rate_predictor:
+    "Estimates the likelihood that users will leave the landing page quickly after clicking the ad. Lower values indicate stronger engagement and relevance.",
+
+  // Click Through Rate (CTR)
+  "Click Through Rate (CTR)":
+    "Predicts the proportion of impressions that will result in clicks. Higher values indicate the ad attracts attention and drives traffic effectively.",
+  click_through_rate:
+    "Predicts the proportion of impressions that will result in clicks. Higher values indicate the ad attracts attention and drives traffic effectively.",
+
+  // Conversion Rate
+  "Conversion Rate":
+    "Predicts the proportion of users who will complete a desired action (purchase, signup, lead) after interacting with the ad. Higher values indicate better outcomes.",
+  conversion_rate:
+    "Predicts the proportion of users who will complete a desired action (purchase, signup, lead) after interacting with the ad. Higher values indicate better outcomes.",
+
+  // Cost Per Click (CPC) – Value Indicator
+  "Cost Per Click (CPC) – Value Indicator":
+    "Evaluates the expected cost efficiency of the ad in driving clicks for the spend. Higher scores mean more or higher-quality clicks per unit of spend.",
+  cost_per_click:
+    "Evaluates the expected cost efficiency of the ad in driving caplicks for the spend. Higher scores mean more or higher-quality clicks per unit of spend.",
+
+  // Engagement Rate
+  "Engagement Rate":
+    "Predicts how likely users are to interact with the ad (likes, comments, shares, saves, video plays). Higher values indicate more compelling, interactive content.",
+  engagement_rate:
+    "Predicts how likely users are to interact with the ad (likes, comments, shares, saves, video plays). Higher values indicate more compelling, interactive content.",
+
+  // Impressions
+  Impressions:
+    "Indicates the expected strength of reach and visibility for the ad in a typical campaign. Higher values suggest greater likelihood of being seen.",
+  impressions:
+    "Indicates the expected strength of reach and visibility for the ad in a typical campaign. Higher values suggest greater likelihood of being seen.",
+
+  // Information Seeking Intent
+  "Information Seeking Intent":
+    "Estimates how likely users are to look for more information about the brand, product, or offer after seeing the ad. Higher values show stronger curiosity.",
+  information_seeking_intent:
+    "Estimates how likely users are to look for more information about the brand, product, or offer after seeing the ad. Higher values show stronger curiosity.",
+
+  // Lifetime Value Indicator (LTV Indicator)
+  "Lifetime Value Indicator (LTV Indicator)":
+    "Predicts the potential long-term revenue and profitability of customers acquired through this ad. Higher scores indicate more valuable, longer-retaining customers.",
+  lifetime_value_indicator:
+    "Predicts the potential long-term revenue and profitability of customers acquired through this ad. Higher scores indicate more valuable, longer-retaining customers.",
+
+  // Memorability
+  Memorability:
+    "Measures how likely viewers are to remember the ad and associate it with the brand after exposure. Higher values indicate stronger recall.",
+  memorability:
+    "Measures how likely viewers are to remember the ad and associate it with the brand after exposure. Higher values indicate stronger recall.",
+
+  // Net Promoter Score (NPS) – Impact Indicator
+  "Net Promoter Score (NPS) – Impact Indicator":
+    "Estimates how exposure to the ad may influence users' likelihood of recommending the brand to others. Higher values indicate stronger advocacy potential.",
+  net_promoter_score:
+    "Estimates how exposure to the ad may influence users' likelihood of recommending the brand to others. Higher values indicate stronger advocacy potential.",
+
+  // Quality Score
+  "Quality Score":
+    "Provides an overall rating of the ad's creative quality, including design, visuals, copywriting, layout, and professionalism. Higher values signal polished creative.",
+  quality_score:
+    "Provides an overall rating of the ad's creative quality, including design, visuals, copywriting, layout, and professionalism. Higher values signal polished creative.",
+
+  // Relevance
+  Relevance:
+    "Assesses how relevant the ad's message, offer, and creative are to the viewer's current interests or needs. Higher values mean a stronger match.",
+  relevance:
+    "Assesses how relevant the ad's message, offer, and creative are to the viewer's current interests or needs. Higher values mean a stronger match.",
+
+  // ROAS (Return on Ad Spend)
+  "ROAS (Return on Ad Spend)":
+    "Predicts the expected revenue generated for each unit of ad spend. Higher ROAS indicates more efficient campaigns that drive more revenue per dollar invested.",
+  ROAS:
+    "Predicts the expected revenue generated for each unit of ad spend. Higher ROAS indicates more efficient campaigns that drive more revenue per dollar invested.",
+  roas:
+    "Predicts the expected revenue generated for each unit of ad spend. Higher ROAS indicates more efficient campaigns that drive more revenue per dollar invested.",
+};
+
 const EmphasizedText = ({ text }: { text: string }) => {
   const parts = text.split(/\*\*(.*?)\*\*/g);
   return (
@@ -226,7 +339,11 @@ const KpiGaugeCard = ({
         </div>
         <div className="space-y-1.5">
           <p className="text-base font-semibold text-foreground">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-muted-foreground text-xs font-medium">{kpi.metric_type}</p>
+          <p className="text-muted-foreground text-xs font-medium">
+            {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
+              KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
+              kpi.metric_type}
+          </p>
         </div>
         <div className="grid w-full grid-cols-3 gap-3 rounded-lg bg-muted/50 p-3 text-[11px]">
           <div>
@@ -281,7 +398,11 @@ const RoasCard = ({
         </div>
         <div className="space-y-1.5">
           <p className="text-base font-semibold text-foreground">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-muted-foreground text-xs font-medium">{kpi.metric_type}</p>
+          <p className="text-muted-foreground text-xs font-medium">
+            {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
+              KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
+              kpi.metric_type}
+          </p>
         </div>
         <div className="w-full rounded-lg bg-muted/50 p-3 text-center">
           <p className="text-foreground text-sm font-semibold">

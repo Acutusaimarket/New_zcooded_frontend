@@ -16,9 +16,12 @@ import {
 import { useAuthInit } from "./hooks/use-auth-init";
 import ABTestingHistoryOverviewPage from "./pages/ab-testing-history-overview.page";
 import ABTestingOverviewPage from "./pages/ab-testing-overview.page";
+import AddCreditsPage from "./pages/add-credits.page";
 import BlogsPage from "./pages/blogs.page";
 import HomePage from "./pages/home";
 import LoginPage from "./pages/login.page";
+import CreditCalculatorPage from "./pages/credit-calculator.page";
+import PlansPage from "./pages/plans.page";
 import SignupPage from "./pages/signup.page";
 import MarketFitSimulationResultPage from "./pages/marketfit-simulation-result.page";
 import MediaSimulationPage from "./pages/media-simulation.page";
@@ -43,6 +46,9 @@ const App = () => {
       {/* Public routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/blogs" element={<BlogsPage />} />
+      <Route path="/plans" element={<PlansPage />} />
+      <Route path="/credit-calculator" element={<CreditCalculatorPage />} />
+      <Route path="/add-credits" element={<AddCreditsPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route
         path="/dashboard-redirect"

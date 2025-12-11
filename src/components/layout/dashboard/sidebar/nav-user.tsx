@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  Sparkles,
-  ArrowUpCircle,
-} from "lucide-react";
+import { Bell, CreditCard } from "lucide-react";
 import { Navigate, useNavigate } from "react-router";
 
 import useLogoutMutation from "@/api/mutation/use-logout-mutation";
@@ -29,6 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/auth-store";
+
 import { CreditDisplay } from "./credit-display";
 
 export function NavUser() {
@@ -39,14 +33,8 @@ export function NavUser() {
   const user = useAuthStore((state) => state.user);
   const error = useAuthStore((state) => state.error);
 
-  const scrollToPricing = () => {
-    navigate("/");
-    setTimeout(() => {
-      const pricingSection = document.getElementById("pricing-section");
-      if (pricingSection) {
-        pricingSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, 100);
+  const handleUpgrade = () => {
+    navigate("/plans");
   };
 
   if (isLoading) {
@@ -89,14 +77,14 @@ export function NavUser() {
               </div>
               <button
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
-                  scrollToPricing();
+                  handleUpgrade();
                 }}
-                className="ml-2 rounded-md border border-sidebar-border bg-sidebar-accent/50 px-3 py-1.5 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+                className="border-sidebar-border bg-sidebar-accent/50 text-sidebar-foreground hover:bg-sidebar-accent ml-2 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors"
               >
                 Upgrade
               </button>
-              <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -124,29 +112,6 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem disabled>
-                <Sparkles className="text-muted-foreground size-4" />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem disabled className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <BadgeCheck className="text-muted-foreground size-4" />
-                  Account
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    scrollToPricing();
-                  }}
-                  className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-sidebar-accent"
-                >
-                  <ArrowUpCircle className="size-3" />
-                  Upgrade Plan
-                </button>
-              </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <CreditCard className="text-muted-foreground size-4" />
                 Billing
