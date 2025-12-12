@@ -1,4 +1,4 @@
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { axiosPrivateInstance } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
 
 const useLogoutMutation = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const navigation = useNavigate();
 
   return useMutation({
@@ -27,6 +27,7 @@ const useLogoutMutation = () => {
     },
     onSuccess: () => {
       queryClient.clear();
+      queryClient.invalidateQueries();
       useAuthStore.getState().logout();
       navigation("/login");
     },

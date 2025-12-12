@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { ArrowLeft, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { subscriptionApiEndPoint } from "@/lib/api-end-point";
+import { axiosPrivateInstance } from "@/lib/axios";
+import { useAuthStore } from "@/store/auth-store";
+
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Razorpay: any;
+  }
+}
 
 type PlanTier = "basic" | "pro";
 
@@ -31,42 +42,181 @@ interface PlanDetails {
 
 const PLAN_DETAILS: Record<PlanTier, PlanDetails> = {
   basic: {
-    name: "Basic Tier",
+    name: "Basic",
     creditsPerBlock: 50,
     pricePerBlock: 10,
   },
   pro: {
-    name: "Pro Tier",
+    name: "Pro",
     creditsPerBlock: 80,
     pricePerBlock: 10,
   },
 };
 
+const getPlanTierFromPlanType = (planType?: string): PlanTier | "" => {
+  if (!planType) return "";
+  const normalizedPlanType = planType.toLowerCase();
+  if (normalizedPlanType === "basic" || normalizedPlanType === "free")
+    return "basic";
+  if (normalizedPlanType === "pro" || normalizedPlanType === "enterprise")
+    return "pro";
+  return "";
+};
+
+type CreditsTopupResponse = {
+  status: number;
+  success: boolean;
+  message: string;
+  data: {
+    razorpay_key_id: string;
+    order_id: string;
+    amount: number;
+    currency: string;
+    credits_to_add: number;
+  };
+};
+
 const AddCreditsPage = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
   const [selectedPlan, setSelectedPlan] = useState<PlanTier | "">("");
   const [blocks, setBlocks] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Set default plan based on user's plan_type
+  useEffect(() => {
+    if (user?.plan_type && !selectedPlan) {
+      const defaultPlan = getPlanTierFromPlanType(user.plan_type);
+      if (defaultPlan) {
+        setSelectedPlan(defaultPlan);
+      }
+    }
+  }, [user?.plan_type, selectedPlan]);
 
   const planDetails = selectedPlan ? PLAN_DETAILS[selectedPlan] : null;
   const blocksNumber = parseInt(blocks) || 0;
-  const totalPrice = planDetails
-    ? blocksNumber * planDetails.pricePerBlock
-    : 0;
+  const totalPrice = planDetails ? blocksNumber * planDetails.pricePerBlock : 0;
   const totalCredits = planDetails
     ? blocksNumber * planDetails.creditsPerBlock
     : 0;
 
-  const handlePay = () => {
+  const loadRazorpayScript = useCallback(async () => {
+    if (typeof window === "undefined") {
+      throw new Error("Window is not available");
+    }
+
+    if (window.Razorpay) return;
+
+    await new Promise<void>((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("Failed to load Razorpay SDK"));
+      document.body.appendChild(script);
+    });
+  }, []);
+
+  const handlePay = async () => {
     if (!selectedPlan || blocksNumber <= 0) {
       return;
     }
-    // TODO: Implement payment processing
-    console.log("Payment processing:", {
-      plan: selectedPlan,
-      blocks: blocksNumber,
-      totalPrice,
-      totalCredits,
-    });
+
+    try {
+      setError(null);
+      setIsProcessing(true);
+
+      await loadRazorpayScript();
+
+      const payload = {
+        credits_to_add: totalCredits,
+        currency: "INR",
+      };
+
+      const response = await axiosPrivateInstance.post<CreditsTopupResponse>(
+        subscriptionApiEndPoint.creditsTopup,
+        payload
+      );
+
+      const topupData = response.data?.data;
+
+      if (!topupData?.razorpay_key_id || !topupData?.order_id) {
+        throw new Error("Topup details are missing");
+      }
+
+      const razorpay = new window.Razorpay({
+        key: topupData.razorpay_key_id,
+        amount: topupData.amount,
+        currency: topupData.currency,
+        order_id: topupData.order_id,
+        name: "Zcooded",
+        description: `Add ${totalCredits.toLocaleString()} credits`,
+        handler: function (_response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) {
+          setIsProcessing(false);
+
+          // Show success message
+          toast.success(
+            `Successfully added ${totalCredits.toLocaleString()} credits!`,
+            {
+              duration: 3000,
+            }
+          );
+
+          // Redirect to dashboard after a short delay
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 1500);
+        },
+        modal: {
+          ondismiss: () => {
+            setIsProcessing(false);
+            toast.info("Payment cancelled");
+          },
+        },
+        notes: {
+          credits_to_add: totalCredits.toString(),
+          plan: selectedPlan,
+        },
+        prefill: {
+          // You can add user details here if available
+        },
+      });
+
+      razorpay.on(
+        "payment.failed",
+        function (response: {
+          error: {
+            code: string;
+            description: string;
+            source: string;
+            step: string;
+            reason: string;
+            metadata: Record<string, unknown>;
+          };
+        }) {
+          setIsProcessing(false);
+          toast.error(
+            `Payment failed: ${response.error.description || "Please try again"}`
+          );
+        }
+      );
+
+      razorpay.open();
+    } catch (err) {
+      console.error("Credits topup failed", err);
+      setIsProcessing(false);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Unable to process payment. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
   };
 
   return (
@@ -105,22 +255,31 @@ const AddCreditsPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {error && (
+              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="plan-select">Select Plan</Label>
               <Select
                 value={selectedPlan}
-                onValueChange={(value) => setSelectedPlan(value as PlanTier)}
+                onValueChange={(value) => {
+                  setSelectedPlan(value as PlanTier);
+                  setError(null);
+                }}
               >
                 <SelectTrigger id="plan-select">
                   <SelectValue placeholder="Select your plan" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="basic">
-                    Basic Tier - $10 per 50 additional credit block (1 Block =
-                    50 credits)
+                    Basic - ₹10 per 50 additional credit block (1 Block = 50
+                    credits)
                   </SelectItem>
                   <SelectItem value="pro">
-                    Pro Tier - $10 per 80 additional credit block (1 Block = 80
+                    Pro - ₹10 per 80 additional credit block (1 Block = 80
                     credits)
                   </SelectItem>
                 </SelectContent>
@@ -140,7 +299,7 @@ const AddCreditsPage = () => {
                     onChange={(e) => setBlocks(e.target.value)}
                   />
                   <p className="text-xs text-gray-500">
-                    {planDetails?.name}: ${planDetails?.pricePerBlock} per block
+                    {planDetails?.name}: ₹{planDetails?.pricePerBlock} per block
                     ({planDetails?.creditsPerBlock} credits per block)
                   </p>
                 </div>
@@ -186,7 +345,7 @@ const AddCreditsPage = () => {
                           Total Price:
                         </span>
                         <span className="text-2xl font-bold text-[#42BD00]">
-                          ${totalPrice.toFixed(2)}
+                          ₹{totalPrice.toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -195,10 +354,12 @@ const AddCreditsPage = () => {
 
                 <Button
                   onClick={handlePay}
-                  disabled={!selectedPlan || blocksNumber <= 0}
+                  disabled={!selectedPlan || blocksNumber <= 0 || isProcessing}
                   className="w-full bg-[#42BD00] hover:bg-[#369900] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Pay ${totalPrice.toFixed(2)}
+                  {isProcessing
+                    ? "Processing..."
+                    : `Pay ₹${totalPrice.toFixed(2)}`}
                 </Button>
               </>
             )}
@@ -210,4 +371,3 @@ const AddCreditsPage = () => {
 };
 
 export default AddCreditsPage;
-

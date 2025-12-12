@@ -90,5 +90,7 @@ export const chatbotApiEndPoint = {
 } as const;
 
 export const subscriptionApiEndPoint = {
-  getSubscriptionDetails: "/subscription/details",
+  getSubscriptionDetails: "/subscription/plans",
+  checkout: "/subscription/checkout",
+  creditsTopup: "/subscription/credits/topup",
 } as const;

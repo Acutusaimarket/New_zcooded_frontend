@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type AxiosResponse, isAxiosError } from "axios";
 
 import { metadataApiEndPoint } from "@/lib/api-end-point";
@@ -8,6 +8,7 @@ import type { UploadAnalysisData } from "@/types/metadata.type";
 import { usePersonaEngineStore } from "../../hooks/persona-engine.hooks";
 
 export const usePersonaEngineUploadDataMutation = () => {
+  const queryClient = useQueryClient();
   const setUploadFileResponse = usePersonaEngineStore(
     (state) => state.setUploadFileResponse
   );
@@ -43,6 +44,7 @@ export const usePersonaEngineUploadDataMutation = () => {
             }
           );
         setUploadFileResponse(response.data);
+        queryClient.invalidateQueries({ queryKey: ["metadata-list"] });
         return response.data;
       } catch (error) {
         if (isAxiosError(error)) {

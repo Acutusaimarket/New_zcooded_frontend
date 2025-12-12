@@ -7,4 +7,5 @@ export type UserType = {
   role: string;
   is_active: boolean;
   id: string;
+  plan_type?: string;
 };

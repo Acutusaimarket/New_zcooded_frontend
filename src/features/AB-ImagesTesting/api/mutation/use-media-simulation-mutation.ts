@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { mediaSimulationApiEndPoint } from "@/lib/api-end-point";
 import { axiosPrivateInstance } from "@/lib/axios";
@@ -18,6 +18,8 @@ interface MediaSimulationMutationOptions {
 export const useMediaSimulationMutation = (
   options?: MediaSimulationMutationOptions
 ) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: handleApiCall<FilteredMediaSimulationResponse>(
       async (data: MediaSimulationFormData) => {
@@ -133,7 +135,12 @@ export const useMediaSimulationMutation = (
         return { data: transformedResponse };
       }
     ),
-    onSuccess: options?.onSuccess,
+    onSuccess: (data, variables, context) => {
+      // Refresh related job lists and simulation detail caches
+      queryClient.invalidateQueries({ queryKey: ["simulation-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["media-simulation"] });
+      options?.onSuccess?.(data, variables, context);
+    },
     onError: (error) => {
       if (options?.onError && error instanceof Error) {
         options.onError(error);

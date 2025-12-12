@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { chatbotApiEndPoint } from "@/lib/api-end-point";
@@ -75,6 +75,8 @@ interface ChatStreamMutationVariables {
 }
 
 export const useSummaryStreamMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ data, callbacks }: ChatStreamMutationVariables) => {
       const abortController = new AbortController();
@@ -195,6 +197,9 @@ export const useSummaryStreamMutation = () => {
       } finally {
         abortController.abort();
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["chat-session"] });
     },
   });
 };

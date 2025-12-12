@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
 
@@ -23,6 +23,7 @@ export const useGeneratePersonasMutation = ({
   onSuccess,
   onError,
 }: UseGeneratePersonasMutationProps) => {
+  const queryClient = useQueryClient();
   // const ref = useRef<number | string | undefined>(undefined);
   return useMutation({
     mutationFn: async ({
@@ -51,6 +52,8 @@ export const useGeneratePersonasMutation = ({
         id: "generating-personas",
       });
       toast.dismiss("generating-personas");
+      queryClient.invalidateQueries({ queryKey: ["personas-list"] });
+      queryClient.invalidateQueries({ queryKey: ["personas", "stats"] });
       onSuccess?.(data);
     },
     onError: (error) => {

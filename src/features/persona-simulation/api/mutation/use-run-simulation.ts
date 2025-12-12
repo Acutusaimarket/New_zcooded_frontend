@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ const runSimulation = async (
 
 export const useRunSimulation = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: runSimulation,
@@ -31,6 +32,14 @@ export const useRunSimulation = () => {
 
       // Navigate to Simulation History; page defaults to Active tab.
       navigate("/dashboard/simulation/history");
+
+      // Ensure any job lists and details refresh after creation
+      queryClient.invalidateQueries({ queryKey: ["simulation-jobs"] });
+      if (data?.data?._id) {
+        queryClient.invalidateQueries({
+          queryKey: ["simulation-job", data.data._id, "simulation"],
+        });
+      }
 
       toast.success(
         jobStatus === "pending"

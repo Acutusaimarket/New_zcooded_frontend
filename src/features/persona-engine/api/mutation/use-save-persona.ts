@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
 
@@ -10,6 +10,7 @@ import type { PersonaData } from "@/types/persona.type";
 
 export const useSavePersonaMutation = () => {
   const toastRef = useRef<number | string | undefined>(undefined);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (personaData: {
@@ -40,6 +41,8 @@ export const useSavePersonaMutation = () => {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["personas-list"] });
+      queryClient.invalidateQueries({ queryKey: ["personas", "stats"] });
       toast.success("Personas saved successfully!", {
         id: toastRef.current,
         position: "top-right",

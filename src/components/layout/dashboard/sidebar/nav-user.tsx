@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, CreditCard } from "lucide-react";
+import { ArrowRight, Bell, CreditCard } from "lucide-react";
 import { Navigate, useNavigate } from "react-router";
 
 import useLogoutMutation from "@/api/mutation/use-logout-mutation";
@@ -25,6 +25,22 @@ import { useAuthStore } from "@/store/auth-store";
 
 import { CreditDisplay } from "./credit-display";
 
+const getPlanDisplayName = (planType?: string): string => {
+  if (!planType) return "Free";
+
+  const planMap: Record<string, string> = {
+    free: "Free",
+    basic: "Basic",
+    pro: "Pro",
+    enterprise: "Enterprise",
+  };
+
+  return (
+    planMap[planType.toLowerCase()] ||
+    planType.charAt(0).toUpperCase() + planType.slice(1)
+  );
+};
+
 export function NavUser() {
   const navigate = useNavigate();
   const logoutMutation = useLogoutMutation();
@@ -36,6 +52,8 @@ export function NavUser() {
   const handleUpgrade = () => {
     navigate("/plans");
   };
+
+  const currentPlanName = getPlanDisplayName(user?.plan_type);
 
   if (isLoading) {
     return <Skeleton className="border-input h-12 w-full border shadow-xl" />;
@@ -75,16 +93,6 @@ export function NavUser() {
                   {user?.first_name} {user?.last_name}
                 </span>
               </div>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleUpgrade();
-                }}
-                className="border-sidebar-border bg-sidebar-accent/50 text-sidebar-foreground hover:bg-sidebar-accent ml-2 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors"
-              >
-                Upgrade
-              </button>
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -135,6 +143,24 @@ export function NavUser() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </SidebarMenuItem>
+      <SidebarMenuItem className="mt-2">
+        <SidebarMenuButton
+          size="lg"
+          onClick={handleUpgrade}
+          className="border-sidebar-border bg-sidebar-accent/60 text-sidebar-foreground hover:bg-sidebar-accent flex w-full items-center justify-between rounded-lg border px-3 py-3"
+        >
+          <div className="text-left">
+            <div className="text-muted-foreground text-xs">
+              Current Plan:{" "}
+              <span className="text-sidebar-foreground font-medium">
+                {currentPlanName}
+              </span>
+            </div>
+            <div className="text-sm font-semibold">Upgrade</div>
+          </div>
+          <ArrowRight className="h-4 w-4" />
+        </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
   );

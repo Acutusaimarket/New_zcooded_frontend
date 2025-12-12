@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
 
@@ -9,6 +9,8 @@ import type { PersonaLLMSchema } from "../../schema";
 import type { GeneratePersonasLLMResponse } from "../../types";
 
 export const useGeneratePersonasLLMMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: PersonaLLMSchema) => {
       try {
@@ -43,6 +45,10 @@ export const useGeneratePersonasLLMMutation = () => {
           );
         }
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["personas-list"] });
+      queryClient.invalidateQueries({ queryKey: ["personas", "stats"] });
     },
   });
 };

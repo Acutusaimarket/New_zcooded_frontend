@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
 
@@ -75,10 +75,14 @@ const downloadPersonas = async ({
 };
 
 export const useDownloadPersonasMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: downloadPersonas,
     onSuccess: (result) => {
       toast.success(`Personas downloaded successfully as ${result.filename}`);
+      queryClient.invalidateQueries({ queryKey: ["personas-list"] });
+      queryClient.invalidateQueries({ queryKey: ["personas", "stats"] });
     },
     onError: (error: Error) => {
       toast.error(`Failed to download personas: ${error.message}`);

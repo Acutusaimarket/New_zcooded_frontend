@@ -2,13 +2,156 @@ import React from "react";
 
 import { Check, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 import { useSubscriptionDetailsQuery } from "@/api/query/use-subscription-details.query";
+import { axiosPrivateInstance } from "@/lib/axios";
+import { subscriptionApiEndPoint } from "@/lib/api-end-point";
 import { Button } from "@/components/ui/button";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const PlansPage = () => {
   const navigate = useNavigate();
   const { data: subscriptionData, isLoading, error } = useSubscriptionDetailsQuery();
+  const [isProcessingPlanId, setIsProcessingPlanId] = React.useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = React.useState<string | null>(null);
+
+  type CheckoutResponse = {
+    status: number;
+    success: boolean;
+    message: string;
+    data: {
+      razorpay_key_id: string;
+      subscription_id: string;
+      customer_id: string;
+      plan_id: string;
+      amount: number;
+      currency: string;
+      billing_cycle: string;
+    };
+  };
+
+  const loadRazorpayScript = React.useCallback(async () => {
+    if (typeof window === "undefined") {
+      throw new Error("Window is not available");
+    }
+
+    if (window.Razorpay) return;
+
+    await new Promise<void>((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("Failed to load Razorpay SDK"));
+      document.body.appendChild(script);
+    });
+  }, []);
+
+  const handlePurchase = async (plan: (typeof subscriptionData.data)[number]) => {
+    if (plan.plan_type === "enterprise") {
+      scrollToForm();
+      return;
+    }
+
+    try {
+      setCheckoutError(null);
+      setIsProcessingPlanId(plan._id);
+
+      await loadRazorpayScript();
+
+      const preferredPricing =
+        plan.pricing.find((p) => p.currency === "INR") ?? plan.pricing[0];
+      const billingCycle = "monthly";
+      const payload = {
+        plan_id: plan._id,
+        billing_cycle: billingCycle,
+        currency: preferredPricing?.currency ?? "INR",
+      };
+
+      const response = await axiosPrivateInstance.post<CheckoutResponse>(
+        subscriptionApiEndPoint.checkout,
+        payload
+      );
+
+      const checkoutData = response.data?.data;
+
+      if (!checkoutData?.razorpay_key_id || !checkoutData?.subscription_id) {
+        throw new Error("Checkout details are missing");
+      }
+
+      const razorpay = new window.Razorpay({
+        key: checkoutData.razorpay_key_id,
+        subscription_id: checkoutData.subscription_id,
+        name: "Zcooded",
+        description: `${plan.name} plan`,
+        currency: checkoutData.currency ?? payload.currency,
+        handler: function (response: {
+          razorpay_payment_id: string;
+          razorpay_subscription_id: string;
+          razorpay_signature: string;
+        }) {
+          // Prevent any default behavior or page refresh
+          setIsProcessingPlanId(null);
+          
+          // Show success message
+          toast.success("Payment successful! Redirecting to dashboard...", {
+            duration: 3000,
+          });
+          
+          // Redirect after a short delay to show the success message
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 1500);
+        },
+        modal: {
+          ondismiss: () => {
+            setIsProcessingPlanId(null);
+            toast.info("Payment cancelled");
+          },
+        },
+        notes: {
+          plan_id: plan._id,
+          billing_cycle: payload.billing_cycle,
+        },
+        prefill: {
+          // You can add user details here if available
+        },
+      });
+
+      razorpay.on("payment.failed", function (response: {
+        error: {
+          code: string;
+          description: string;
+          source: string;
+          step: string;
+          reason: string;
+          metadata: Record<string, unknown>;
+        };
+      }) {
+        setIsProcessingPlanId(null);
+        toast.error(
+          `Payment failed: ${response.error.description || "Please try again"}`
+        );
+      });
+
+      razorpay.open();
+    } catch (err) {
+      console.error("Checkout failed", err);
+      setCheckoutError(
+        err instanceof Error
+          ? err.message
+          : "Unable to start checkout. Please try again."
+      );
+    } finally {
+      setIsProcessingPlanId(null);
+    }
+  };
 
   const scrollToForm = () => {
     navigate("/");
@@ -38,6 +181,12 @@ const PlansPage = () => {
           </p>
         </div>
 
+        {checkoutError && (
+          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {checkoutError}
+          </div>
+        )}
+
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
@@ -62,11 +211,11 @@ const PlansPage = () => {
                   plan.plan_type !== "free"
               )
               ?.map((plan, index) => {
-              // Get USD pricing
-              const usdPricing = plan.pricing.find(
-                (p) => p.currency === "USD"
+              // Prefer INR pricing for display
+              const inrPricing = plan.pricing.find(
+                (p) => p.currency === "INR"
               );
-              const monthly_usd = usdPricing?.monthly || 0;
+              const monthly_inr = inrPricing?.monthly || 0;
 
               // Determine if this is the popular plan (Pro plan)
               const isPopular = plan.plan_type === "pro";
@@ -135,21 +284,21 @@ const PlansPage = () => {
                     <div className="mb-6 space-y-2">
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold text-gray-900">
-                          {monthly_usd === 0
+                          {monthly_inr === 0
                             ? "Custom"
-                            : `$${monthly_usd}`}
+                            : `₹${monthly_inr}`}
                         </span>
-                        {monthly_usd > 0 && (
+                        {monthly_inr > 0 && (
                           <span className="text-sm text-gray-500">/mo*</span>
                         )}
                       </div>
-                      {monthly_usd > 0 && (
+                      {monthly_inr > 0 && (
                         <div className="text-sm text-gray-600">
                           <span className="line-through">
-                            ${Math.round(monthly_usd * 1.2)}
+                            ₹{Math.round(monthly_inr * 1.2)}
                           </span>{" "}
                           <span className="text-green-600">
-                            Save ${Math.round(monthly_usd * 0.2 * 12)}/year
+                            Save ₹{Math.round(monthly_inr * 0.2 * 12)}/year
                           </span>
                         </div>
                       )}
@@ -194,21 +343,20 @@ const PlansPage = () => {
                   </div>
 
                   <Button
-                    onClick={() => {
-                      if (plan.plan_type === "enterprise") {
-                        scrollToForm();
-                      } else {
-                        navigate(`/signup?plan_id=${plan._id}`);
-                      }
-                    }}
+                    onClick={() => handlePurchase(plan)}
+                    disabled={isProcessingPlanId === plan._id}
                     className={`group w-full ${
                       isPopular
                         ? "bg-[#42BD00] text-white hover:bg-[#369900]"
                         : "border-2 border-[#42BD00] bg-white text-[#42BD00] hover:bg-[#42BD0010]"
                     }`}
                   >
-                    {plan.plan_type === "enterprise" ? "Contact Sale" : "Purchase"}
-                    {plan.plan_type !== "enterprise" && (
+                    {isProcessingPlanId === plan._id
+                      ? "Processing..."
+                      : plan.plan_type === "enterprise"
+                        ? "Contact Sale"
+                        : "Purchase"}
+                    {plan.plan_type !== "enterprise" && isProcessingPlanId !== plan._id && (
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     )}
                   </Button>
