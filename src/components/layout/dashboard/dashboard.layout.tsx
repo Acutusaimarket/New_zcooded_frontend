@@ -62,9 +62,9 @@ const DashboardLayout = () => {
             <BreadcrumbHeader />
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0 relative">
+        <div className="relative flex flex-1 flex-col gap-4 p-4 pt-0">
           {showUpgrade && (
-            <div className="absolute inset-0 z-20 flex items-start justify-center bg-black/30 backdrop-blur-sm p-4">
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
               <Card className="w-full max-w-3xl border-[#E5E7EB] shadow-lg">
                 <CardHeader>
                   <div className="mb-2 flex items-center gap-3">
