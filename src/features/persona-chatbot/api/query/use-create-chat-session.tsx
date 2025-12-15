@@ -17,9 +17,12 @@ const useCreateChatSession = () => {
       >(chatbotApiEndPoint.createSession, {});
     }),
     onSuccess: (data) => {
+      const session = data as PersonaChatSession | undefined;
       queryClient.invalidateQueries({ queryKey: ["chat-session"] });
-      if (data?._id) {
-        queryClient.invalidateQueries({ queryKey: ["chat-session", data._id] });
+      if (session?._id) {
+        queryClient.invalidateQueries({
+          queryKey: ["chat-session", session._id],
+        });
       }
     },
   });

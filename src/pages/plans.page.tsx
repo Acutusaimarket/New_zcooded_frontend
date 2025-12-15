@@ -53,9 +53,15 @@ const PlansPage = () => {
     });
   }, []);
 
-  const handlePurchase = async (plan: (typeof subscriptionData.data)[number]) => {
+  const handlePurchase = async (
+    plan: (NonNullable<typeof subscriptionData>["data"])[number]
+  ) => {
     if (plan.plan_type === "enterprise") {
       scrollToForm();
+      return;
+    }
+
+    if (!subscriptionData) {
       return;
     }
 
@@ -91,7 +97,7 @@ const PlansPage = () => {
         name: "Zcooded",
         description: `${plan.name} plan`,
         currency: checkoutData.currency ?? payload.currency,
-        handler: function (response: {
+        handler: function (_response: {
           razorpay_payment_id: string;
           razorpay_subscription_id: string;
           razorpay_signature: string;

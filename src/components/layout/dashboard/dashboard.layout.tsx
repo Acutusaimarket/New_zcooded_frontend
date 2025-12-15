@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Outlet, useNavigate } from "react-router";
 
-import { ArrowLeft, CreditCard } from "lucide-react";
+import { CreditCard } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
 import {

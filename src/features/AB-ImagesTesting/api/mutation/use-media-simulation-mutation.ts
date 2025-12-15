@@ -135,11 +135,12 @@ export const useMediaSimulationMutation = (
         return { data: transformedResponse };
       }
     ),
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data) => {
       // Refresh related job lists and simulation detail caches
       queryClient.invalidateQueries({ queryKey: ["simulation-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["media-simulation"] });
-      options?.onSuccess?.(data, variables, context);
+      // onSuccess from caller expects a single argument
+      options?.onSuccess?.(data);
     },
     onError: (error) => {
       if (options?.onError && error instanceof Error) {

@@ -32,7 +32,7 @@ import { useAuthStore } from "@/store/auth-store";
 
 import useCreateChatSession from "../api/query/use-create-chat-session";
 import { useInfiniteChatHistoryQuery } from "../api/query/use-infinite-chat-history.query";
-import type { ChatSessionHistoryItem } from "../types";
+import type { ChatSessionHistoryItem, PersonaChatSession } from "../types";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -88,8 +88,11 @@ export default function PersonaChatSession() {
 
       sessionCreateMutation.mutate(undefined, {
         onSuccess: (data) => {
+          const session = data as PersonaChatSession;
           navigate(
-            `/dashboard/persona-studio/chat/${data._id}?message=${message.split(" ").join("+")}`
+            `/dashboard/persona-studio/chat/${session._id}?message=${message
+              .split(" ")
+              .join("+")}`
           );
         },
         onError: (error) => {

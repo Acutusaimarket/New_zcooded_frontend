@@ -96,6 +96,7 @@ export const QuestionPrompt = ({
       },
       {
         onSuccess: (data) => {
+          const updated = data as PersonaChatSession;
           // Update query data
           queryClient.setQueryData(
             ["chat-session", sessionId],
@@ -104,7 +105,7 @@ export const QuestionPrompt = ({
               return {
                 ...old,
                 generated_questions:
-                  data.generated_questions ?? old.generated_questions,
+                  updated.generated_questions ?? old.generated_questions,
               };
             }
           );
@@ -117,8 +118,8 @@ export const QuestionPrompt = ({
           onQuestionAnswered?.(questionNumber - 1, answer);
 
           // Check if all done
-          const remaining = (data.generated_questions ?? questions).filter(
-            (q) => !q.has_answered
+          const remaining = (updated.generated_questions ?? questions).filter(
+            (q: { has_answered?: boolean }) => !q.has_answered
           );
 
           if (remaining.length === 0) {
