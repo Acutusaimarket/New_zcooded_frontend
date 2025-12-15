@@ -14,6 +14,7 @@ interface UseGeneratePersonasMutationProps {
 
 interface GeneratePersonasParams {
   num_personas: number;
+  num_clusters?: number;
   model?: "gpt-4o" | "gpt-4o-mini" | "gpt-5";
   meta_data_id: string;
   onSuccess?: (data: GeneratePersonasResponse) => void;
@@ -28,6 +29,7 @@ export const useGeneratePersonasMutation = ({
   return useMutation({
     mutationFn: async ({
       num_personas,
+      num_clusters,
       meta_data_id,
       model = "gpt-4o",
     }: GeneratePersonasParams) => {
@@ -39,6 +41,7 @@ export const useGeneratePersonasMutation = ({
           personasApiEndPoint.GeneratePersonas,
           {
             num_personas,
+            num_clusters: num_clusters ?? num_personas,
             model,
             meta_data_id,
           }

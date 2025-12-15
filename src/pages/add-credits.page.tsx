@@ -6,6 +6,14 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -83,6 +91,7 @@ const AddCreditsPage = () => {
   const [blocks, setBlocks] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPlanDialog, setShowPlanDialog] = useState(false);
 
   // Use plan_type from /auth/me to pre-select and restrict options
   const derivedPlanTier = getPlanTierFromPlanType(user?.plan_type);
@@ -97,6 +106,9 @@ const AddCreditsPage = () => {
     if (user?.plan_type && !selectedPlan) {
       const defaultPlan = derivedPlanTier;
       if (defaultPlan) setSelectedPlan(defaultPlan);
+    }
+    if (!user?.plan_type) {
+      setShowPlanDialog(true);
     }
   }, [user?.plan_type, selectedPlan, derivedPlanTier]);
 
@@ -226,14 +238,30 @@ const AddCreditsPage = () => {
   };
 
   return (
-    <div
-      className="min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 sm:py-12 md:py-16"
-      style={{
-        backgroundColor: "#F8FAF7",
-        fontFamily: "Alina",
-      }}
-    >
-      <div className="mx-auto max-w-2xl">
+    <>
+      <Dialog open={showPlanDialog} onOpenChange={setShowPlanDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Select a Plan to Continue</DialogTitle>
+            <DialogDescription>
+              You don&apos;t have an active plan. Please choose a plan before adding credits.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button variant="outline" onClick={() => navigate("/plans")}>
+              View Plans
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <div
+        className="min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 sm:py-12 md:py-16"
+        style={{
+          backgroundColor: "#F8FAF7",
+          fontFamily: "Alina",
+        }}
+      >
+        <div className="mx-auto max-w-2xl">
         <div className="mb-8 flex items-center gap-4">
           <Button
             variant="ghost"
@@ -377,7 +405,8 @@ const AddCreditsPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
