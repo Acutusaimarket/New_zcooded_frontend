@@ -36,7 +36,11 @@ import GeneratePersonaPreview from "./generate-persona-preview";
 //   { value: "gpt-5", label: "GPT-5" },
 // ];
 
-const GeneratePersona = () => {
+interface GeneratePersonaProps {
+  onGenerationStarted?: () => void;
+}
+
+const GeneratePersona = ({ onGenerationStarted }: GeneratePersonaProps) => {
   const uploadFileData = usePersonaEngineStore(
     (state) => state.uploadFileResponse
   );
@@ -61,6 +65,7 @@ const GeneratePersona = () => {
   const generatePersonaMutation = useGeneratePersonasMutation({});
   const onSubmit = useCallback(
     (data: PersonaEngineSchema) => {
+      onGenerationStarted?.();
       generatePersonaMutation.mutate(
         {
           model: data.model,

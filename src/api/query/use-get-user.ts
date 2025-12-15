@@ -12,6 +12,8 @@ export const useGetAuthenticatedUser = () => {
   return useQuery({
     queryKey: ["user"],
     enabled: isAuthenticated,
+    refetchInterval: 20_000,
+    refetchIntervalInBackground: true,
     queryFn: async () => {
       try {
         const response = await axiosPrivateInstance.get<UserType>(

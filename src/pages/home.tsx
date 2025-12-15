@@ -660,11 +660,11 @@ const HomePage = () => {
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {subscriptionData?.data?.map((plan, index) => {
-                // Get USD pricing
-                const usdPricing = plan.pricing.find(
-                  (p) => p.currency === "USD"
+                // Prefer INR pricing for display on the marketing page
+                const inrPricing = plan.pricing.find(
+                  (p) => p.currency === "INR"
                 );
-                const monthly_usd = usdPricing?.monthly || 0;
+                const monthly_inr = inrPricing?.monthly || 0;
                 
                 // Determine if this is the popular plan (Pro plan)
                 const isPopular = plan.plan_type === "pro";
@@ -733,21 +733,21 @@ const HomePage = () => {
                   <div className="mb-6 space-y-2">
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold text-gray-900">
-                        {monthly_usd === 0
+                        {monthly_inr === 0
                           ? "Custom"
-                          : `$${monthly_usd}`}
+                          : `₹${monthly_inr}`}
                       </span>
-                      {monthly_usd > 0 && (
+                      {monthly_inr > 0 && (
                         <span className="text-sm text-gray-500">/mo*</span>
                       )}
                     </div>
-                    {monthly_usd > 0 && (
+                    {monthly_inr > 0 && (
                       <div className="text-sm text-gray-600">
                         <span className="line-through">
-                          ${monthly_usd * 1.2}
+                          ₹{Math.round(monthly_inr * 1.2)}
                         </span>{" "}
                         <span className="text-green-600">
-                          Save ${Math.round(monthly_usd * 0.2 * 12)}/year
+                          Save ₹{Math.round(monthly_inr * 0.2 * 12)}/year
                         </span>
                       </div>
                     )}

@@ -53,7 +53,8 @@ export function NavUser() {
     navigate("/plans");
   };
 
-  const currentPlanName = getPlanDisplayName(user?.plan_type);
+  const currentPlanType = user?.enabled_plan?.plan_type || user?.plan_type;
+  const currentPlanName = getPlanDisplayName(currentPlanType);
 
   if (isLoading) {
     return <Skeleton className="border-input h-12 w-full border shadow-xl" />;

@@ -8,7 +8,8 @@ import type {
 
 export const useJobsByStatus = (
   status: SimulationJob["status"],
-  jobType: string = "market_fit_simulation"
+  jobType: string = "market_fit_simulation",
+  enabled: boolean = true
 ) => {
   return useQuery<SimulationJobsListResponse>({
     queryKey: ["simulation-jobs", jobType, status],
@@ -21,5 +22,6 @@ export const useJobsByStatus = (
     refetchInterval:
       status === "in_progress" || status === "finalizing" ? 20000 : false,
     refetchIntervalInBackground: true,
+    enabled,
   });
 };

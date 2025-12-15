@@ -5,14 +5,17 @@ import CreatePersonaLLM from "@/features/persona-engine/component/create-persona
 import DataAnalysisDisplay from "@/features/persona-engine/component/data-analysis-display";
 import PersonaEngineFileUploader from "@/features/persona-engine/component/file-uploader";
 import GeneratePersona from "@/features/persona-engine/component/generate-persona";
+import PersonaHistory from "@/features/persona-engine/component/persona-history";
 import { PersonaEngineProvider } from "@/features/persona-engine/context/persona-engine.context";
 
 const PersonaEnginePage = () => {
   const [activeTab, setActiveTab] = useQueryState(
     "tab",
-    parseAsStringEnum(["upload-data", "create-persona"]).withDefault(
-      "upload-data"
-    )
+    parseAsStringEnum(["upload-data", "history", "create-persona"]).withDefault("upload-data")
+  );
+  const [historyTab, setHistoryTab] = useQueryState(
+    "history-tab",
+    parseAsStringEnum(["active", "completed", "failed", "pending"]).withDefault("active")
   );
 
   return (
@@ -29,13 +32,14 @@ const PersonaEnginePage = () => {
       </div>
       <Tabs
         onValueChange={(value) =>
-          setActiveTab(value as "upload-data" | "create-persona")
+          setActiveTab(value as "upload-data" | "history" | "create-persona")
         }
         value={activeTab}
       >
         <TabsList>
           <TabsTrigger value="upload-data">Upload Data</TabsTrigger>
-          <TabsTrigger value="create-persona">Create Persona</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
+          {/* <TabsTrigger value="create-persona">Create Persona</TabsTrigger> */}
         </TabsList>
         <TabsContent value="upload-data">
           <PersonaEngineProvider>
@@ -47,8 +51,19 @@ const PersonaEnginePage = () => {
               <DataAnalysisDisplay />
             </div>
 
-            <GeneratePersona />
+            <GeneratePersona
+              onGenerationStarted={() => {
+                setActiveTab("history");
+                setHistoryTab("active");
+              }}
+            />
           </PersonaEngineProvider>
+        </TabsContent>
+        <TabsContent value="history">
+          <PersonaHistory
+            activeTab={historyTab as "active" | "completed" | "failed" | "pending"}
+            onTabChange={(tab) => setHistoryTab(tab)}
+          />
         </TabsContent>
         <TabsContent value="create-persona">
           <CreatePersonaLLM />

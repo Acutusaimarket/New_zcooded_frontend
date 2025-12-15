@@ -6,6 +6,8 @@ export interface JobMetadata {
   user_email: string;
   no_of_simulations: number;
   num_personas: number;
+  model?: string;
+  num_clusters?: number;
   // Optional fields to support different job types
   num_media_files?: number;
   simulation_name?: string;

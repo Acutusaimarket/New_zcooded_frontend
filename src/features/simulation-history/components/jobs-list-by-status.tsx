@@ -65,7 +65,8 @@ export const JobsListByStatus = ({
   const activeJobsQuery = useActiveJobs(jobType);
   const regularJobsQuery = useJobsByStatus(
     status as SimulationJob["status"],
-    jobType
+    jobType,
+    status !== "active"
   );
 
   const isActiveTab = status === "active";
@@ -121,6 +122,8 @@ export const JobsListByStatus = ({
   const handleViewSimulation = (job: SimulationJob) => {
     if (jobType === "media_simulation" || job.job_type === "media_simulation") {
       navigate(`/dashboard/media-simulation/history/result/${job._id}`);
+    } else if (jobType === "persona_clustering" || job.job_type === "persona_clustering") {
+      navigate("/dashboard/persona-studio/management");
     } else {
       navigate(`/dashboard/simulation/history/result/${job._id}`);
     }
@@ -143,26 +146,28 @@ export const JobsListByStatus = ({
       }
     >
       {jobs.map((job) => {
-        // For all media_simulation and market_fit_simulation jobs (all tabs), pass the handler to integrate button in card
+        // For all media_simulation, market_fit_simulation, and persona_clustering jobs, pass the handler to integrate button in card
         const isMediaSimulation =
           jobType === "media_simulation" || job.job_type === "media_simulation";
         const isMarketFitSimulation =
           jobType === "market_fit_simulation" || job.job_type === "market_fit_simulation";
+        const isPersonaClustering =
+          jobType === "persona_clustering" || job.job_type === "persona_clustering";
 
         const card = (
           <ActiveJobCard
             key={job._id}
             job={job}
             onViewSimulation={
-              isMediaSimulation || isMarketFitSimulation
+              isMediaSimulation || isMarketFitSimulation || isPersonaClustering
                 ? () => handleViewSimulation(job)
                 : undefined
             }
           />
         );
 
-        // For non-media_simulation and non-market_fit_simulation completed jobs, show button separately
-        if (status === "completed" && !isMediaSimulation && !isMarketFitSimulation) {
+        // For non-media_simulation, non-market_fit_simulation, and non-persona_clustering completed jobs, show button separately
+        if (status === "completed" && !isMediaSimulation && !isMarketFitSimulation && !isPersonaClustering) {
           return (
             <div key={job._id} className="space-y-2">
               {card}

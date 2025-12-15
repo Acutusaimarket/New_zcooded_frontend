@@ -1,3 +1,5 @@
+import type { EnabledPlan } from "./token-usage.type";
+
 export type UserType = {
   created_at: string;
   updated_at: string;
@@ -8,4 +10,5 @@ export type UserType = {
   is_active: boolean;
   id: string;
   plan_type?: string;
+  enabled_plan?: EnabledPlan | null;
 };

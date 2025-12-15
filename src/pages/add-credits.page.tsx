@@ -40,16 +40,16 @@ interface PlanDetails {
   pricePerBlock: number;
 }
 
-const PLAN_DETAILS: Record<PlanTier, PlanDetails> = {
+const DEFAULT_PLAN_DETAILS: Record<PlanTier, PlanDetails> = {
   basic: {
     name: "Basic",
     creditsPerBlock: 50,
-    pricePerBlock: 10,
+    pricePerBlock: 1000,
   },
   pro: {
     name: "Pro",
     creditsPerBlock: 80,
-    pricePerBlock: 10,
+    pricePerBlock: 1000,
   },
 };
 
@@ -84,17 +84,23 @@ const AddCreditsPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Use plan_type from /auth/me to pre-select and restrict options
+  const derivedPlanTier = getPlanTierFromPlanType(user?.plan_type);
+  const planDetailsMap: Record<PlanTier, PlanDetails> = DEFAULT_PLAN_DETAILS;
+
+  const availablePlans: PlanTier[] = derivedPlanTier
+    ? [derivedPlanTier]
+    : ["basic", "pro"];
+
   // Set default plan based on user's plan_type
   useEffect(() => {
     if (user?.plan_type && !selectedPlan) {
-      const defaultPlan = getPlanTierFromPlanType(user.plan_type);
-      if (defaultPlan) {
-        setSelectedPlan(defaultPlan);
-      }
+      const defaultPlan = derivedPlanTier;
+      if (defaultPlan) setSelectedPlan(defaultPlan);
     }
-  }, [user?.plan_type, selectedPlan]);
+  }, [user?.plan_type, selectedPlan, derivedPlanTier]);
 
-  const planDetails = selectedPlan ? PLAN_DETAILS[selectedPlan] : null;
+  const planDetails = selectedPlan ? planDetailsMap[selectedPlan] : null;
   const blocksNumber = parseInt(blocks) || 0;
   const totalPrice = planDetails ? blocksNumber * planDetails.pricePerBlock : 0;
   const totalCredits = planDetails
@@ -274,16 +280,21 @@ const AddCreditsPage = () => {
                   <SelectValue placeholder="Select your plan" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="basic">
-                    Basic - ₹10 per 50 additional credit block (1 Block = 50
-                    credits)
-                  </SelectItem>
-                  <SelectItem value="pro">
-                    Pro - ₹10 per 80 additional credit block (1 Block = 80
-                    credits)
-                  </SelectItem>
+                  {availablePlans.map((plan) => (
+                    <SelectItem key={plan} value={plan}>
+                      {planDetailsMap[plan].name} - ₹
+                      {planDetailsMap[plan].pricePerBlock} per{" "}
+                      {planDetailsMap[plan].creditsPerBlock} credit block
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              {selectedPlan && (
+                <p className="text-xs text-gray-600">
+                  Price per block: ₹{planDetails?.pricePerBlock} | Credits per
+                  block: {planDetails?.creditsPerBlock}
+                </p>
+              )}
             </div>
 
             {selectedPlan && (
