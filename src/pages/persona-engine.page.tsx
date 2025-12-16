@@ -54,7 +54,7 @@ const PersonaEnginePage = () => {
             <GeneratePersona
               onGenerationSuccess={(data) => {
                 // Navigate only after successful response
-                if (data?.status === 200 && data?.success === true) {
+                if (data?.success === true) {
                   setActiveTab("history");
                   setHistoryTab("active");
                 }

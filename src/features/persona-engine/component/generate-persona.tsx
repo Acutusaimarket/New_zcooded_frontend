@@ -39,11 +39,10 @@ import GeneratePersonaPreview from "./generate-persona-preview";
 // ];
 
 interface GeneratePersonaProps {
-  onGenerationStarted?: () => void;
-  onGenerationSuccess?: (data: GeneratePersonasResponse & { status?: number }) => void;
+  onGenerationSuccess?: (data: GeneratePersonasResponse) => void;
 }
 
-const GeneratePersona = ({ onGenerationStarted, onGenerationSuccess }: GeneratePersonaProps) => {
+const GeneratePersona = ({ onGenerationSuccess }: GeneratePersonaProps) => {
   const uploadFileData = usePersonaEngineStore(
     (state) => state.uploadFileResponse
   );
@@ -67,8 +66,8 @@ const GeneratePersona = ({ onGenerationStarted, onGenerationSuccess }: GenerateP
 
   const generatePersonaMutation = useGeneratePersonasMutation({
     onSuccess: (data) => {
-      // Only navigate if response is successful (status 200 and success true)
-      if (data?.status === 200 && data?.success === true) {
+      // Only navigate if response is successful
+      if (data?.success === true) {
         onGenerationSuccess?.(data);
       }
     },
@@ -101,7 +100,7 @@ const GeneratePersona = ({ onGenerationStarted, onGenerationSuccess }: GenerateP
           num_personas: data.num_personas,
         },
         {
-          onSuccess: (responseData) => {
+          onSuccess: () => {
             queryClient.invalidateQueries({
               queryKey: ["personas-list"],
             });

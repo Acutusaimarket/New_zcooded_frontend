@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { ArrowLeft, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router";
