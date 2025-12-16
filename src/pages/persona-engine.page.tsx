@@ -52,9 +52,12 @@ const PersonaEnginePage = () => {
             </div>
 
             <GeneratePersona
-              onGenerationStarted={() => {
-                setActiveTab("history");
-                setHistoryTab("active");
+              onGenerationSuccess={(data) => {
+                // Navigate only after successful response
+                if (data?.status === 200 && data?.success === true) {
+                  setActiveTab("history");
+                  setHistoryTab("active");
+                }
               }}
             />
           </PersonaEngineProvider>

@@ -59,6 +59,44 @@ export const useGeneratePersonasMutation = ({
     },
     onError: (error) => {
       if (isAxiosError(error)) {
+        if (error.response?.status === 422) {
+          // Handle validation errors
+          const validationErrors = error.response?.data?.validation_errors;
+          if (
+            validationErrors &&
+            Array.isArray(validationErrors) &&
+            validationErrors.length > 0
+          ) {
+            const firstError = validationErrors[0];
+            const errorMessage =
+              firstError.message || "Request validation failed";
+            toast.error(errorMessage, {
+              id: "generating-personas",
+            });
+            // Return the error with validation details for form handling
+            onError?.(error);
+            return;
+          }
+          toast.error(
+            error.response?.data?.message || "Request validation failed",
+            {
+              id: "generating-personas",
+            }
+          );
+          onError?.(error);
+          return;
+        }
+        if (error.response?.status === 400) {
+          // Handle missing active subscription plan
+          const message =
+            error.response?.data?.message ||
+            "User does not have an active subscription plan.";
+          toast.error(message, {
+            id: "generating-personas",
+          });
+          onError?.(error);
+          return;
+        }
         if (error.response?.status === 429) {
           toast.error("Rate limit exceeded. Please try again later.", {
             id: "generating-personas",
@@ -82,6 +120,14 @@ export const useGeneratePersonasMutation = ({
       onError?.(error);
     },
     retry: (failureCount, error) => {
+      if (isAxiosError(error) && error.response?.status === 422) {
+        // If the error is a validation error, do not retry
+        return false;
+      }
+      if (isAxiosError(error) && error.response?.status === 400) {
+        // If the error is a subscription error, do not retry
+        return false;
+      }
       if (isAxiosError(error) && error.response?.status === 429) {
         // If the error is a rate limit error, do not retry
         return false;

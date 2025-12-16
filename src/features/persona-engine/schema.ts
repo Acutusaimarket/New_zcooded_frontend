@@ -1,7 +1,12 @@
 import z from "zod";
 
 export const personaEngineSchema = z.object({
-  num_personas: z.coerce.number().int().min(1).max(10).default(1),
+  num_personas: z.coerce
+    .number()
+    .int()
+    .min(2, "Input should be greater than or equal to 2")
+    .max(10)
+    .default(2),
   model: z.enum(["gpt-4o", "gpt-4o-mini", "gpt-5"]).default("gpt-4o"),
   meta_data_id: z.string().min(1, "Meta data ID is required"),
 });

@@ -20,6 +20,9 @@ const PlansPage = () => {
   const { data: subscriptionData, isLoading, error } = useSubscriptionDetailsQuery();
   const [isProcessingPlanId, setIsProcessingPlanId] = React.useState<string | null>(null);
   const [checkoutError, setCheckoutError] = React.useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = React.useState<"monthly" | "yearly">(
+    "monthly"
+  );
 
   type CheckoutResponse = {
     status: number;
@@ -73,7 +76,6 @@ const PlansPage = () => {
 
       const preferredPricing =
         plan.pricing.find((p) => p.currency === "INR") ?? plan.pricing[0];
-      const billingCycle = "monthly";
       const payload = {
         plan_id: plan._id,
         billing_cycle: billingCycle,
@@ -180,11 +182,38 @@ const PlansPage = () => {
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 text-center sm:mb-16">
           <h1 className="mb-4 text-3xl font-bold sm:text-4xl md:text-5xl lg:text-6xl">
-            Choose Your <span className="text-[#42BD00]">Plan</span>
+            Choose Your <span className="text-[#00bf63]">Plan</span>
           </h1>
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-gray-700 sm:text-lg md:text-xl">
             Select the perfect plan for your needs. All plans include our core features with varying limits and capabilities.
           </p>
+        </div>
+
+        <div className="mb-8 flex justify-center">
+          <div className="inline-flex items-center gap-1 rounded-full bg-gray-100 p-1">
+            <button
+              type="button"
+              onClick={() => setBillingCycle("monthly")}
+              className={`rounded-full px-4 py-1 text-xs font-medium transition-colors sm:text-sm ${
+                billingCycle === "monthly"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle("yearly")}
+              className={`rounded-full px-4 py-1 text-xs font-medium transition-colors sm:text-sm ${
+                billingCycle === "yearly"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              Yearly
+            </button>
+          </div>
         </div>
 
         {checkoutError && (
@@ -196,7 +225,7 @@ const PlansPage = () => {
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#42BD00] border-r-transparent"></div>
+              <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#00bf63] border-r-transparent"></div>
               <p className="text-gray-600">Loading plans...</p>
             </div>
           </div>
@@ -209,7 +238,7 @@ const PlansPage = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 justify-items-center md:grid-cols-2 lg:grid-cols-3">
             {subscriptionData?.data
               ?.filter(
                 (plan) =>
@@ -221,7 +250,12 @@ const PlansPage = () => {
               const inrPricing = plan.pricing.find(
                 (p) => p.currency === "INR"
               );
-              const monthly_inr = inrPricing?.monthly || 0;
+              const monthlyPrice = inrPricing?.monthly || 0;
+              const yearlyPrice = inrPricing?.yearly || 0;
+              const activePrice =
+                billingCycle === "monthly" ? monthlyPrice : yearlyPrice;
+              const monthlyFromYearly =
+                yearlyPrice > 0 ? Math.round(yearlyPrice / 12) : 0;
 
               // Determine if this is the popular plan (Pro plan)
               const isPopular = plan.plan_type === "pro";
@@ -262,13 +296,13 @@ const PlansPage = () => {
                   key={index}
                   className={`relative rounded-2xl border-2 bg-white p-6 shadow-lg transition-all hover:shadow-xl ${
                     isPopular
-                      ? "border-[#42BD00] ring-2 ring-[#42BD0033]"
+                      ? "border-[#00bf63] ring-2 ring-[#00bf6333]"
                       : "border-gray-200"
                   }`}
                 >
                   {isPopular && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="rounded-full bg-[#42BD00] px-4 py-1 text-xs font-semibold text-white">
+                      <span className="rounded-full bg-[#00bf63] px-4 py-1 text-xs font-semibold text-white">
                         Most Popular
                       </span>
                     </div>
@@ -290,21 +324,28 @@ const PlansPage = () => {
                     <div className="mb-6 space-y-2">
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold text-gray-900">
-                          {monthly_inr === 0
+                          {activePrice === 0
                             ? "Custom"
-                            : `₹${monthly_inr}`}
+                            : `₹${activePrice}`}
                         </span>
-                        {monthly_inr > 0 && (
-                          <span className="text-sm text-gray-500">/mo*</span>
+                        {activePrice > 0 && (
+                          <span className="text-sm text-gray-500">
+                            {billingCycle === "monthly" ? "/mo*" : "/yr*"}
+                          </span>
                         )}
                       </div>
-                      {monthly_inr > 0 && (
+                      {billingCycle === "yearly" && yearlyPrice > 0 && (
+                        <div className="text-sm text-gray-600">
+                          ≈ ₹{monthlyFromYearly}/mo (billed yearly)
+                        </div>
+                      )}
+                      {billingCycle === "monthly" && activePrice > 0 && (
                         <div className="text-sm text-gray-600">
                           <span className="line-through">
-                            ₹{Math.round(monthly_inr * 1.2)}
+                            ₹{Math.round(activePrice * 1.2)}
                           </span>{" "}
                           <span className="text-green-600">
-                            Save ₹{Math.round(monthly_inr * 0.2 * 12)}/year
+                            Save ₹{Math.round(activePrice * 0.2 * 12)}/year
                           </span>
                         </div>
                       )}
@@ -317,9 +358,9 @@ const PlansPage = () => {
                         Credits
                       </span>
                       <span className="text-sm font-semibold text-gray-900">
-                        {plan.credits === 999999
-                          ? "Tailored Your Need"
-                          : plan.credits.toLocaleString()}
+                      {plan.credits === 999999
+                        ? "Tailored Your Need"
+                        : `${plan.credits.toLocaleString()}/mo`}
                       </span>
                     </div>
                     <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
@@ -341,7 +382,7 @@ const PlansPage = () => {
                     <ul className="space-y-2">
                       {plan.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#42BD00]" />
+                          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#00bf63]" />
                           <span className="text-xs text-gray-700">{feature}</span>
                         </li>
                       ))}
@@ -353,8 +394,8 @@ const PlansPage = () => {
                     disabled={isProcessingPlanId === plan._id}
                     className={`group w-full ${
                       isPopular
-                        ? "bg-[#42BD00] text-white hover:bg-[#369900]"
-                        : "border-2 border-[#42BD00] bg-white text-[#42BD00] hover:bg-[#42BD0010]"
+                        ? "bg-[#00bf63] text-white hover:bg-[#00a050]"
+                        : "border-2 border-[#00bf63] bg-white text-[#00bf63] hover:bg-[#00bf6310]"
                     }`}
                   >
                     {isProcessingPlanId === plan._id

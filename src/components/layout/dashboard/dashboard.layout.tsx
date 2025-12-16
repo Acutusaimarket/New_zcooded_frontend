@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Outlet, useNavigate } from "react-router";
 
-import { CreditCard } from "lucide-react";
+import { CreditCard, Sparkles, Zap } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
 import {
@@ -22,23 +22,11 @@ import BreadcrumbHeader from "../bread-crumb-header";
 import { DashboardSidebar } from "./sidebar/app-sidebar";
 import { useAuthStore } from "@/store/auth-store";
 
-const DEFAULT_PLAN_DETAILS = {
-  basic: {
-    name: "Basic",
-    creditsPerBlock: 50,
-    pricePerBlock: 1000,
-  },
-  pro: {
-    name: "Pro",
-    creditsPerBlock: 80,
-    pricePerBlock: 1000,
-  },
-} as const;
-
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const [dismissed, setDismissed] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   const isFreePlan = useMemo(() => {
     const plan = user?.plan_type || user?.enabled_plan?.plan_type;
@@ -46,7 +34,19 @@ const DashboardLayout = () => {
     return plan.toLowerCase() === "free";
   }, [user?.plan_type, user?.enabled_plan?.plan_type]);
 
-  const showUpgrade = isFreePlan && !dismissed;
+  useEffect(() => {
+    if (isFreePlan && !dismissed) {
+      const timer = setTimeout(() => {
+        setShowPopup(true);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowPopup(false);
+    }
+  }, [isFreePlan, dismissed]);
+
+  const showUpgrade = isFreePlan && !dismissed && showPopup;
 
   return (
     <SidebarProvider>
@@ -62,69 +62,79 @@ const DashboardLayout = () => {
             <BreadcrumbHeader />
           </div>
         </header>
-        <div className="relative flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div
+          className={
+            showUpgrade
+              ? "relative flex flex-1 flex-col gap-4 p-4 pt-0 blur-sm pointer-events-none"
+              : "relative flex flex-1 flex-col gap-4 p-4 pt-0"
+          }
+        >
+          <Outlet />
+        </div>
           {showUpgrade && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-              <Card className="w-full max-w-3xl border-[#E5E7EB] shadow-lg">
-                <CardHeader>
-                  <div className="mb-2 flex items-center gap-3">
-                    <CreditCard className="h-6 w-6 text-[#42BD00]" />
-                    <div>
-                      <CardTitle>Upgrade to Add Credits</CardTitle>
-                      <CardDescription>
-                        You are currently on the Free plan. Upgrade to purchase
-                        credit blocks.
-                      </CardDescription>
-                    </div>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+              <Card className="w-full max-w-md border-[#E5E7EB] shadow-2xl">
+                <CardHeader className="pb-6 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#00bf63]/10">
+                    <CreditCard className="h-8 w-8 text-[#00bf63]" />
                   </div>
+                  <CardTitle className="text-2xl font-bold">
+                    Welcome! Get Started with Credits
+                  </CardTitle>
+                  <CardDescription className="mt-2 text-base">
+                    To unlock the full potential of our platform, choose a plan
+                    that suits your need
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-4 md:grid-cols-2">
-                  {Object.entries(DEFAULT_PLAN_DETAILS).map(([key, plan]) => (
-                    <div
-                      key={key}
-                      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-semibold">{plan.name}</p>
-                          <p className="text-xs text-gray-500">
-                            {plan.creditsPerBlock} credits / block
-                          </p>
-                        </div>
-                        <p className="text-lg font-bold text-[#42BD00]">
-                          ₹{plan.pricePerBlock}
+                <CardContent className="space-y-6">
+                  <div className="space-y-3 rounded-lg bg-gray-50 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00bf63]">
+                        <Sparkles className="h-3 w-3 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">
+                          Access Features
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Unlock advanced tools and capabilities
                         </p>
                       </div>
-                      <Button
-                        className="mt-4 w-full"
-                        variant="outline"
-                        onClick={() => navigate("/plans")}
-                      >
-                        Upgrade
-                      </Button>
                     </div>
-                  ))}
-                </CardContent>
-                <CardContent className="flex flex-col gap-3 pt-0">
-                  <Button
-                    className="w-full bg-[#42BD00] hover:bg-[#369900]"
-                    onClick={() => navigate("/plans")}
-                  >
-                    View all plans
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full"
-                    onClick={() => setDismissed(true)}
-                  >
-                    Not now
-                  </Button>
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00bf63]">
+                        <Zap className="h-3 w-3 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">
+                          Flexible Credit System
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Purchase  as you need them
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Button
+                      className="w-full bg-[#00bf63] text-base font-semibold hover:bg-[#00a050]"
+                      size="lg"
+                      onClick={() => navigate("/plans")}
+                    >
+                     Purchase Plan
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full text-sm text-gray-500 hover:text-gray-700"
+                      onClick={() => setDismissed(true)}
+                    >
+                      Maybe later
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
           )}
-          <Outlet />
-        </div>
       </SidebarInset>
     </SidebarProvider>
   );

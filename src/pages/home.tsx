@@ -27,6 +27,9 @@ const HomePage = () => {
   const [selectedAudience, setSelectedAudience] = useState<
     "d2c" | "researchers"
   >("d2c");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
+    "monthly"
+  );
   const [result, setResult] = useState("");
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 0
@@ -642,6 +645,33 @@ const HomePage = () => {
             </p>
           </div>
 
+        <div className="mb-8 flex justify-center">
+          <div className="inline-flex items-center gap-1 rounded-full bg-gray-100 p-1">
+            <button
+              type="button"
+              onClick={() => setBillingCycle("monthly")}
+              className={`rounded-full px-4 py-1 text-xs font-medium transition-colors sm:text-sm ${
+                billingCycle === "monthly"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle("yearly")}
+              className={`rounded-full px-4 py-1 text-xs font-medium transition-colors sm:text-sm ${
+                billingCycle === "yearly"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              Yearly
+            </button>
+          </div>
+        </div>
+
           {isLoadingPlans ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -664,7 +694,12 @@ const HomePage = () => {
                 const inrPricing = plan.pricing.find(
                   (p) => p.currency === "INR"
                 );
-                const monthly_inr = inrPricing?.monthly || 0;
+                const monthlyPrice = inrPricing?.monthly || 0;
+                const yearlyPrice = inrPricing?.yearly || 0;
+                const activePrice =
+                  billingCycle === "monthly" ? monthlyPrice : yearlyPrice;
+                const monthlyFromYearly =
+                  yearlyPrice > 0 ? Math.round(yearlyPrice / 12) : 0;
                 
                 // Determine if this is the popular plan (Pro plan)
                 const isPopular = plan.plan_type === "pro";
@@ -733,21 +768,26 @@ const HomePage = () => {
                   <div className="mb-6 space-y-2">
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold text-gray-900">
-                        {monthly_inr === 0
-                          ? "Custom"
-                          : `₹${monthly_inr}`}
+                        {activePrice === 0 ? "Custom" : `₹${activePrice}`}
                       </span>
-                      {monthly_inr > 0 && (
-                        <span className="text-sm text-gray-500">/mo*</span>
+                      {activePrice > 0 && (
+                        <span className="text-sm text-gray-500">
+                          {billingCycle === "monthly" ? "/mo*" : "/yr*"}
+                        </span>
                       )}
                     </div>
-                    {monthly_inr > 0 && (
+                    {billingCycle === "yearly" && yearlyPrice > 0 && (
+                      <div className="text-sm text-gray-600">
+                        ≈ ₹{monthlyFromYearly}/mo (billed yearly)
+                      </div>
+                    )}
+                    {billingCycle === "monthly" && activePrice > 0 && (
                       <div className="text-sm text-gray-600">
                         <span className="line-through">
-                          ₹{Math.round(monthly_inr * 1.2)}
+                          ₹{Math.round(activePrice * 1.2)}
                         </span>{" "}
                         <span className="text-green-600">
-                          Save ₹{Math.round(monthly_inr * 0.2 * 12)}/year
+                          Save ₹{Math.round(activePrice * 0.2 * 12)}/year
                         </span>
                       </div>
                     )}
@@ -762,7 +802,7 @@ const HomePage = () => {
                     <span className="text-sm font-semibold text-gray-900">
                       {plan.credits === 999999
                         ? "Tailored Your Need"
-                        : plan.credits}
+                        : `${plan.credits.toLocaleString()}/mo`}
                     </span>
                   </div>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">

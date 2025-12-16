@@ -192,7 +192,7 @@ export const ActiveJobCard = ({
 
   const isCompact = variant === "compact";
   const isMarketFitSimulation = job.job_type === "market_fit_simulation";
-  const hideStartTime = isPersonaClustering && job.status === "completed";
+  const hideStartTime = isPersonaClustering && (job.status === "completed" || job.status === "in_progress");
   const hidePersonaMetaData = isPersonaClustering && job.status === "completed";
   // Active jobs (in_progress, finalizing) should be expanded by default
   const isActiveJob = job.status === "in_progress" || job.status === "finalizing";

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ArrowLeft, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router";
+import { isAxiosError } from "axios";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,13 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { subscriptionApiEndPoint } from "@/lib/api-end-point";
 import { axiosPrivateInstance } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
@@ -79,28 +73,18 @@ type CreditsTopupResponse = {
 const AddCreditsPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const [selectedPlan, setSelectedPlan] = useState<PlanTier | "">("");
   const [blocks, setBlocks] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Use plan_type from /auth/me to pre-select and restrict options
-  const derivedPlanTier = getPlanTierFromPlanType(user?.plan_type);
+  // Derive plan from /auth/me (plan_type or enabled_plan)
+  const derivedPlanTier =
+    getPlanTierFromPlanType(user?.plan_type) ||
+    getPlanTierFromPlanType(user?.enabled_plan?.plan_type) ||
+    getPlanTierFromPlanType(user?.enabled_plan?.name);
   const planDetailsMap: Record<PlanTier, PlanDetails> = DEFAULT_PLAN_DETAILS;
 
-  const availablePlans: PlanTier[] = derivedPlanTier
-    ? [derivedPlanTier]
-    : ["basic", "pro"];
-
-  // Set default plan based on user's plan_type
-  useEffect(() => {
-    if (user?.plan_type && !selectedPlan) {
-      const defaultPlan = derivedPlanTier;
-      if (defaultPlan) setSelectedPlan(defaultPlan);
-    }
-  }, [user?.plan_type, selectedPlan, derivedPlanTier]);
-
-  const planDetails = selectedPlan ? planDetailsMap[selectedPlan] : null;
+  const planDetails = derivedPlanTier ? planDetailsMap[derivedPlanTier] : null;
   const blocksNumber = parseInt(blocks) || 0;
   const totalPrice = planDetails ? blocksNumber * planDetails.pricePerBlock : 0;
   const totalCredits = planDetails
@@ -125,7 +109,7 @@ const AddCreditsPage = () => {
   }, []);
 
   const handlePay = async () => {
-    if (!selectedPlan || blocksNumber <= 0) {
+    if (!planDetails || !derivedPlanTier || blocksNumber <= 0) {
       return;
     }
 
@@ -186,7 +170,7 @@ const AddCreditsPage = () => {
         },
         notes: {
           credits_to_add: totalCredits.toString(),
-          plan: selectedPlan,
+          plan: derivedPlanTier,
         },
         prefill: {
           // You can add user details here if available
@@ -216,6 +200,17 @@ const AddCreditsPage = () => {
     } catch (err) {
       console.error("Credits topup failed", err);
       setIsProcessing(false);
+
+      // Handle specific backend error: user must have an active subscription
+      if (isAxiosError(err) && err.response?.status === 400) {
+        const message =
+          err.response?.data?.message ||
+          "You must have an active subscription to purchase credits";
+        setError(message);
+        toast.error(message);
+        return;
+      }
+
       const errorMessage =
         err instanceof Error
           ? err.message
@@ -245,9 +240,9 @@ const AddCreditsPage = () => {
             Back
           </Button>
           <div className="flex items-center gap-3">
-            <CreditCard className="h-6 w-6 text-[#42BD00]" />
+            <CreditCard className="h-6 w-6 text-[#00bf63]" />
             <h1 className="text-2xl font-bold sm:text-3xl md:text-4xl">
-              Add <span className="text-[#42BD00]">Credits</span>
+              Add <span className="text-[#00bf63]">Credits</span>
             </h1>
           </div>
         </div>
@@ -256,8 +251,8 @@ const AddCreditsPage = () => {
           <CardHeader>
             <CardTitle>Select Your Plan</CardTitle>
             <CardDescription>
-              Choose your plan and specify the number of credit blocks you want
-              to purchase.
+              Specify the number of credit blocks you want to purchase. Your
+              plan is detected automatically.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -267,37 +262,14 @@ const AddCreditsPage = () => {
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="plan-select">Select Plan</Label>
-              <Select
-                value={selectedPlan}
-                onValueChange={(value) => {
-                  setSelectedPlan(value as PlanTier);
-                  setError(null);
-                }}
-              >
-                <SelectTrigger id="plan-select">
-                  <SelectValue placeholder="Select your plan" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availablePlans.map((plan) => (
-                    <SelectItem key={plan} value={plan}>
-                      {planDetailsMap[plan].name} - ₹
-                      {planDetailsMap[plan].pricePerBlock} per{" "}
-                      {planDetailsMap[plan].creditsPerBlock} credit block
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedPlan && (
-                <p className="text-xs text-gray-600">
-                  Price per block: ₹{planDetails?.pricePerBlock} | Credits per
-                  block: {planDetails?.creditsPerBlock}
-                </p>
-              )}
-            </div>
+            {!planDetails && (
+              <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                Unable to detect your plan from your account. Please ensure you
+                have an active subscription.
+              </div>
+            )}
 
-            {selectedPlan && (
+            {planDetails && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="blocks">Number of Blocks</Label>
@@ -310,8 +282,8 @@ const AddCreditsPage = () => {
                     onChange={(e) => setBlocks(e.target.value)}
                   />
                   <p className="text-xs text-gray-500">
-                    {planDetails?.name}: ₹{planDetails?.pricePerBlock} per block
-                    ({planDetails?.creditsPerBlock} credits per block)
+                    {planDetails.name}: ₹{planDetails.pricePerBlock} per block (
+                    {planDetails.creditsPerBlock} credits per block)
                   </p>
                 </div>
 
@@ -323,7 +295,7 @@ const AddCreditsPage = () => {
                           Plan:
                         </span>
                         <span className="text-sm font-semibold text-gray-900">
-                          {planDetails?.name}
+                          {planDetails.name}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -339,7 +311,7 @@ const AddCreditsPage = () => {
                           Credits per Block:
                         </span>
                         <span className="text-sm font-semibold text-gray-900">
-                          {planDetails?.creditsPerBlock}
+                          {planDetails.creditsPerBlock}
                         </span>
                       </div>
                       <div className="my-2 border-t border-gray-300"></div>
@@ -347,7 +319,7 @@ const AddCreditsPage = () => {
                         <span className="text-sm font-medium text-gray-700">
                           Total Credits:
                         </span>
-                        <span className="text-lg font-bold text-[#42BD00]">
+                        <span className="text-lg font-bold text-[#00bf63]">
                           {totalCredits.toLocaleString()}
                         </span>
                       </div>
@@ -355,7 +327,7 @@ const AddCreditsPage = () => {
                         <span className="text-base font-semibold text-gray-900">
                           Total Price:
                         </span>
-                        <span className="text-2xl font-bold text-[#42BD00]">
+                        <span className="text-2xl font-bold text-[#00bf63]">
                           ₹{totalPrice.toFixed(2)}
                         </span>
                       </div>
@@ -365,8 +337,8 @@ const AddCreditsPage = () => {
 
                 <Button
                   onClick={handlePay}
-                  disabled={!selectedPlan || blocksNumber <= 0 || isProcessing}
-                  className="w-full bg-[#42BD00] hover:bg-[#369900] disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={!planDetails || blocksNumber <= 0 || isProcessing}
+                  className="w-full bg-[#00bf63] hover:bg-[#00a050] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isProcessing
                     ? "Processing..."

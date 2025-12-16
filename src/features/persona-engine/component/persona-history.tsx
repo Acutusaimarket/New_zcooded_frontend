@@ -48,7 +48,7 @@ const PersonaHistory = ({ activeTab, onTabChange }: PersonaHistoryProps) => {
 
         <div className="mt-6">
           <TabsContent value="active" className="mt-0">
-            <JobsListByStatus status="active" jobType="persona_clustering" />
+            <JobsListByStatus status="in_progress" jobType="persona_clustering" />
           </TabsContent>
           <TabsContent value="completed" className="mt-0">
             <JobsListByStatus status="completed" jobType="persona_clustering" />

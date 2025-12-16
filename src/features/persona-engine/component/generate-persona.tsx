@@ -2,6 +2,7 @@ import { useCallback } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { AnimatePresence, motion } from "motion/react";
 import { useForm } from "react-hook-form";
 
@@ -28,6 +29,7 @@ import { TooltipWrapper } from "@/components/ui/tooltip";
 import { useGeneratePersonasMutation } from "../api";
 import { usePersonaEngineStore } from "../hooks/persona-engine.hooks";
 import { type PersonaEngineSchema, personaEngineSchema } from "../schema";
+import type { GeneratePersonasResponse } from "../types";
 import GeneratePersonaPreview from "./generate-persona-preview";
 
 // const MODELS = [
@@ -38,9 +40,10 @@ import GeneratePersonaPreview from "./generate-persona-preview";
 
 interface GeneratePersonaProps {
   onGenerationStarted?: () => void;
+  onGenerationSuccess?: (data: GeneratePersonasResponse & { status?: number }) => void;
 }
 
-const GeneratePersona = ({ onGenerationStarted }: GeneratePersonaProps) => {
+const GeneratePersona = ({ onGenerationStarted, onGenerationSuccess }: GeneratePersonaProps) => {
   const uploadFileData = usePersonaEngineStore(
     (state) => state.uploadFileResponse
   );
@@ -56,16 +59,41 @@ const GeneratePersona = ({ onGenerationStarted }: GeneratePersonaProps) => {
     mode: "onChange",
     resolver: zodResolver(personaEngineSchema),
     defaultValues: {
-      num_personas: 1,
+      num_personas: 2,
       model: "gpt-5" as const,
       meta_data_id: uploadFileData?.id || "",
     },
   });
 
-  const generatePersonaMutation = useGeneratePersonasMutation({});
+  const generatePersonaMutation = useGeneratePersonasMutation({
+    onSuccess: (data) => {
+      // Only navigate if response is successful (status 200 and success true)
+      if (data?.status === 200 && data?.success === true) {
+        onGenerationSuccess?.(data);
+      }
+    },
+    onError: (error) => {
+      // Handle validation errors from API
+      if (isAxiosError(error) && error.response?.status === 422) {
+        const validationErrors = error.response?.data?.validation_errors;
+        if (validationErrors && Array.isArray(validationErrors)) {
+          validationErrors.forEach((validationError) => {
+            if (validationError.field === "num_clusters") {
+              // Set the error on the form field
+              generatePersonaFrom.setError("num_personas", {
+                type: "manual",
+                message: validationError.message,
+              });
+            }
+          });
+        }
+      }
+    },
+  });
   const onSubmit = useCallback(
     (data: PersonaEngineSchema) => {
-      onGenerationStarted?.();
+      // Clear any previous errors
+      generatePersonaFrom.clearErrors("num_personas");
       generatePersonaMutation.mutate(
         {
           model: data.model,
@@ -73,7 +101,7 @@ const GeneratePersona = ({ onGenerationStarted }: GeneratePersonaProps) => {
           num_personas: data.num_personas,
         },
         {
-          onSuccess: () => {
+          onSuccess: (responseData) => {
             queryClient.invalidateQueries({
               queryKey: ["personas-list"],
             });
@@ -90,7 +118,7 @@ const GeneratePersona = ({ onGenerationStarted }: GeneratePersonaProps) => {
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [generatePersonaMutation]
+    [generatePersonaMutation, generatePersonaFrom]
   );
 
   return (
@@ -125,10 +153,10 @@ const GeneratePersona = ({ onGenerationStarted }: GeneratePersonaProps) => {
                     control={generatePersonaFrom.control}
                     name="num_personas"
                     type="number"
-                    min={1}
+                    min={2}
                     max={10}
                     step={1}
-                    label="Number of Personas"
+                    label="Number of Personas (Minimum 2)"
                     placeholder="Enter number of personas to generate"
                     description="Specify how many personas you want to generate."
                     required
