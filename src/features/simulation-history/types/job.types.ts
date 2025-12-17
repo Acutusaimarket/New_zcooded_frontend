@@ -26,13 +26,24 @@ export interface MediaFile {
 export interface SimulationJob {
   _id: string;
   job_type: string;
-  status: "pending" | "in_progress" | "finalizing" | "completed" | "failed" | "interrupted";
+  status:
+    | "pending"
+    | "in_progress"
+    | "finalizing"
+    | "completed"
+    | "failed"
+    | "interrupted";
   intermediate_steps: IntermediateSteps;
   meta_data: JobMetadata;
   failed_reasons: string | null;
   user: string;
   persona?: Array<{ name?: string; _id?: string; [key: string]: unknown }>;
-  product?: Array<{ name?: string; _id?: string; [key: string]: unknown }>;
+  product?: Array<{
+    name?: string;
+    _id?: string;
+    [key: string]: unknown;
+    images?: string;
+  }>;
   media_files?: MediaFile[];
   created_at: string;
   updated_at: string;
@@ -56,4 +67,3 @@ export interface SimulationJobsListResponse {
     page_size: number;
   };
 }
-

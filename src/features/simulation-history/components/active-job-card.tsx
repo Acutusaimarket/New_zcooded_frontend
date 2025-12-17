@@ -1,10 +1,25 @@
-import { useState } from "react";
-import { CheckCircle2, Clock, Loader2, User, ChevronDown, ChevronUp } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import { format } from "date-fns";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Loader2,
+  Package,
+  User,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 
@@ -72,7 +87,8 @@ export const ActiveJobCard = ({
   const intermediateStepsMap = job.intermediate_steps || {};
   const isMediaSimulation = job.job_type === "media_simulation";
   const isPersonaClustering = job.job_type === "persona_clustering";
-  const firstMediaFile = job.media_files && job.media_files.length > 0 ? job.media_files[0] : null;
+  const firstMediaFile =
+    job.media_files && job.media_files.length > 0 ? job.media_files[0] : null;
   const isImage = firstMediaFile?.filetype?.startsWith("image/");
   const isVideo = firstMediaFile?.filetype?.startsWith("video/");
 
@@ -81,14 +97,14 @@ export const ActiveJobCard = ({
   const productName =
     (job.product && job.product.length > 0 && job.product[0].name
       ? job.product[0].name
-      : null) || job.meta_data?.product_name || null;
+      : null) ||
+    job.meta_data?.product_name ||
+    null;
 
   // Get persona names if available (for media_simulation)
   const personaNames =
     job.persona && job.persona.length > 0
-      ? job.persona
-          .map((p) => p.name)
-          .filter((name): name is string => !!name)
+      ? job.persona.map((p) => p.name).filter((name): name is string => !!name)
       : [];
   const personas = Array.isArray(job.persona) ? job.persona : [];
 
@@ -114,21 +130,17 @@ export const ActiveJobCard = ({
     ) {
       // For non-market-fit jobs, try to match with normalized names
       const normalizedKey = normalizeStepName(stepKey);
-      const matchedDisplayName = Object.values(STEP_MAPPING).find(
-        (display) => {
-          const normalizedDisplay = normalizeStepName(display);
-          return (
-            normalizedKey === normalizedDisplay ||
-            normalizedKey.includes(normalizedDisplay) ||
-            normalizedDisplay.includes(normalizedKey)
-          );
-        }
-      );
+      const matchedDisplayName = Object.values(STEP_MAPPING).find((display) => {
+        const normalizedDisplay = normalizeStepName(display);
+        return (
+          normalizedKey === normalizedDisplay ||
+          normalizedKey.includes(normalizedDisplay) ||
+          normalizedDisplay.includes(normalizedKey)
+        );
+      });
       displayName =
         matchedDisplayName ||
-        stepKey
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase());
+        stepKey.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
     }
 
     return {
@@ -168,7 +180,7 @@ export const ActiveJobCard = ({
         );
       case "completed":
         return (
-          <Badge variant="default" className="bg-green-500 gap-1">
+          <Badge variant="default" className="gap-1 bg-green-500">
             <CheckCircle2 className="h-3 w-3" />
             Completed
           </Badge>
@@ -192,26 +204,36 @@ export const ActiveJobCard = ({
 
   const isCompact = variant === "compact";
   const isMarketFitSimulation = job.job_type === "market_fit_simulation";
-  const hideStartTime = isPersonaClustering && (job.status === "completed" || job.status === "in_progress");
+  const hideStartTime =
+    isPersonaClustering &&
+    (job.status === "completed" || job.status === "in_progress");
   const hidePersonaMetaData = isPersonaClustering && job.status === "completed";
   // Active jobs (in_progress, finalizing) should be expanded by default
-  const isActiveJob = job.status === "in_progress" || job.status === "finalizing";
+  const isActiveJob =
+    job.status === "in_progress" || job.status === "finalizing";
   const [isExpanded, setIsExpanded] = useState(
     isActiveJob || (isMarketFitSimulation && isActiveJob)
   );
+  const [imageError, setImageError] = useState(false);
+
+  // Reset image error state when image URL changes
+  const productImageUrl = job.product?.[0]?.images?.[0];
+  useEffect(() => {
+    setImageError(false);
+  }, [productImageUrl]);
 
   // Specialized polished layout for completed persona clustering
   if (isPersonaClustering && job.status === "completed") {
     const personaCount = personas.length || job.meta_data?.num_personas;
 
     return (
-      <Card className="w-full border-border/60 shadow-sm">
+      <Card className="border-border/60 w-full shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
               <CardTitle className="text-lg">Generated Personas</CardTitle>
               {personaCount ? (
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
                   <Badge variant="outline">
                     {personaCount} persona{personaCount === 1 ? "" : "s"}
                   </Badge>
@@ -224,8 +246,8 @@ export const ActiveJobCard = ({
 
         <CardContent className="space-y-5">
           {orderedSteps.length > 0 && (
-            <div className="rounded-lg bg-muted/50 p-3">
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="bg-muted/50 rounded-lg p-3">
+              <h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                 Processing Steps
               </h4>
               <div className="mt-2 space-y-1.5">
@@ -234,11 +256,13 @@ export const ActiveJobCard = ({
                     {step.completed ? (
                       <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
                     ) : (
-                      <div className="h-3.5 w-3.5 rounded-full border-2 border-muted-foreground/30" />
+                      <div className="border-muted-foreground/30 h-3.5 w-3.5 rounded-full border-2" />
                     )}
                     <p
                       className={`text-xs ${
-                        step.completed ? "font-medium text-foreground" : "text-muted-foreground"
+                        step.completed
+                          ? "text-foreground font-medium"
+                          : "text-muted-foreground"
                       }`}
                     >
                       {step.displayName}
@@ -255,27 +279,31 @@ export const ActiveJobCard = ({
               <div className="space-y-3">
                 {personas.map((persona) => {
                   const name =
-                    typeof persona.name === "string" && persona.name.trim().length > 0
+                    typeof persona.name === "string" &&
+                    persona.name.trim().length > 0
                       ? persona.name
                       : "Persona";
                   const description =
-                    typeof persona.description === "string" && persona.description.trim().length > 0
+                    typeof persona.description === "string" &&
+                    persona.description.trim().length > 0
                       ? persona.description
                       : undefined;
 
                   return (
                     <div
                       key={persona._id ?? name}
-                      className="border-border/60 rounded-lg border bg-card/40 p-3"
+                      className="border-border/60 bg-card/40 rounded-lg border p-3"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold text-foreground">{name}</p>
+                        <p className="text-foreground text-sm font-semibold">
+                          {name}
+                        </p>
                         <Badge variant="secondary" className="text-[10px]">
                           Generated
                         </Badge>
                       </div>
                       {description && (
-                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
+                        <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
                           {description}
                         </p>
                       )}
@@ -302,13 +330,33 @@ export const ActiveJobCard = ({
   if (isMarketFitSimulation) {
     // Collapsed view - only product name
     if (!isExpanded) {
+      const productImages = job.product?.[0]?.images;
+      const hasImages = productImages && productImages.length > 0;
+      const imageUrl = hasImages ? productImages[0] : null;
+      const showFallback = !hasImages || imageError;
+
       return (
         <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg">
+          {/* Product Image Preview */}
+          <div className="bg-muted relative aspect-video w-full overflow-hidden">
+            {showFallback ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <Package className="text-muted-foreground h-12 w-12" />
+              </div>
+            ) : (
+              <img
+                src={imageUrl!}
+                alt={productName || "Product image"}
+                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                onError={() => setImageError(true)}
+              />
+            )}
+          </div>
           <CardContent className="p-4">
             {/* Product Name */}
             {productName && (
               <div className="mb-3">
-                <p className="text-base font-semibold text-foreground">
+                <p className="text-foreground text-base font-semibold">
                   {productName}
                 </p>
               </div>
@@ -329,6 +377,14 @@ export const ActiveJobCard = ({
     }
 
     // Expanded view - full card with all details
+    const productImagesExpanded = job.product?.[0]?.images;
+    const hasImagesExpanded =
+      productImagesExpanded && productImagesExpanded.length > 0;
+    const imageUrlExpanded = hasImagesExpanded
+      ? productImagesExpanded[0]
+      : null;
+    const showFallbackExpanded = !hasImagesExpanded || imageError;
+
     return (
       <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg">
         <CardHeader className="pb-3">
@@ -342,11 +398,27 @@ export const ActiveJobCard = ({
           </div>
         </CardHeader>
 
+        {/* Product Image Preview */}
+        <div className="bg-muted relative aspect-video w-full overflow-hidden">
+          {showFallbackExpanded ? (
+            <div className="flex h-full w-full items-center justify-center">
+              <Package className="text-muted-foreground h-12 w-12" />
+            </div>
+          ) : (
+            <img
+              src={imageUrlExpanded!}
+              alt={productName || "Product image"}
+              className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+              onError={() => setImageError(true)}
+            />
+          )}
+        </div>
+
         <CardContent className="space-y-4">
           {/* Product Name */}
           {productName && (
             <div>
-              <p className="text-base font-semibold text-foreground">
+              <p className="text-foreground text-base font-semibold">
                 {productName}
               </p>
             </div>
@@ -355,7 +427,7 @@ export const ActiveJobCard = ({
           {/* Intermediate Steps */}
           {orderedSteps.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              <h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                 Processing Steps
               </h4>
               <div className="space-y-1.5">
@@ -364,12 +436,12 @@ export const ActiveJobCard = ({
                     {step.completed ? (
                       <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
                     ) : (
-                      <div className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-muted-foreground/30" />
+                      <div className="border-muted-foreground/30 h-3.5 w-3.5 shrink-0 rounded-full border-2" />
                     )}
                     <p
                       className={`text-xs ${
                         step.completed
-                          ? "font-medium text-foreground"
+                          ? "text-foreground font-medium"
                           : "text-muted-foreground"
                       }`}
                     >
@@ -384,9 +456,9 @@ export const ActiveJobCard = ({
           {/* Persona Info */}
           {job.meta_data?.num_personas && (
             <div className="flex items-center gap-2 pt-2">
-              <User className="h-4 w-4 text-muted-foreground" />
+              <User className="text-muted-foreground h-4 w-4" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-foreground text-sm font-medium">
                   {job.meta_data.num_personas}{" "}
                   {job.meta_data.num_personas === 1 ? "Persona" : "Personas"}
                 </p>
@@ -430,7 +502,7 @@ export const ActiveJobCard = ({
         <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg">
           {/* Media Preview */}
           {firstMediaFile?.url && (
-            <div className="relative aspect-video w-full overflow-hidden bg-muted">
+            <div className="bg-muted relative aspect-video w-full overflow-hidden">
               {isImage ? (
                 <img
                   src={firstMediaFile.url}
@@ -461,7 +533,7 @@ export const ActiveJobCard = ({
             {/* Filename */}
             {firstMediaFile?.filename && (
               <div className="mb-3">
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-foreground text-sm font-semibold">
                   {firstMediaFile.filename}
                 </p>
               </div>
@@ -486,7 +558,7 @@ export const ActiveJobCard = ({
       <Card className="group overflow-hidden transition-all duration-200 hover:shadow-lg">
         {/* Media Preview */}
         {firstMediaFile?.url && (
-          <div className="relative aspect-video w-full overflow-hidden bg-muted">
+          <div className="bg-muted relative aspect-video w-full overflow-hidden">
             {isImage ? (
               <img
                 src={firstMediaFile.url}
@@ -528,7 +600,7 @@ export const ActiveJobCard = ({
           {/* Filename */}
           {firstMediaFile?.filename && (
             <div>
-              <p className="text-sm font-semibold text-foreground">
+              <p className="text-foreground text-sm font-semibold">
                 {firstMediaFile.filename}
               </p>
             </div>
@@ -537,7 +609,7 @@ export const ActiveJobCard = ({
           {/* Intermediate Steps */}
           {orderedSteps.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              <h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                 Processing Steps
               </h4>
               <div className="space-y-1.5">
@@ -546,12 +618,12 @@ export const ActiveJobCard = ({
                     {step.completed ? (
                       <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
                     ) : (
-                      <div className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-muted-foreground/30" />
+                      <div className="border-muted-foreground/30 h-3.5 w-3.5 shrink-0 rounded-full border-2" />
                     )}
                     <p
                       className={`text-xs ${
                         step.completed
-                          ? "font-medium text-foreground"
+                          ? "text-foreground font-medium"
                           : "text-muted-foreground"
                       }`}
                     >
@@ -566,9 +638,9 @@ export const ActiveJobCard = ({
           {/* Persona Info */}
           {personaNames.length > 0 && (
             <div className="flex items-center gap-2 pt-2">
-              <User className="h-4 w-4 text-muted-foreground" />
+              <User className="text-muted-foreground h-4 w-4" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-foreground text-sm font-medium">
                   {job.meta_data?.num_personas || personaNames.length}{" "}
                   {personaNames.length === 1 ? "Persona" : "Personas"}:{" "}
                   {personaNames.length === 1
@@ -612,7 +684,7 @@ export const ActiveJobCard = ({
 
   // Default layout for other job types or non-completed media_simulation
   return (
-    <Card className={isCompact ? "w-full border-border/60" : "w-full"}>
+    <Card className={isCompact ? "border-border/60 w-full" : "w-full"}>
       <CardHeader className={isCompact ? "px-4 py-3" : undefined}>
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -624,7 +696,13 @@ export const ActiveJobCard = ({
                   : "Simulation"}
             </CardTitle>
             {!hideStartTime && (
-              <p className={isCompact ? "text-muted-foreground text-xs" : "text-muted-foreground text-sm"}>
+              <p
+                className={
+                  isCompact
+                    ? "text-muted-foreground text-xs"
+                    : "text-muted-foreground text-sm"
+                }
+              >
                 Started {format(new Date(job.created_at), "PPp")}
               </p>
             )}
@@ -632,18 +710,31 @@ export const ActiveJobCard = ({
           {getStatusBadge()}
         </div>
       </CardHeader>
-      <CardContent className={isCompact ? "space-y-4 px-4 pb-4 pt-0" : "space-y-6"}>
+      <CardContent
+        className={isCompact ? "space-y-4 px-4 pt-0 pb-4" : "space-y-6"}
+      >
         {/* Progress Section */}
         <div className={isCompact ? "space-y-1" : "space-y-2"}>
           <div className="flex items-center justify-between text-sm">
-            <span className={isCompact ? "text-muted-foreground text-xs font-medium" : "text-muted-foreground font-medium"}>
+            <span
+              className={
+                isCompact
+                  ? "text-muted-foreground text-xs font-medium"
+                  : "text-muted-foreground font-medium"
+              }
+            >
               Progress
             </span>
-            <span className={isCompact ? "text-xs font-semibold" : "font-semibold"}>
+            <span
+              className={isCompact ? "text-xs font-semibold" : "font-semibold"}
+            >
               {completedSteps} / {totalSteps} steps completed
             </span>
           </div>
-          <Progress value={progressPercentage} className={isCompact ? "h-1.5" : "h-2"} />
+          <Progress
+            value={progressPercentage}
+            className={isCompact ? "h-1.5" : "h-2"}
+          />
         </div>
 
         <Separator />
@@ -655,10 +746,7 @@ export const ActiveJobCard = ({
           )}
           <div className="space-y-2">
             {orderedSteps.map((step) => (
-              <div
-                key={step.displayName}
-                className="flex items-center gap-3"
-              >
+              <div key={step.displayName} className="flex items-center gap-3">
                 {step.completed ? (
                   <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-green-500">
                     <CheckCircle2 className="h-3 w-3 text-white" />
@@ -668,7 +756,9 @@ export const ActiveJobCard = ({
                 )}
                 <p
                   className={`text-sm ${
-                    step.completed ? "font-medium text-green-600" : "text-gray-700"
+                    step.completed
+                      ? "font-medium text-green-600"
+                      : "text-gray-700"
                   }`}
                 >
                   {step.displayName}
@@ -685,19 +775,26 @@ export const ActiveJobCard = ({
               <h4 className="text-sm font-semibold">Personas</h4>
               {personas.map((persona) => {
                 const name =
-                  typeof persona.name === "string" && persona.name.trim().length > 0
+                  typeof persona.name === "string" &&
+                  persona.name.trim().length > 0
                     ? persona.name
                     : "Persona";
                 const description =
-                  typeof persona.description === "string" && persona.description.trim().length > 0
+                  typeof persona.description === "string" &&
+                  persona.description.trim().length > 0
                     ? persona.description
                     : undefined;
 
                 return (
-                  <div key={persona._id ?? name} className="rounded-lg border border-border/60 p-3">
-                    <p className="text-sm font-semibold text-foreground">{name}</p>
+                  <div
+                    key={persona._id ?? name}
+                    className="border-border/60 rounded-lg border p-3"
+                  >
+                    <p className="text-foreground text-sm font-semibold">
+                      {name}
+                    </p>
                     {description && (
-                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+                      <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
                         {description}
                       </p>
                     )}
@@ -755,7 +852,7 @@ export const ActiveJobCard = ({
         {job.failed_reasons && (
           <>
             <Separator />
-            <div className="rounded-lg bg-destructive/10 p-3">
+            <div className="bg-destructive/10 rounded-lg p-3">
               <p className="text-destructive text-sm font-medium">
                 Failed Reason:
               </p>
@@ -769,4 +866,3 @@ export const ActiveJobCard = ({
     </Card>
   );
 };
-
