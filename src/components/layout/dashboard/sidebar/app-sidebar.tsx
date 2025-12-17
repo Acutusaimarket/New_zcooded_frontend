@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { LibraryIcon, PackageSearchIcon, PlayCircle } from "lucide-react";
+import { Box, Library, PlayCircle } from "@solar-icons/react";
 import { Link } from "react-router";
 
 import { NavUser } from "@/components/layout/dashboard/sidebar/nav-user";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import acutusAiLogo from "../../../../../public/hea.png";
+import sidebarProp from "../../../../../public/sidbar_prop.png";
 import type { NavItem } from "./nav-with-expandable-submenu";
 
 const data = {
@@ -24,7 +25,7 @@ const data = {
     {
       title: "Product",
       url: "/dashboard/product",
-      icon: PackageSearchIcon,
+      icon: Box,
     },
     {
       title: "Simulation",
@@ -50,7 +51,7 @@ const data = {
     {
       title: "Library",
       url: "/dashboard/persona-lib",
-      icon: LibraryIcon,
+      icon: Library,
     },
   ] as NavItem[],
 };
@@ -61,6 +62,11 @@ export function DashboardSidebar({
   return (
     <>
       <Sidebar variant="inset" {...props}>
+        <img
+          src={sidebarProp}
+          className="absolute right-0 bottom-0 z-1"
+          alt="sidebarProp"
+        />
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -84,7 +90,7 @@ export function DashboardSidebar({
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="bg-transparent">
           {/* <PersonaStudioWithHistory /> */}
           <NavWithExpandableSubmenu items={data.navSecondary}>
             <div className="pb-1">
@@ -92,7 +98,7 @@ export function DashboardSidebar({
             </div>
           </NavWithExpandableSubmenu>
         </SidebarContent>
-        <SidebarFooter>
+        <SidebarFooter className="z-10">
           <NavUser />
         </SidebarFooter>
       </Sidebar>

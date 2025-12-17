@@ -65,16 +65,16 @@ export function CreditDisplay() {
         onClick={handleCalculatorClick}
         variant="outline"
         size="sm"
-        className="h-7 w-full border border-[#42bd00]/30 bg-[#42bd00]/5 text-[10px] font-medium text-[#42bd00] hover:border-[#42bd00]/50 hover:bg-[#42bd00]/10"
+        className="h-7 w-full border border-[#42bd00]/30 bg-white/30 text-xs font-medium text-black backdrop-blur-sm hover:border-[#42bd00]/50 hover:bg-[#42bd00]/10"
       >
-        <Calculator className="mr-1.5 h-3 w-3" />
+        <Calculator className="h-3 w-3" />
         Credit Calculator
       </Button>
 
       {/* Credits Card */}
       <div
         className={cn(
-          "from-sidebar to-sidebar-accent/30 group relative overflow-hidden rounded-md border bg-gradient-to-br p-2.5 shadow-sm transition-all hover:shadow-md",
+          "group bg-background/30 border-border/20 relative overflow-hidden rounded-md border p-2.5 shadow-sm backdrop-blur-md transition-all",
           isLowCredits &&
             "from-sidebar border-orange-500/40 bg-gradient-to-br to-orange-500/5"
         )}
