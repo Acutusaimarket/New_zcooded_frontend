@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-import { ArrowLeft, ArrowRight, CheckCircle, Circle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -16,22 +16,22 @@ import { SimulationConfigStep } from "./SimulationConfigStep";
 
 const steps: SimulationStep[] = [
   {
-    id: "personas",
-    title: "Select Personas",
-    description: "Choose the personas to include in the simulation",
+    id: "product",
+    title: "Select Product",
+    description: "Choose the product to simulate",
     completed: false,
     current: true,
   },
   {
-    id: "product",
-    title: "Select Product",
-    description: "Choose the product to simulate",
+    id: "personas",
+    title: "Select Personas",
+    description: "Choose the personas to include in the simulation",
     completed: false,
     current: false,
   },
   {
     id: "config",
-    title: "Configuration",
+    title: "Configure Simulation",
     description: "Fine-tune your simulation questions",
     completed: false,
     current: false,
@@ -70,9 +70,9 @@ export const SimulationWizard: React.FC = () => {
   const isStepCompleted = (stepIndex: number): boolean => {
     switch (stepIndex) {
       case 0:
-        return formData.selectedPersonas.length > 0;
-      case 1:
         return formData.selectedProduct !== "";
+      case 1:
+        return formData.selectedPersonas.length > 0;
       case 2:
         return formData.environments.length > 0; // At least one environment is required
       default:
@@ -106,19 +106,19 @@ export const SimulationWizard: React.FC = () => {
     switch (currentStep) {
       case 0:
         return (
-          <PersonaSelectionStep
-            selectedPersonas={formData.selectedPersonas}
-            onPersonasChange={(personas) =>
-              updateFormData({ selectedPersonas: personas })
+          <ProductSelectionStep
+            selectedProduct={formData.selectedProduct}
+            onProductChange={(product) =>
+              updateFormData({ selectedProduct: product })
             }
           />
         );
       case 1:
         return (
-          <ProductSelectionStep
-            selectedProduct={formData.selectedProduct}
-            onProductChange={(product) =>
-              updateFormData({ selectedProduct: product })
+          <PersonaSelectionStep
+            selectedPersonas={formData.selectedPersonas}
+            onPersonasChange={(personas) =>
+              updateFormData({ selectedPersonas: personas })
             }
           />
         );
@@ -143,7 +143,7 @@ export const SimulationWizard: React.FC = () => {
   return (
     <div className="container mx-auto space-y-6 p-6">
       <div className="space-y-2 text-start">
-        <h1 className="text-3xl font-bold">Persona Simulation</h1>
+        <h1 className="text-3xl font-bold">Market Fit Simulation</h1>
         <p className="text-muted-foreground">
           Configure and run simulations to understand how different personas
           interact with your products
@@ -153,41 +153,44 @@ export const SimulationWizard: React.FC = () => {
       {/* Progress Steps */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className="flex flex-col items-center space-y-2">
-                  <div
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors",
-                      {
-                        "bg-primary text-primary-foreground border-primary":
-                          index === currentStep,
-                        "border-green-500 bg-green-500 text-white":
-                          isStepCompleted(index) && index !== currentStep,
-                        "bg-muted text-muted-foreground border-muted":
-                          !isStepCompleted(index) && index !== currentStep,
-                      }
-                    )}
-                  >
-                    {isStepCompleted(index) && index !== currentStep ? (
-                      <CheckCircle className="h-5 w-5" />
-                    ) : (
-                      <Circle className="h-5 w-5" />
-                    )}
+          <div className="flex items-center gap-4">
+            {steps.map((step, index) => {
+              const isCompleted = isStepCompleted(index);
+              const isActive = index === currentStep;
+
+              return (
+                <React.Fragment key={step.id}>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                        {
+                          "bg-[#42bd00] text-white": isCompleted || isActive,
+                          "bg-gray-200 text-gray-600": !isCompleted && !isActive,
+                        }
+                      )}
+                    >
+                      {isCompleted && index !== currentStep ? (
+                        <Check className="h-5 w-5" />
+                      ) : (
+                        <span className="text-sm font-semibold">{index + 1}</span>
+                      )}
+                    </div>
+                    <span
+                      className={cn("text-sm font-medium", {
+                        "text-[#42bd00]": isCompleted || isActive,
+                        "text-gray-600": !isCompleted && !isActive,
+                      })}
+                    >
+                      {step.title}
+                    </span>
                   </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{step.title}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-                {index < steps.length - 1 && (
-                  <div className="bg-muted mx-4 h-0.5 flex-1" />
-                )}
-              </div>
-            ))}
+                  {index < steps.length - 1 && (
+                    <div className="flex-1 h-0.5 bg-gray-200" />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -217,16 +220,16 @@ export const SimulationWizard: React.FC = () => {
           <span>Previous</span>
         </Button>
 
-        {currentStep < steps.length - 1 && (
+        {currentStep < steps.length - 1 ? (
           <Button
             onClick={nextStep}
             disabled={!canProceed()}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 bg-[#42bd00] hover:bg-[#329600]"
           >
             <span>Next</span>
             <ArrowRight className="h-4 w-4" />
           </Button>
-        )}
+        ) : null}
       </div>
     </div>
   );

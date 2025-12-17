@@ -120,164 +120,83 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
   return (
     <div className="space-y-6">
       {/* Questions Management */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <MessageSquare className="text-primary h-5 w-5" />
-            <h3 className="text-lg font-semibold">Questions</h3>
-            <Badge variant="secondary" className="ml-2">
-              {questions.length}
-            </Badge>
+      <div className="space-y-3">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-base font-semibold">Questions</h3>
+            <p className="text-muted-foreground mt-1 text-xs">
+              What would you like to know about this product?
+            </p>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsAddingQuestion(true)}
-            className="flex items-center space-x-2"
+            onClick={handleAddQuestion}
+            disabled={
+              !newQuestion.trim() || newQuestion.length > maxQuestionLength
+            }
+            className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            <span>Add Question</span>
+            <span>Add question</span>
           </Button>
         </div>
 
-        {/* Add Question Form */}
-        {isAddingQuestion && (
-          <Card className="shadow-md transition-all duration-200">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center space-x-2 text-base">
-                  <HelpCircle className="h-4 w-4" />
-                  <span>Add New Question</span>
-                </CardTitle>
+        {/* Single inline question input like design */}
+        <div className="space-y-1">
+          <Input
+            id="new-question"
+            placeholder="eg., How does this product compare to competitors?"
+            value={newQuestion}
+            onChange={(e) => setNewQuestion(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleAddQuestion();
+              }
+            }}
+            className="h-10 text-sm"
+            maxLength={maxQuestionLength}
+          />
+          <div className="text-muted-foreground flex items-center justify-between text-[11px]">
+            <span>
+              {newQuestion.length > maxQuestionLength * 0.8 && (
+                <span className="text-amber-600">
+                  {maxQuestionLength - newQuestion.length} characters remaining
+                </span>
+              )}
+            </span>
+            <span>
+              {newQuestion.length}/{maxQuestionLength}
+            </span>
+          </div>
+        </div>
+
+        {/* Compact questions list below input (keeps existing behaviour) */}
+        {questions.length > 0 && (
+          <div className="space-y-1 pt-1">
+            {questions.map((question, index) => (
+              <div
+                key={index}
+                className="border-muted bg-muted/40 flex items-center justify-between rounded-md border px-3 py-2 text-xs"
+              >
+                <span className="line-clamp-1">
+                  <span className="font-medium text-muted-foreground">
+                    Q{index + 1}:
+                  </span>{" "}
+                  {question}
+                </span>
                 <Button
                   variant="ghost"
-                  size="sm"
-                  onClick={handleCancelAdd}
-                  className="h-6 w-6 p-0"
+                  size="icon-sm"
+                  className="text-destructive hover:bg-destructive/10 ml-2"
+                  onClick={() => handleRemoveQuestion(index)}
                 >
-                  <X className="h-4 w-4" />
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="new-question" className="text-sm font-medium">
-                  What would you like to know about this product?
-                </Label>
-                <div className="space-y-2">
-                  <Input
-                    id="new-question"
-                    placeholder="e.g., How does this product compare to competitors?"
-                    value={newQuestion}
-                    onChange={(e) => setNewQuestion(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleAddQuestion();
-                      }
-                    }}
-                    className="min-h-[44px] text-base"
-                    maxLength={maxQuestionLength}
-                  />
-                  <div className="text-muted-foreground flex items-center justify-between text-xs">
-                    <span>
-                      {newQuestion.length > maxQuestionLength * 0.8 && (
-                        <span className="text-amber-600">
-                          {maxQuestionLength - newQuestion.length} characters
-                          remaining
-                        </span>
-                      )}
-                    </span>
-                    <span>
-                      {newQuestion.length}/{maxQuestionLength}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  onClick={handleAddQuestion}
-                  disabled={
-                    !newQuestion.trim() ||
-                    newQuestion.length > maxQuestionLength
-                  }
-                  className="flex items-center space-x-2"
-                  size="sm"
-                >
-                  <span>Add Question</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleCancelAdd}
-                  disabled={isAddingQuestion}
-                  size="sm"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Questions List */}
-        {questions.length > 0 ? (
-          <div className="space-y-3">
-            {questions.map((question, index) => (
-              <Card
-                key={index}
-                className="group bg-card transition-all duration-200 hover:shadow-md"
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between space-x-4">
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center">
-                        <span className="text-muted-foreground text-sm">
-                          Question {index + 1}
-                        </span>
-                      </div>
-                      <p className="leading-relaxed font-medium">{question}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveQuestion(index)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
             ))}
           </div>
-        ) : (
-          <Card className="bg-muted/30 border-dashed">
-            <CardContent className="p-8 text-center">
-              <div className="flex flex-col items-center space-y-3">
-                <div className="bg-muted rounded-full p-3">
-                  <MessageSquare className="text-muted-foreground h-8 w-8" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-muted-foreground font-medium">
-                    No questions added yet
-                  </p>
-                  <p className="text-muted-foreground max-w-sm text-sm">
-                    Add questions to get more detailed insights about how
-                    personas might respond to your product.
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsAddingQuestion(true)}
-                  className="mt-2"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Your First Question
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         )}
       </div>
 
@@ -370,7 +289,7 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
           size="lg"
           onClick={onRunSimulation}
           disabled={isRunning || environments.length === 0}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-[#42bd00] hover:bg-[#329600]"
         >
           {isRunning ? (
             <>

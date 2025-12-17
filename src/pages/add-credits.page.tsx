@@ -240,9 +240,9 @@ const AddCreditsPage = () => {
             Back
           </Button>
           <div className="flex items-center gap-3">
-            <CreditCard className="h-6 w-6 text-[#00bf63]" />
+            <CreditCard className="h-6 w-6 text-[#42bd00]" />
             <h1 className="text-2xl font-bold sm:text-3xl md:text-4xl">
-              Add <span className="text-[#00bf63]">Credits</span>
+              Add <span className="text-[#42bd00]">Credits</span>
             </h1>
           </div>
         </div>
@@ -319,7 +319,7 @@ const AddCreditsPage = () => {
                         <span className="text-sm font-medium text-gray-700">
                           Total Credits:
                         </span>
-                        <span className="text-lg font-bold text-[#00bf63]">
+                        <span className="text-lg font-bold text-[#42bd00]">
                           {totalCredits.toLocaleString()}
                         </span>
                       </div>
@@ -327,7 +327,7 @@ const AddCreditsPage = () => {
                         <span className="text-base font-semibold text-gray-900">
                           Total Price:
                         </span>
-                        <span className="text-2xl font-bold text-[#00bf63]">
+                        <span className="text-2xl font-bold text-[#42bd00]">
                           ₹{totalPrice.toFixed(2)}
                         </span>
                       </div>
@@ -338,7 +338,7 @@ const AddCreditsPage = () => {
                 <Button
                   onClick={handlePay}
                   disabled={!planDetails || blocksNumber <= 0 || isProcessing}
-                  className="w-full bg-[#00bf63] hover:bg-[#00a050] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full bg-[#42bd00] hover:bg-[#329600] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isProcessing
                     ? "Processing..."

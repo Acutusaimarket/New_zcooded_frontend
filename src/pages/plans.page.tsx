@@ -182,7 +182,7 @@ const PlansPage = () => {
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 text-center sm:mb-16">
           <h1 className="mb-4 text-3xl font-bold sm:text-4xl md:text-5xl lg:text-6xl">
-            Choose Your <span className="text-[#00bf63]">Plan</span>
+            Choose Your <span className="text-[#42bd00]">Plan</span>
           </h1>
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-gray-700 sm:text-lg md:text-xl">
             Select the perfect plan for your needs. All plans include our core features with varying limits and capabilities.
@@ -225,7 +225,7 @@ const PlansPage = () => {
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#00bf63] border-r-transparent"></div>
+              <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#42bd00] border-r-transparent"></div>
               <p className="text-gray-600">Loading plans...</p>
             </div>
           </div>
@@ -296,13 +296,13 @@ const PlansPage = () => {
                   key={index}
                   className={`relative rounded-2xl border-2 bg-white p-6 shadow-lg transition-all hover:shadow-xl ${
                     isPopular
-                      ? "border-[#00bf63] ring-2 ring-[#00bf6333]"
+                      ? "border-[#42bd00] ring-2 ring-[#42bd0033]"
                       : "border-gray-200"
                   }`}
                 >
                   {isPopular && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="rounded-full bg-[#00bf63] px-4 py-1 text-xs font-semibold text-white">
+                      <span className="rounded-full bg-[#42bd00] px-4 py-1 text-xs font-semibold text-white">
                         Most Popular
                       </span>
                     </div>
@@ -382,7 +382,7 @@ const PlansPage = () => {
                     <ul className="space-y-2">
                       {plan.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#00bf63]" />
+                          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#42bd00]" />
                           <span className="text-xs text-gray-700">{feature}</span>
                         </li>
                       ))}
@@ -394,8 +394,8 @@ const PlansPage = () => {
                     disabled={isProcessingPlanId === plan._id}
                     className={`group w-full ${
                       isPopular
-                        ? "bg-[#00bf63] text-white hover:bg-[#00a050]"
-                        : "border-2 border-[#00bf63] bg-white text-[#00bf63] hover:bg-[#00bf6310]"
+                        ? "bg-[#42bd00] text-white hover:bg-[#329600]"
+                        : "border-2 border-[#42bd00] bg-white text-[#42bd00] hover:bg-[#42bd0010]"
                     }`}
                   >
                     {isProcessingPlanId === plan._id

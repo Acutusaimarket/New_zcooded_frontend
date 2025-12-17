@@ -740,13 +740,13 @@ const HomePage = () => {
                 key={index}
                 className={`relative rounded-2xl border-2 bg-white p-6 shadow-lg transition-all hover:shadow-xl ${
                   isPopular
-                    ? "border-[#00bf63] ring-2 ring-[#00bf6333]"
+                    ? "border-[#42bd00] ring-2 ring-[#42bd0033]"
                     : "border-gray-200"
                 }`}
               >
                 {isPopular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="rounded-full bg-[#00bf63] px-4 py-1 text-xs font-semibold text-white">
+                    <span className="rounded-full bg-[#42bd00] px-4 py-1 text-xs font-semibold text-white">
                       Most Popular
                     </span>
                   </div>
@@ -841,8 +841,8 @@ const HomePage = () => {
                   }}
                   className={`w-full ${
                     isPopular
-                      ? "bg-[#00bf63] text-white hover:bg-[#00a052]"
-                      : "border-2 border-[#00bf63] bg-white text-[#00bf63] hover:bg-[#00bf6310]"
+                      ? "bg-[#42bd00] text-white hover:bg-[#329600]"
+                      : "border-2 border-[#42bd00] bg-white text-[#42bd00] hover:bg-[#42bd0010]"
                   }`}
                 >
                   {plan.plan_type === "enterprise"

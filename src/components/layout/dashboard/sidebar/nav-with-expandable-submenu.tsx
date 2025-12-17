@@ -1,7 +1,8 @@
 import * as React from "react";
 
-import { type LucideIcon } from "lucide-react";
+import { Lock, type LucideIcon } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
+import { toast } from "sonner";
 
 import {
   Collapsible,
@@ -96,22 +97,50 @@ export function NavWithExpandableSubmenu({
               );
             }
 
+            // Check if this is the Library item (locked)
+            const isLibrary = item.title === "Library";
+
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
-                  asChild
+                  asChild={!isLibrary}
                   size="lg"
                   isActive={pathname === item.url}
+                  onClick={
+                    isLibrary
+                      ? (e) => {
+                          e.preventDefault();
+                          toast.info("Coming soon", {
+                            description: "Library feature is coming soon!",
+                          });
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    isLibrary && "cursor-not-allowed opacity-75"
+                  )}
                 >
-                  <NavLink
-                    to={item.url || ""}
-                    className={cn(
-                      "data-[active=true]:bg-primary! data-[active=true]:text-primary-foreground! h-auto px-2 py-2 transition-colors data-[active=true]:shadow-xl"
-                    )}
-                  >
-                    {item.icon && <item.icon className="size-[1.5em]" />}
-                    <span className="text-base font-medium">{item.title}</span>
-                  </NavLink>
+                  {isLibrary ? (
+                    <div
+                      className={cn(
+                        "flex w-full items-center gap-2 h-auto px-2 py-2 transition-colors"
+                      )}
+                    >
+                      {item.icon && <item.icon className="size-[1.5em]" />}
+                      <span className="text-base font-medium">{item.title}</span>
+                      <Lock className="size-4 ml-auto" />
+                    </div>
+                  ) : (
+                    <NavLink
+                      to={item.url || ""}
+                      className={cn(
+                        "data-[active=true]:bg-primary! data-[active=true]:text-primary-foreground! h-auto px-2 py-2 transition-colors data-[active=true]:shadow-xl"
+                      )}
+                    >
+                      {item.icon && <item.icon className="size-[1.5em]" />}
+                      <span className="text-base font-medium">{item.title}</span>
+                    </NavLink>
+                  )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );

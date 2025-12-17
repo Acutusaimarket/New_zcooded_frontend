@@ -1,8 +1,9 @@
 import { useState } from "react";
 
-import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Loader2 } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 import { SimulationHistoryFilters } from "../components";
 import { JobsListByStatus } from "../components/jobs-list-by-status";
@@ -15,14 +16,14 @@ export const SimulationHistoryPage = () => {
   return (
     <div className="bg-background min-h-screen">
       {/* Header Section */}
-      <div className="bg-card/50 border-b backdrop-blur-sm">
+      <div className="border-b bg-white">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                Simulation History
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                Concept Test History
               </h1>
-              <p className="text-muted-foreground mt-2">
+              <p className="text-gray-600 mt-2 text-base">
                 Review and analyze your past simulation results
               </p>
             </div>
@@ -42,34 +43,65 @@ export const SimulationHistoryPage = () => {
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as TabValue)}
         >
-          <TabsList className="bg-muted/50 h-auto w-full justify-start gap-2 rounded-lg p-2">
+          <TabsList className="bg-transparent h-auto w-full justify-start gap-0 p-0 border-b border-gray-200">
             <TabsTrigger
               value="active"
-              className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
+              className={cn(
+                "text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent",
+                "data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent",
+                "[&[data-state=active]_div]:bg-[#42bd00] [&[data-state=active]_div]:text-white",
+                "[&[data-state=inactive]_div]:bg-gray-200 [&[data-state=inactive]_div]:text-gray-600"
+              )}
             >
-              <Clock className="h-4 w-4" />
-              Active
+              <div className="flex h-6 w-6 items-center justify-center rounded-full transition-colors">
+                <Loader2 className={cn(
+                  "h-3.5 w-3.5",
+                  activeTab === "active" && "animate-spin"
+                )} />
+              </div>
+              <span>Active</span>
             </TabsTrigger>
             <TabsTrigger
               value="completed"
-              className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
+              className={cn(
+                "text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent",
+                "data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent",
+                "[&[data-state=active]_div]:bg-[#42bd00] [&[data-state=active]_div]:text-white",
+                "[&[data-state=inactive]_div]:bg-gray-200 [&[data-state=inactive]_div]:text-gray-600"
+              )}
             >
-              <CheckCircle2 className="h-4 w-4" />
-              Completed
+              <div className="flex h-6 w-6 items-center justify-center rounded-full transition-colors">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+              </div>
+              <span>Completed</span>
             </TabsTrigger>
             <TabsTrigger
               value="failed"
-              className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
+              className={cn(
+                "text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent",
+                "data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent",
+                "[&[data-state=active]_div]:bg-[#42bd00] [&[data-state=active]_div]:text-white",
+                "[&[data-state=inactive]_div]:bg-gray-200 [&[data-state=inactive]_div]:text-gray-600"
+              )}
             >
-              <AlertTriangle className="h-4 w-4" />
-              Failed
+              <div className="flex h-6 w-6 items-center justify-center rounded-full transition-colors">
+                <AlertTriangle className="h-3.5 w-3.5" />
+              </div>
+              <span>Failed</span>
             </TabsTrigger>
             <TabsTrigger
               value="interrupted"
-              className="text-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md"
+              className={cn(
+                "text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent",
+                "data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent",
+                "[&[data-state=active]_div]:bg-[#42bd00] [&[data-state=active]_div]:text-white",
+                "[&[data-state=inactive]_div]:bg-gray-200 [&[data-state=inactive]_div]:text-gray-600"
+              )}
             >
-              <Clock className="h-4 w-4" />
-              Pending
+              <div className="flex h-6 w-6 items-center justify-center rounded-full transition-colors">
+                <Clock className="h-3.5 w-3.5" />
+              </div>
+              <span>Pending</span>
             </TabsTrigger>
           </TabsList>
 

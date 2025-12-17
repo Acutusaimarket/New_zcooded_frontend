@@ -31,14 +31,14 @@ export function CreditDisplay() {
     if (percentage >= 90) return "bg-red-500";
     if (percentage >= 75) return "bg-orange-500";
     if (percentage >= 50) return "bg-amber-500";
-    return "bg-[#00bf63]";
+    return "bg-[#42bd00]";
   };
 
   const getUsageStatus = (percentage: number) => {
     if (percentage >= 90) return { text: "Critical", color: "text-red-500" };
     if (percentage >= 75) return { text: "Low", color: "text-orange-500" };
     if (percentage >= 50) return { text: "Moderate", color: "text-amber-500" };
-    return { text: "Good", color: "text-[#00bf63]" };
+    return { text: "Good", color: "text-[#42bd00]" };
   };
 
   if (isLoading) {
@@ -65,7 +65,7 @@ export function CreditDisplay() {
         onClick={handleCalculatorClick}
         variant="outline"
         size="sm"
-        className="h-7 w-full border border-[#00bf63]/30 bg-[#00bf63]/5 text-[10px] font-medium text-[#00bf63] hover:border-[#00bf63]/50 hover:bg-[#00bf63]/10"
+        className="h-7 w-full border border-[#42bd00]/30 bg-[#42bd00]/5 text-[10px] font-medium text-[#42bd00] hover:border-[#42bd00]/50 hover:bg-[#42bd00]/10"
       >
         <Calculator className="mr-1.5 h-3 w-3" />
         Credit Calculator

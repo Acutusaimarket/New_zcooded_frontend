@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 
 import {
   AlertCircle,
@@ -11,13 +11,7 @@ import {
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { MediaFile } from "@/types/media-simulation.type";
 
@@ -30,6 +24,7 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
   mediaFiles,
   onFilesChange,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const formatFileSize = useCallback((bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -62,7 +57,7 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
         return;
       }
 
-      // Check file size - videos have a 30MB limit
+      // Check file size - 30MB limit for all files (images and videos)
       const maxSize = 30 * 1024 * 1024; // 30MB maximum for all files
       if (file.size > maxSize) {
         const fileType = isVideo ? "Video" : "File";
@@ -167,31 +162,43 @@ export const MediaUploadStep: React.FC<MediaUploadStepProps> = ({
             <Upload className="h-5 w-5" />
             Media Files Upload
           </CardTitle>
-          <CardDescription>
-            Upload one image or video to analyze. Supported formats: JPG, PNG,
-            MP4. Maximum size is 30MB.
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="border-muted-foreground/25 hover:border-primary/50 rounded-lg border-2 border-dashed p-8 transition-colors">
+          {/* Upload area styled like the reference image */}
+          <div
+            className="block cursor-pointer rounded-lg border-2 border-dashed border-[#42bd00]/30 bg-[#e6ffeF] p-10 text-center transition-colors hover:border-[#42bd00]/60 hover:bg-[#d9ffe5]"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="bg-primary/10 rounded-full p-4">
-                <Upload className="text-primary h-8 w-8" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#42bd00]/50 bg-white">
+                <Upload className="h-7 w-7 text-[#42bd00]" />
               </div>
-              <div className="space-y-2 text-center">
-                <p className="text-lg font-medium">Upload media files</p>
-                <p className="text-muted-foreground text-sm">
-                  Drag and drop files here, or click to browse
+              <div className="space-y-1 text-center">
+                <p className="text-sm font-semibold text-gray-900">
+                  Drag &amp; drop files or{" "}
+                  <span className="text-[#0070f3] underline">Browse</span>
+                </p>
+                <p className="text-xs text-gray-600">
+                  Upload images or videos to analyze. Supported formats: JPG, PNG,
+                  GIF, MP4, MOV, AVI (Max 30MB per file)
                 </p>
               </div>
-              <Input
-                type="file"
-                accept="image/*,video/*"
-                onChange={handleFileUpload}
-                className="max-w-xs cursor-pointer"
-              />
+              <Button
+                type="button"
+                className="mt-2 rounded-full bg-[#42bd00] px-8 text-sm font-semibold text-white hover:bg-[#329600]"
+              >
+                Upload media
+              </Button>
             </div>
           </div>
+          <Input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            onChange={handleFileUpload}
+            className="hidden"
+            // Single file upload only - no multiple attribute
+          />
 
           {mediaFiles.length > 0 && (
             <div className="space-y-4">

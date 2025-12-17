@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 
 import { Button } from "@/components/ui/button";
@@ -130,24 +131,51 @@ export default function MarketFitSimulationResultPage() {
     );
   }
 
+  // Format date for display
+  const formatDisplayDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const simulationDate = jobData?.data?.created_at
+    ? formatDisplayDate(jobData.data.created_at)
+    : "N/A";
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Market Fit Simulation Result
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Detailed results and recommendations for your market fit simulation.
-          </p>
+      {/* Breadcrumbs and Header */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <button
+            onClick={() => navigate("/dashboard/simulation/history")}
+            className="flex items-center gap-1 hover:text-gray-900"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back</span>
+          </button>
+          <span className="text-gray-400">/</span>
+          <span>Simulation</span>
+          <span className="text-gray-400">/</span>
+          <span>Market Fit Simulation</span>
+          <span className="text-gray-400">/</span>
+          <span className="text-gray-900 font-medium">Simulation History</span>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate("/dashboard/simulation/history")}
-        >
-          Back to History
-        </Button>
+
+        {/* Product Info Section */}
+        <div className="space-y-3">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {productName || "Concept Test Simulation Result"}
+          </h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+            <span>{simulationDate}</span>
+            {/* <span className="text-gray-400">•</span> */}
+            {/* <span>Tested Persons: <span className="font-medium text-gray-900">{testedPersons}</span></span> */}
+          </div>
+        </div>
       </div>
 
       <MarketFitSimulationResults

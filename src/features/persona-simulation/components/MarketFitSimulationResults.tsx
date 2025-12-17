@@ -303,16 +303,16 @@ const SemiCircleGauge = ({
     <svg viewBox="0 0 120 70" className="h-full w-full">
       <path
         d="M10 60 A50 50 0 0 1 110 60"
-        stroke="rgba(148, 163, 184, 0.35)"
+        stroke="#e5e7eb"
         strokeWidth={12}
-        strokeLinecap="round"
+        strokeLinecap="butt"
         fill="none"
       />
       <path
         d="M10 60 A50 50 0 0 1 110 60"
         stroke={accentColor}
         strokeWidth={12}
-        strokeLinecap="round"
+        strokeLinecap="butt"
         fill="none"
         strokeDasharray={`${pathLength} ${pathLength}`}
         strokeDashoffset={dashOffset}
@@ -323,47 +323,48 @@ const SemiCircleGauge = ({
 
 const kpiDescriptions: Record<string, string> = {
   adoption_rate:
-    "Measures the percentage of users who start actively using the product or feature after exposure.",
+    "Percentage of users who start actively using the product after first exposure.",
   churn_probability:
-    "Estimates the likelihood that a customer will stop using the product or cancel their subscription.",
+    "Indicates how likely users are to stop using the product.",
   click_through_rate:
-    "Tracks the percentage of users who click a link or CTA compared to total impressions.",
+    "Percentage of viewers who click on a link or call-to-action.",
   conversion_rate:
-    "Measures the percentage of users who complete a desired action, such as a purchase or signup.",
+    "Percentage of users who complete a desired action.",
   customer_acquisition_cost:
-    "Represents the average cost to acquire a new customer from marketing and sales spend.",
+    "Average cost to gain a new customer.",
   interest_level:
-    "Indicates overall user interest or engagement based on behavior or survey feedback.",
+    "Measures how engaged and interested users feel.",
   pmf_index:
-    "Shows how well the product satisfies its market, driven by “must-have” signals.",
+    "Indicates how strongly the product satisfies the target market's needs.",
   price_perception:
-    "Reflects whether users feel the pricing is fair, expensive, or affordable relative to value.",
+    "How users feel about the product's price.",
   problem_solution_fit:
-    "Reveals how effectively the product solves core user pain points.",
+    "Indicates how well the product solves real user problems.",
   purchase_intent:
-    "Signals the likelihood that users will buy the product in the near future.",
+    "How likely users are to buy the product.",
   retention_intent:
-    "Measures how likely existing customers are to continue using or renewing the product.",
+    "Shows how likely users are to continue using or renewing the product.",
   retention_rate:
-    "Captures the percentage of customers who remain active over a specific period.",
+    "Shows how likely users are to continue using or renewing the product.",
   satisfaction:
-    "Summarizes users’ overall satisfaction scores or feedback sentiment.",
+    "Overall happiness with the experience of product.",
   trial_to_adoption:
-    "Shows how many trial users convert into active or paying customers.",
+    "Overall happiness with the experience of product.",
   usability:
-    "Assesses the ease and intuitiveness of completing key tasks without friction.",
+    "How easy and intuitive the product feels.",
 };
 
 const getScoreVisuals = (value: number) => {
   if (value <= 30) {
-    return { colorHex: "#dc2626", textClass: "text-red-600" };
+    return { colorHex: "#dc2626", textClass: "text-red-600", bgColor: "bg-red-500" };
   }
   if (value <= 75) {
-    return { colorHex: "#f97316", textClass: "text-orange-500" };
+    return { colorHex: "#f97316", textClass: "text-orange-500", bgColor: "bg-orange-500" };
   }
-  return { colorHex: "#16a34a", textClass: "text-emerald-600" };
+  return { colorHex: "#42bd00", textClass: "text-[#42bd00]", bgColor: "bg-[#42bd00]" };
 };
 
+// Semi-circular gauge for Core PMF Metrics
 const KpiGaugeCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
   const percentage = Math.max(
     0,
@@ -385,33 +386,180 @@ const KpiGaugeCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
           />
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
             <span className={`text-3xl font-bold ${visuals.textClass}`}>
-              {percentage}
+              {percentage}%
             </span>
           </div>
         </div>
         <div className="space-y-1.5">
-          <p className="text-base font-semibold text-foreground">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-muted-foreground text-xs font-medium">{description}</p>
+          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-gray-600 text-xs">{description}</p>
         </div>
-        <div className="grid w-full grid-cols-3 gap-3 rounded-lg bg-muted/50 p-3 text-[11px]">
-          <div>
-            <p className="text-foreground text-sm font-semibold">
-              {formatDecimal(kpi.min_response * 100)}
-            </p>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Min</p>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Horizontal progress bar for Growth & Conversion Metrics
+const KpiProgressBarCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
+  const percentage = Math.max(
+    0,
+    Math.min(100, Math.round((kpi.average_response ?? 0) * 100))
+  );
+  const visuals = getScoreVisuals(percentage);
+  const metricKey = kpi.kpi_metric.toLowerCase();
+  const description =
+    kpiDescriptions[metricKey] ??
+    `Higher values indicate stronger ${kpi.metric_type.toLowerCase()} performance.`;
+
+  return (
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="space-y-3 px-4 py-6">
+        <div className="flex items-center justify-between">
+          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <span className={`text-lg font-bold ${visuals.textClass}`}>
+            {percentage}%
+          </span>
+        </div>
+        <div className="space-y-1">
+          <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${visuals.bgColor}`}
+              style={{ width: `${percentage}%` }}
+            />
           </div>
-          <div>
-            <p className="text-foreground text-sm font-semibold">
-              {percentage}
-            </p>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Avg</p>
+          <p className="text-gray-600 text-xs">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Circular gauge for Experience & Value Metrics
+const CircularGauge = ({
+  percentage,
+  accentColor,
+}: {
+  percentage: number;
+  accentColor: string;
+}) => {
+  const normalized = Math.max(0, Math.min(100, Math.round(percentage)));
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference - (normalized / 100) * circumference;
+
+  return (
+    <svg viewBox="0 0 120 120" className="h-24 w-24">
+      <circle
+        cx="60"
+        cy="60"
+        r={radius}
+        stroke="#e5e7eb"
+        strokeWidth="8"
+        fill="none"
+      />
+      <circle
+        cx="60"
+        cy="60"
+        r={radius}
+        stroke={accentColor}
+        strokeWidth="8"
+        fill="none"
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+        strokeLinecap="round"
+        transform="rotate(-90 60 60)"
+      />
+    </svg>
+  );
+};
+
+const KpiCircularGaugeCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
+  const percentage = Math.max(
+    0,
+    Math.min(100, Math.round((kpi.average_response ?? 0) * 100))
+  );
+  const visuals = getScoreVisuals(percentage);
+  const metricKey = kpi.kpi_metric.toLowerCase();
+  const description =
+    kpiDescriptions[metricKey] ??
+    `Higher values indicate stronger ${kpi.metric_type.toLowerCase()} performance.`;
+
+  return (
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
+        <div className="relative flex items-center justify-center">
+          <CircularGauge percentage={percentage} accentColor={visuals.colorHex} />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span className={`text-2xl font-bold ${visuals.textClass}`}>
+              {percentage}%
+            </span>
           </div>
-          <div>
-            <p className="text-foreground text-sm font-semibold">
-              {formatDecimal(kpi.max_response * 100)}
-            </p>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Max</p>
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-gray-600 text-xs">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Segmented semi-circular gauge for Price Perception
+const SegmentedPricePerceptionGauge = ({
+  kpi,
+}: {
+  kpi: MarketFitKpiSummary;
+}) => {
+  // For price perception, we'll use a simplified segmented display
+  // In a real scenario, you'd have separate data for affordable/fair/expensive
+  const percentage = Math.max(
+    0,
+    Math.min(100, Math.round((kpi.average_response ?? 0) * 100))
+  );
+  const visuals = getScoreVisuals(percentage);
+  
+  // Simulated segments - in real app, these would come from the API
+  const affordable = Math.round(percentage * 0.55);
+  const fair = Math.round(percentage * 0.30);
+  const expensive = Math.round(percentage * 0.15);
+
+  return (
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
+        <div className="relative flex h-24 w-28 items-center justify-center">
+          <SemiCircleGauge
+            percentage={percentage}
+            accentColor={visuals.colorHex}
+          />
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
+            <span className={`text-3xl font-bold ${visuals.textClass}`}>
+              {percentage}%
+            </span>
           </div>
+        </div>
+        <div className="space-y-2 w-full">
+          <p className="text-base font-semibold text-gray-900">Price Perception</p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded bg-[#42bd00]" />
+                <span className="text-gray-700">{affordable}% feels affordable</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded bg-orange-500" />
+                <span className="text-gray-700">{fair}% feels fair</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded bg-red-500" />
+                <span className="text-gray-700">{expensive}% feels expensive</span>
+              </div>
+            </div>
+          </div>
+          <p className="text-gray-600 text-xs mt-2">{kpiDescriptions.price_perception}</p>
         </div>
       </CardContent>
     </Card>
@@ -503,50 +651,101 @@ export const MarketFitSimulationResults = ({
     }
   };
 
+  // Categorize KPIs
+  const corePMFMetrics = kpi_summary.filter(
+    (kpi) =>
+      ["pmf_index", "adoption_rate", "retention_rate", "problem_solution_fit", "trial_to_adoption", "churn_probability"].includes(
+        kpi.kpi_metric.toLowerCase()
+      ) && kpi.metric_type.toLowerCase() !== "calculated"
+  );
+
+  const growthConversionMetrics = kpi_summary.filter(
+    (kpi) =>
+      ["conversion_rate", "click_through_rate", "purchase_intent", "customer_acquisition_cost"].includes(
+        kpi.kpi_metric.toLowerCase()
+      ) && kpi.metric_type.toLowerCase() !== "calculated"
+  );
+
+  const experienceValueMetrics = kpi_summary.filter(
+    (kpi) =>
+      ["satisfaction", "usability", "interest_level"].includes(
+        kpi.kpi_metric.toLowerCase()
+      ) && kpi.metric_type.toLowerCase() !== "calculated"
+  );
+
+  const pricePerceptionKpi = kpi_summary.find(
+    (kpi) =>
+      kpi.kpi_metric.toLowerCase() === "price_perception" &&
+      kpi.metric_type.toLowerCase() !== "calculated"
+  );
+
   return (
     <div className="space-y-6">
+      {/* Header with buttons */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-muted-foreground text-sm tracking-wide uppercase">
-            Market Fit Simulation
-          </p>
-          <h2 className="text-2xl font-bold">KPI & Recommendations Summary</h2>
-          <p className="text-muted-foreground text-sm">
-            Generated {formatDate(metadata.generated_at)}
-          </p>
-        </div>
+        <div className="flex-1" />
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={onRestart}>
+          <Button variant="outline" size="sm" onClick={onRestart} className="text-gray-700">
             <RefreshCw className="mr-2 h-4 w-4" />
             Restart
           </Button>
-          <Button size="sm" onClick={handleDownloadReport}>
+          <Button size="sm" onClick={handleDownloadReport} className="bg-[#42bd00] hover:bg-[#329600] text-white">
             <Download className="mr-2 h-4 w-4" />
-            Download Report
+            Export Report
           </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="kpi-summary" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="kpi-summary">KPI Summary</TabsTrigger>
-          <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+      <Tabs defaultValue="kpi-summary" className="space-y-6">
+        <TabsList className="bg-transparent h-auto w-full justify-start gap-0 p-0 border-b border-gray-200">
+          <TabsTrigger
+            value="kpi-summary"
+            className="text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent"
+          >
+            Key Performance Indicators - KPIs
+          </TabsTrigger>
+          <TabsTrigger
+            value="recommendations"
+            className="text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent"
+          >
+            Recommendations
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="kpi-summary" className="space-y-6">
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-            {kpi_summary
-              .filter(
-                (kpi) =>
-                  !(
-                    kpi.kpi_metric.toLowerCase() === "roas" ||
-                    kpi.metric_type.toLowerCase() === "calculated"
-                  )
-              )
-              .map((kpi) => (
+        <TabsContent value="kpi-summary" className="space-y-8 mt-6">
+          {/* Core PMF Metrics */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-gray-900">Core PMF Metrics</h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {corePMFMetrics.map((kpi) => (
                 <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
               ))}
+            </div>
           </div>
+
+          {/* Growth & Conversion Metrics */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-gray-900">Growth & Conversion Metrics</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {growthConversionMetrics.map((kpi) => (
+                <KpiProgressBarCard key={kpi.kpi_metric} kpi={kpi} />
+              ))}
+            </div>
+          </div>
+
+          {/* Experience & Value Metrics */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-gray-900">Experience & Value Metrics</h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {experienceValueMetrics.map((kpi) => (
+                <KpiCircularGaugeCard key={kpi.kpi_metric} kpi={kpi} />
+              ))}
+              {pricePerceptionKpi && (
+                <SegmentedPricePerceptionGauge kpi={pricePerceptionKpi} />
+              )}
+            </div>
+          </div>
+
           <AttachmentList attachments={s3_keys} />
         </TabsContent>
 

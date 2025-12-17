@@ -121,113 +121,117 @@ const titleCase = (value: string) =>
 const KPI_DESCRIPTIONS: Record<string, string> = {
   // Brand Consistency
   "Brand Consistency":
-    "Measures how well the ad's visuals, tone, and messaging align with overall brand guidelines and identity. Higher scores mean the creative feels clearly on-brand.",
+    "How closely the ad follows the brand's visual and messaging style.",
   brand_consistency:
-    "Measures how well the ad's visuals, tone, and messaging align with overall brand guidelines and identity. Higher scores mean the creative feels clearly on-brand.",
+    "How closely the ad follows the brand's visual and messaging style.",
 
   // Message Clarity
   "Message Clarity":
-    "Evaluates how easy it is for the target audience to understand the core message. Higher scores indicate clearer, more easily understood communication.",
+    "How clearly the ad's message is understood.",
   message_clarity:
-    "Evaluates how easy it is for the target audience to understand the core message. Higher scores indicate clearer, more easily understood communication.",
+    "How clearly the ad's message is understood.",
 
   // Ad Frequency
   "Ad Frequency":
-    "Represents the recommended average number of times an individual should see the ad within a campaign to maximize impact without causing fatigue.",
+    "Overall happiness with the experience of product.",
   ad_frequency:
-    "Represents the recommended average number of times an individual should see the ad within a campaign to maximize impact without causing fatigue.",
+    "Overall happiness with the experience of product.",
 
   // Ad Recall Lift
   "Ad Recall Lift":
-    "Measures the increase in the percentage of people who remember the ad after exposure compared to a control group. Higher values indicate stronger memorability.",
+    "How easy and intuitive the product feels.",
   ad_recall_lift:
-    "Measures the increase in the percentage of people who remember the ad after exposure compared to a control group. Higher values indicate stronger memorability.",
+    "How easy and intuitive the product feels.",
 
   // Audience Fit
   "Audience Fit":
-    "Assesses how well the ad matches the target audience's interests, needs, behaviors, and demographics. Higher scores show stronger alignment.",
+    "Likelihood that a user will stop using the product.",
   audience_fit:
-    "Assesses how well the ad matches the target audience's interests, needs, behaviors, and demographics. Higher scores show stronger alignment.",
+    "Likelihood that a user will stop using the product.",
 
   // Bounce Rate Predictor
   "Bounce Rate Predictor":
-    "Estimates the likelihood that users will leave the landing page quickly after clicking the ad. Lower values indicate stronger engagement and relevance.",
+    "Likelihood users will leave the page quickly.",
   bounce_rate_predictor:
-    "Estimates the likelihood that users will leave the landing page quickly after clicking the ad. Lower values indicate stronger engagement and relevance.",
+    "Likelihood users will leave the page quickly.",
 
   // Click Through Rate (CTR)
   "Click Through Rate (CTR)":
-    "Predicts the proportion of impressions that will result in clicks. Higher values indicate the ad attracts attention and drives traffic effectively.",
+    "Chance of viewers clicking the ad.",
   click_through_rate:
-    "Predicts the proportion of impressions that will result in clicks. Higher values indicate the ad attracts attention and drives traffic effectively.",
+    "Chance of viewers clicking the ad.",
 
   // Conversion Rate
   "Conversion Rate":
-    "Predicts the proportion of users who will complete a desired action (purchase, signup, lead) after interacting with the ad. Higher values indicate better outcomes.",
+    "Chance of users completing the desired action.",
   conversion_rate:
-    "Predicts the proportion of users who will complete a desired action (purchase, signup, lead) after interacting with the ad. Higher values indicate better outcomes.",
+    "Chance of users completing the desired action.",
 
   // Cost Per Click (CPC) – Value Indicator
   "Cost Per Click (CPC) – Value Indicator":
-    "Evaluates the expected cost efficiency of the ad in driving clicks for the spend. Higher scores mean more or higher-quality clicks per unit of spend.",
+    "Cost efficiency of the ad in driving clicks.",
   cost_per_click:
-    "Evaluates the expected cost efficiency of the ad in driving caplicks for the spend. Higher scores mean more or higher-quality clicks per unit of spend.",
+    "Cost efficiency of the ad in driving clicks.",
 
   // Engagement Rate
   "Engagement Rate":
-    "Predicts how likely users are to interact with the ad (likes, comments, shares, saves, video plays). Higher values indicate more compelling, interactive content.",
+    "Likelihood of users interacting with the ad.",
   engagement_rate:
-    "Predicts how likely users are to interact with the ad (likes, comments, shares, saves, video plays). Higher values indicate more compelling, interactive content.",
+    "Likelihood of users interacting with the ad.",
 
   // Impressions
   Impressions:
-    "Indicates the expected strength of reach and visibility for the ad in a typical campaign. Higher values suggest greater likelihood of being seen.",
+    "Indicates how well the product/ad was seen by the audience.",
   impressions:
-    "Indicates the expected strength of reach and visibility for the ad in a typical campaign. Higher values suggest greater likelihood of being seen.",
+    "Indicates how well the product/ad was seen by the audience.",
 
   // Information Seeking Intent
   "Information Seeking Intent":
-    "Estimates how likely users are to look for more information about the brand, product, or offer after seeing the ad. Higher values show stronger curiosity.",
+    "Chance users will look up more details.",
   information_seeking_intent:
-    "Estimates how likely users are to look for more information about the brand, product, or offer after seeing the ad. Higher values show stronger curiosity.",
+    "Chance users will look up more details.",
 
   // Lifetime Value Indicator (LTV Indicator)
   "Lifetime Value Indicator (LTV Indicator)":
-    "Predicts the potential long-term revenue and profitability of customers acquired through this ad. Higher scores indicate more valuable, longer-retaining customers.",
+    "Potential long-term revenue and profitability of customers.",
   lifetime_value_indicator:
-    "Predicts the potential long-term revenue and profitability of customers acquired through this ad. Higher scores indicate more valuable, longer-retaining customers.",
+    "Potential long-term revenue and profitability of customers.",
+  lifetime_value:
+    "Potential long-term revenue and profitability of customers.",
 
   // Memorability
   Memorability:
-    "Measures how likely viewers are to remember the ad and associate it with the brand after exposure. Higher values indicate stronger recall.",
+    "How strongly the ad sticks in memory.",
   memorability:
-    "Measures how likely viewers are to remember the ad and associate it with the brand after exposure. Higher values indicate stronger recall.",
+    "How strongly the ad sticks in memory.",
 
   // Net Promoter Score (NPS) – Impact Indicator
   "Net Promoter Score (NPS) – Impact Indicator":
-    "Estimates how exposure to the ad may influence users' likelihood of recommending the brand to others. Higher values indicate stronger advocacy potential.",
+    "Likelihood of users recommending the brand to others.",
   net_promoter_score:
-    "Estimates how exposure to the ad may influence users' likelihood of recommending the brand to others. Higher values indicate stronger advocacy potential.",
+    "Likelihood of users recommending the brand to others.",
 
   // Quality Score
   "Quality Score":
-    "Provides an overall rating of the ad's creative quality, including design, visuals, copywriting, layout, and professionalism. Higher values signal polished creative.",
+    "Overall creative and execution quality.",
   quality_score:
-    "Provides an overall rating of the ad's creative quality, including design, visuals, copywriting, layout, and professionalism. Higher values signal polished creative.",
+    "Overall creative and execution quality.",
 
   // Relevance
   Relevance:
-    "Assesses how relevant the ad's message, offer, and creative are to the viewer's current interests or needs. Higher values mean a stronger match.",
+    "How well the ad matches user needs.",
   relevance:
-    "Assesses how relevant the ad's message, offer, and creative are to the viewer's current interests or needs. Higher values mean a stronger match.",
+    "How well the ad matches user needs.",
 
   // ROAS (Return on Ad Spend)
   "ROAS (Return on Ad Spend)":
-    "Predicts the expected revenue generated for each unit of ad spend. Higher ROAS indicates more efficient campaigns that drive more revenue per dollar invested.",
+    "Expected revenue generated for each unit of ad spend.",
   ROAS:
-    "Predicts the expected revenue generated for each unit of ad spend. Higher ROAS indicates more efficient campaigns that drive more revenue per dollar invested.",
+    "Expected revenue generated for each unit of ad spend.",
   roas:
-    "Predicts the expected revenue generated for each unit of ad spend. Higher ROAS indicates more efficient campaigns that drive more revenue per dollar invested.",
+    "Expected revenue generated for each unit of ad spend.",
+  return_on_ad_spend:
+    "Expected revenue generated for each unit of ad spend.",
 };
 
 const EmphasizedText = ({ text }: { text: string }) => {
@@ -263,16 +267,16 @@ const SemiCircleGauge = ({
     <svg viewBox="0 0 120 70" className="h-full w-full">
       <path
         d="M10 60 A50 50 0 0 1 110 60"
-        stroke="rgba(148, 163, 184, 0.35)"
+        stroke="#e5e7eb"
         strokeWidth={12}
-        strokeLinecap="round"
+        strokeLinecap="butt"
         fill="none"
       />
       <path
         d="M10 60 A50 50 0 0 1 110 60"
         stroke={accentColor}
         strokeWidth={12}
-        strokeLinecap="round"
+        strokeLinecap="butt"
         fill="none"
         strokeDasharray={`${pathLength} ${pathLength}`}
         strokeDashoffset={dashOffset}
@@ -285,18 +289,19 @@ const getScoreVisuals = (value: number, kpiMetric?: string) => {
   // Always green for Ad Frequency and ROAS
   const metricLower = kpiMetric?.toLowerCase() || "";
   if (metricLower === "ad_frequency" || metricLower === "roas") {
-    return { colorHex: "#16a34a", textClass: "text-emerald-600" };
+    return { colorHex: "#42bd00", textClass: "text-[#42bd00]", bgColor: "bg-[#42bd00]" };
   }
 
   if (value <= 30) {
-    return { colorHex: "#dc2626", textClass: "text-red-600" };
+    return { colorHex: "#dc2626", textClass: "text-red-600", bgColor: "bg-red-500" };
   }
   if (value <= 75) {
-    return { colorHex: "#f97316", textClass: "text-orange-500" };
+    return { colorHex: "#f97316", textClass: "text-orange-500", bgColor: "bg-orange-500" };
   }
-  return { colorHex: "#16a34a", textClass: "text-emerald-600" };
+  return { colorHex: "#42bd00", textClass: "text-[#42bd00]", bgColor: "bg-[#42bd00]" };
 };
 
+// Semi-circular gauge for Creative & Message Health and Value & Revenue Efficiency
 const KpiGaugeCard = ({
   kpi,
 }: {
@@ -310,18 +315,193 @@ const KpiGaugeCard = ({
       : Math.max(0, Math.min(100, Math.round(rawValue)));
   const visuals = getScoreVisuals(percentage, kpi.kpi_metric);
 
-  const minValue =
-    kpi.min_response !== null
-      ? kpi.min_response <= 1 && kpi.min_response >= 0
-        ? kpi.min_response * 100
-        : kpi.min_response
-      : null;
-  const maxValue =
-    kpi.max_response !== null
-      ? kpi.max_response <= 1 && kpi.max_response >= 0
-        ? kpi.max_response * 100
-        : kpi.max_response
-      : null;
+  return (
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
+        <div className="relative flex h-24 w-28 items-center justify-center">
+          <SemiCircleGauge
+            percentage={percentage}
+            accentColor={visuals.colorHex}
+          />
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
+            <span className={`text-3xl font-bold ${visuals.textClass}`}>
+              {percentage}%
+            </span>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-gray-600 text-xs">
+            {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
+              KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
+              kpi.metric_type}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Horizontal progress bar for Engagement & Action Prediction
+const KpiProgressBarCard = ({
+  kpi,
+}: {
+  kpi: MediaSimulationData["simulation_analysis"]["kpi_summary"][0];
+}) => {
+  const rawValue = kpi.average_response ?? 0;
+  const percentage =
+    rawValue <= 1 && rawValue >= 0
+      ? Math.max(0, Math.min(100, Math.round(rawValue * 100)))
+      : Math.max(0, Math.min(100, Math.round(rawValue)));
+  const visuals = getScoreVisuals(percentage, kpi.kpi_metric);
+
+  return (
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="space-y-3 px-4 py-6">
+        <div className="flex items-center justify-between">
+          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <span className={`text-lg font-bold ${visuals.textClass}`}>
+            {percentage}%
+          </span>
+        </div>
+        <div className="space-y-1">
+          <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${visuals.bgColor}`}
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
+          <p className="text-gray-600 text-xs">
+            {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
+              KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
+              kpi.metric_type}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Circular gauge for Reach, Recall & Delivery
+const CircularGauge = ({
+  percentage,
+  accentColor,
+}: {
+  percentage: number;
+  accentColor: string;
+}) => {
+  const normalized = Math.max(0, Math.min(100, Math.round(percentage)));
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference - (normalized / 100) * circumference;
+
+  return (
+    <svg viewBox="0 0 120 120" className="h-24 w-24">
+      <circle
+        cx="60"
+        cy="60"
+        r={radius}
+        stroke="#e5e7eb"
+        strokeWidth="8"
+        fill="none"
+      />
+      <circle
+        cx="60"
+        cy="60"
+        r={radius}
+        stroke={accentColor}
+        strokeWidth="8"
+        fill="none"
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+        strokeLinecap="round"
+        transform="rotate(-90 60 60)"
+      />
+    </svg>
+  );
+};
+
+const KpiCircularGaugeCard = ({
+  kpi,
+}: {
+  kpi: MediaSimulationData["simulation_analysis"]["kpi_summary"][0];
+}) => {
+  const rawValue = kpi.average_response ?? 0;
+  const percentage =
+    rawValue <= 1 && rawValue >= 0
+      ? Math.max(0, Math.min(100, Math.round(rawValue * 100)))
+      : Math.max(0, Math.min(100, Math.round(rawValue)));
+  const visuals = getScoreVisuals(percentage, kpi.kpi_metric);
+
+  return (
+    <Card className="shadow-sm transition-shadow hover:shadow-md">
+      <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
+        <div className="relative flex items-center justify-center">
+          <CircularGauge percentage={percentage} accentColor={visuals.colorHex} />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span className={`text-2xl font-bold ${visuals.textClass}`}>
+              {percentage}%
+            </span>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-gray-600 text-xs">
+            {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
+              KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
+              kpi.metric_type}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Segmented semi-circular gauge for Value & Revenue Efficiency
+const SegmentedGaugeCard = ({
+  kpi,
+}: {
+  kpi: MediaSimulationData["simulation_analysis"]["kpi_summary"][0];
+}) => {
+  const rawValue = kpi.average_response ?? 0;
+  const percentage =
+    rawValue <= 1 && rawValue >= 0
+      ? Math.max(0, Math.min(100, Math.round(rawValue * 100)))
+      : Math.max(0, Math.min(100, Math.round(rawValue)));
+  const visuals = getScoreVisuals(percentage, kpi.kpi_metric);
+
+  // Simulated segments - in real app, these would come from the API
+  const highValue = Math.round(percentage * 0.68);
+  const moderateValue = Math.round(percentage * 0.22);
+  const lowValue = Math.round(percentage * 0.10);
+
+  // Get segment labels based on metric
+  const metricLower = kpi.kpi_metric.toLowerCase();
+  let segmentLabels = {
+    high: "High value (low cost, good clicks)",
+    moderate: "Moderate value",
+    low: "Low value (high cost, weak clicks)",
+  };
+
+  if (metricLower.includes("roas") || metricLower.includes("return")) {
+    segmentLabels = {
+      high: "Strong return",
+      moderate: "Average return",
+      low: "Low return",
+    };
+  } else if (metricLower.includes("ltv") || metricLower.includes("lifetime")) {
+    segmentLabels = {
+      high: "High long-term value",
+      moderate: "Medium value",
+      low: "Low value users",
+    };
+  } else if (metricLower.includes("nps") || metricLower.includes("promoter")) {
+    segmentLabels = {
+      high: "Promoters",
+      moderate: "Passive",
+      low: "Detractors",
+    };
+  }
 
   return (
     <Card className="shadow-sm transition-shadow hover:shadow-md">
@@ -333,37 +513,37 @@ const KpiGaugeCard = ({
           />
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
             <span className={`text-3xl font-bold ${visuals.textClass}`}>
-              {percentage}
+              {percentage}%
             </span>
           </div>
         </div>
-        <div className="space-y-1.5">
-          <p className="text-base font-semibold text-foreground">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-muted-foreground text-xs font-medium">
+        <div className="space-y-2 w-full">
+          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded bg-[#42bd00]" />
+                <span className="text-gray-700">{highValue}% {segmentLabels.high}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded bg-orange-500" />
+                <span className="text-gray-700">{moderateValue}% {segmentLabels.moderate}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded bg-red-500" />
+                <span className="text-gray-700">{lowValue}% {segmentLabels.low}</span>
+              </div>
+            </div>
+          </div>
+          <p className="text-gray-600 text-xs mt-2">
             {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
               KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
               kpi.metric_type}
           </p>
-        </div>
-        <div className="grid w-full grid-cols-3 gap-3 rounded-lg bg-muted/50 p-3 text-[11px]">
-          <div>
-            <p className="text-foreground text-sm font-semibold">
-              {formatDecimal(minValue)}
-            </p>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Min</p>
-          </div>
-          <div>
-            <p className="text-foreground text-sm font-semibold">
-              {percentage}
-            </p>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Avg</p>
-          </div>
-          <div>
-            <p className="text-foreground text-sm font-semibold">
-              {formatDecimal(maxValue)}
-            </p>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Max</p>
-          </div>
         </div>
       </CardContent>
     </Card>
@@ -692,51 +872,107 @@ export const MediaSimulationResults = ({
     }
   };
 
+  // Categorize KPIs into sections
+  const creativeMessageHealth = kpi_summary.filter(
+    (kpi) =>
+      ["brand_consistency", "message_clarity", "relevance", "quality_score", "memorability"].includes(
+        kpi.kpi_metric.toLowerCase()
+      ) && kpi.metric_type.toLowerCase() !== "calculated"
+  );
+
+  const engagementActionPrediction = kpi_summary.filter(
+    (kpi) =>
+      ["engagement_rate", "click_through_rate", "information_seeking_intent", "conversion_rate", "bounce_rate_predictor"].includes(
+        kpi.kpi_metric.toLowerCase()
+      ) && kpi.metric_type.toLowerCase() !== "calculated"
+  );
+
+  const valueRevenueEfficiency = kpi_summary.filter(
+    (kpi) =>
+      ["cost_per_click", "roas", "return_on_ad_spend", "lifetime_value_indicator", "lifetime_value", "net_promoter_score"].includes(
+        kpi.kpi_metric.toLowerCase()
+      ) && kpi.metric_type.toLowerCase() !== "calculated"
+  );
+
+  const reachRecallDelivery = kpi_summary.filter(
+    (kpi) =>
+      ["impressions", "ad_recall_lift", "ad_frequency", "audience_fit"].includes(
+        kpi.kpi_metric.toLowerCase()
+      ) && kpi.metric_type.toLowerCase() !== "calculated"
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header with buttons */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-muted-foreground text-sm tracking-wide uppercase">
-            Media Simulation
-          </p>
-          <h2 className="text-2xl font-bold">KPI & Recommendations Summary</h2>
-          <p className="text-muted-foreground text-sm">
-            Generated {formatDate(metadata.generated_at)}
-          </p>
-        </div>
+        <div className="flex-1" />
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={onRestart}>
+          <Button variant="outline" size="sm" onClick={onRestart} className="text-gray-700">
             <RefreshCw className="mr-2 h-4 w-4" />
             Restart
           </Button>
-          <Button size="sm" onClick={handleDownloadReport}>
+          <Button size="sm" onClick={handleDownloadReport} className="bg-[#42bd00] hover:bg-[#329600] text-white">
             <Download className="mr-2 h-4 w-4" />
-            Download Report
+            Export Report
           </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="kpi" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="kpi">KPI</TabsTrigger>
-          <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+      <Tabs defaultValue="kpi" className="space-y-6">
+        <TabsList className="bg-transparent h-auto w-full justify-start gap-0 p-0 border-b border-gray-200">
+          <TabsTrigger
+            value="kpi"
+            className="text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent"
+          >
+            Key Performance Indicator - KPIs
+          </TabsTrigger>
+          <TabsTrigger
+            value="recommendations"
+            className="text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent"
+          >
+            Recommendations
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="kpi" className="space-y-6">
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-            {kpi_summary
-              .filter(
-                (kpi) =>
-                  kpi.kpi_metric.toLowerCase() === "roas" ||
-                  kpi.metric_type.toLowerCase() !== "calculated"
-              )
-              .map((kpi) =>
-                kpi.kpi_metric.toLowerCase() === "roas" ? (
-                  <RoasCard key={kpi.kpi_metric} kpi={kpi} />
-                ) : (
-                  <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
-                )
-              )}
+        <TabsContent value="kpi" className="space-y-8 mt-6">
+          {/* Creative & Message Health */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-gray-900">Creative & Message Health</h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              {creativeMessageHealth.map((kpi) => (
+                <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
+              ))}
+            </div>
+          </div>
+
+          {/* Engagement & Action Prediction */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-gray-900">Engagement & Action Prediction</h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {engagementActionPrediction.map((kpi) => (
+                <KpiProgressBarCard key={kpi.kpi_metric} kpi={kpi} />
+              ))}
+            </div>
+          </div>
+
+          {/* Value & Revenue Efficiency */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-gray-900">Value & Revenue Efficiency</h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {valueRevenueEfficiency.map((kpi) => (
+                <SegmentedGaugeCard key={kpi.kpi_metric} kpi={kpi} />
+              ))}
+            </div>
+          </div>
+
+          {/* Reach, Recall & Delivery */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-gray-900">Reach, Recall & Delivery</h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {reachRecallDelivery.map((kpi) => (
+                <KpiCircularGaugeCard key={kpi.kpi_metric} kpi={kpi} />
+              ))}
+            </div>
           </div>
         </TabsContent>
 

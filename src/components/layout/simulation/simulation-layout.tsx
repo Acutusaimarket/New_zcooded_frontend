@@ -12,7 +12,7 @@ const simulationTabs = [
     icon: OverviewIcon,
   },
   {
-    label: "Simulation History",
+    label: "History",
     path: "/dashboard/simulation/history",
     icon: History,
   },

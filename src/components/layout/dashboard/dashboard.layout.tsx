@@ -75,8 +75,8 @@ const DashboardLayout = () => {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
               <Card className="w-full max-w-md border-[#E5E7EB] shadow-2xl">
                 <CardHeader className="pb-6 text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#00bf63]/10">
-                    <CreditCard className="h-8 w-8 text-[#00bf63]" />
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#42bd00]/10">
+                    <CreditCard className="h-8 w-8 text-[#42bd00]" />
                   </div>
                   <CardTitle className="text-2xl font-bold">
                     Welcome! Get Started with Credits
@@ -89,7 +89,7 @@ const DashboardLayout = () => {
                 <CardContent className="space-y-6">
                   <div className="space-y-3 rounded-lg bg-gray-50 p-4">
                     <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00bf63]">
+                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#42bd00]">
                         <Sparkles className="h-3 w-3 text-white" />
                       </div>
                       <div>
@@ -102,7 +102,7 @@ const DashboardLayout = () => {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00bf63]">
+                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#42bd00]">
                         <Zap className="h-3 w-3 text-white" />
                       </div>
                       <div>
@@ -117,7 +117,7 @@ const DashboardLayout = () => {
                   </div>
                   <div className="flex flex-col gap-3">
                     <Button
-                      className="w-full bg-[#00bf63] text-base font-semibold hover:bg-[#00a050]"
+                      className="w-full bg-[#42bd00] text-base font-semibold hover:bg-[#329600]"
                       size="lg"
                       onClick={() => navigate("/plans")}
                     >

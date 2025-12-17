@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 
-import { ArrowLeft, ArrowRight, CheckCircle, Circle, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Play } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 
@@ -277,41 +277,51 @@ export const MediaSimulationWizard: React.FC = () => {
       {/* Progress Steps */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className="flex flex-col items-center space-y-2">
-                  <div
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors",
-                      {
-                        "bg-primary text-primary-foreground border-primary":
-                          index === currentStep,
-                        "border-green-500 bg-green-500 text-white":
-                          isStepCompleted(index) && index !== currentStep,
-                        "bg-muted text-muted-foreground border-muted":
-                          !isStepCompleted(index) && index !== currentStep,
-                      }
-                    )}
-                  >
-                    {isStepCompleted(index) && index !== currentStep ? (
-                      <CheckCircle className="h-5 w-5" />
-                    ) : (
-                      <Circle className="h-5 w-5" />
-                    )}
+          <div className="flex items-center gap-4">
+            {steps.map((step, index) => {
+              const isCompleted = isStepCompleted(index);
+              const isActive = index === currentStep;
+
+              return (
+                <React.Fragment key={step.id}>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                        {
+                          "bg-[#42bd00] text-white": isCompleted || isActive,
+                          "bg-gray-200 text-gray-600": !isCompleted && !isActive,
+                        }
+                      )}
+                    >
+                      {isCompleted && index !== currentStep ? (
+                        <Check className="h-5 w-5" />
+                      ) : (
+                        <span className="text-sm font-semibold">
+                          {index + 1}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-left">
+                      <p
+                        className={cn("text-sm font-medium", {
+                          "text-[#42bd00]": isCompleted || isActive,
+                          "text-gray-600": !isCompleted && !isActive,
+                        })}
+                      >
+                        {step.title}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {step.description}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{step.title}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-                {index < steps.length - 1 && (
-                  <div className="bg-muted mx-4 h-0.5 flex-1" />
-                )}
-              </div>
-            ))}
+                  {index < steps.length - 1 && (
+                    <div className="flex-1 h-0.5 bg-gray-200" />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
         </CardContent>
       </Card>

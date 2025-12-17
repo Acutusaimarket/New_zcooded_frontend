@@ -173,11 +173,11 @@ export const PersonaSelectionStep: React.FC<PersonaSelectionStepProps> = ({
       </div>
 
       {/* Personas Grid */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {personaData?.items?.map((persona) => (
           <Card
             key={persona._id}
-            className={`cursor-pointer transition-all hover:shadow-md ${
+            className={`aspect-square cursor-pointer transition-all hover:shadow-md ${
               selectedPersonas.includes(persona._id)
                 ? "ring-primary bg-primary/5 ring-2"
                 : "hover:bg-muted/50"
@@ -186,50 +186,50 @@ export const PersonaSelectionStep: React.FC<PersonaSelectionStepProps> = ({
           >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{persona.name}</CardTitle>
-                  <p className="text-muted-foreground mt-1 text-sm">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-base line-clamp-1">{persona.name}</CardTitle>
+                  <p className="text-muted-foreground mt-1 text-xs line-clamp-1">
                     {persona.persona_category}
                   </p>
                 </div>
                 <Checkbox
                   checked={selectedPersonas.includes(persona._id)}
                   onChange={() => handlePersonaToggle(persona._id)}
-                  className="ml-2"
+                  className="ml-2 shrink-0"
                 />
               </div>
             </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-muted-foreground line-clamp-2 text-sm">
+            <CardContent className="pt-0 flex flex-col h-full">
+              <p className="text-muted-foreground line-clamp-2 text-xs mb-3 flex-shrink-0">
                 {persona.description}
               </p>
 
-              <div className="mt-3 space-y-2">
-                <div className="flex items-center space-x-2 text-xs">
-                  <span className="font-medium">Age:</span>
-                  <span>{persona.demographic.age_range}</span>
+              <div className="space-y-1.5 flex-shrink-0">
+                <div className="flex items-center space-x-1 text-xs">
+                  <span className="font-medium text-muted-foreground">Age:</span>
+                  <span className="truncate">{persona.demographic.age_range}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-xs">
-                  <span className="font-medium">Location:</span>
-                  <span>{persona.demographic.location}</span>
+                <div className="flex items-center space-x-1 text-xs">
+                  <span className="font-medium text-muted-foreground">Location:</span>
+                  <span className="truncate">{persona.demographic.location}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-xs">
-                  <span className="font-medium">Occupation:</span>
-                  <span>{persona.demographic.occupation}</span>
+                <div className="flex items-center space-x-1 text-xs">
+                  <span className="font-medium text-muted-foreground">Occupation:</span>
+                  <span className="truncate">{persona.demographic.occupation}</span>
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-1">
+              <div className="mt-auto pt-3 flex flex-wrap gap-1">
                 {persona.behavior_patterns.values
-                  .slice(0, 3)
+                  .slice(0, 2)
                   .map((value, index) => (
                     <Badge key={index} variant="outline" className="text-xs">
                       {value}
                     </Badge>
                   ))}
-                {persona.behavior_patterns.values.length > 3 && (
+                {persona.behavior_patterns.values.length > 2 && (
                   <Badge variant="outline" className="text-xs">
-                    +{persona.behavior_patterns.values.length - 3} more
+                    +{persona.behavior_patterns.values.length - 2}
                   </Badge>
                 )}
               </div>

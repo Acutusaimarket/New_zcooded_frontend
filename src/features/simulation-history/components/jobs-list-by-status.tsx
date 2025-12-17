@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -23,32 +23,32 @@ const getEmptyState = (status: SimulationJob["status"] | "active") => {
     case "finalizing":
       return {
         icon: Clock,
-        title: "No active simulations",
+        title: "No Active Simulations",
         description: "Active simulations will appear here while they run.",
       };
     case "completed":
       return {
         icon: CheckCircle2,
-        title: "No completed simulations",
+        title: "No Completed Simulations",
         description: "Completed simulations will appear here.",
       };
     case "failed":
       return {
         icon: AlertCircle,
-        title: "No failed simulations",
+        title: "No Failed Simulations",
         description: "Failed simulations will appear here.",
       };
     case "pending":
     case "interrupted":
       return {
         icon: Clock,
-        title: "No pending simulations",
+        title: "No Pending Simulations",
         description: "Pending simulations will appear here.",
       };
     default:
       return {
         icon: Clock,
-        title: "No simulations",
+        title: "No Simulations",
         description: "Simulations will appear here.",
       };
   }
@@ -103,17 +103,22 @@ export const JobsListByStatus = ({
   if (!jobs.length) {
     const empty = getEmptyState(status);
     const Icon = empty.icon;
+    const isActive = status === "active";
 
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-[500px] items-center justify-center bg-white rounded-lg">
         <div className="text-center">
-          <div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
-            <Icon className="text-muted-foreground h-8 w-8" />
+          <div className="bg-gray-200 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+            {isActive ? (
+              <Loader2 className="text-gray-600 h-10 w-10 animate-spin" />
+            ) : (
+              <Icon className="text-gray-600 h-10 w-10" />
+            )}
           </div>
-          <h3 className="text-muted-foreground mb-2 text-lg font-semibold">
+          <h3 className="text-gray-900 mb-2 text-xl font-bold">
             {empty.title}
           </h3>
-          <p className="text-muted-foreground text-sm">{empty.description}</p>
+          <p className="text-gray-600 text-base">{empty.description}</p>
         </div>
       </div>
     );
