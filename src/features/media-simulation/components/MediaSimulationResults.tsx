@@ -477,13 +477,15 @@ const SegmentedGaugeCard = ({
 
   // Get segment labels based on metric
   const metricLower = kpi.kpi_metric.toLowerCase();
+  const isRoas = metricLower === "roas" || metricLower === "return_on_ad_spend";
+  
   let segmentLabels = {
     high: "High value (low cost, good clicks)",
     moderate: "Moderate value",
     low: "Low value (high cost, weak clicks)",
   };
 
-  if (metricLower.includes("roas") || metricLower.includes("return")) {
+  if (isRoas) {
     segmentLabels = {
       high: "Strong return",
       moderate: "Average return",
@@ -503,6 +505,11 @@ const SegmentedGaugeCard = ({
     };
   }
 
+  // For ROAS, show formatted_roas if available, otherwise show percentage
+  const displayValue = isRoas && kpi.formatted_roas 
+    ? kpi.formatted_roas 
+    : `${percentage}%`;
+
   return (
     <Card className="shadow-sm transition-shadow hover:shadow-md">
       <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
@@ -513,32 +520,34 @@ const SegmentedGaugeCard = ({
           />
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
             <span className={`text-3xl font-bold ${visuals.textClass}`}>
-              {percentage}%
+              {displayValue}
             </span>
           </div>
         </div>
         <div className="space-y-2 w-full">
           <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-[#42bd00]" />
-                <span className="text-gray-700">{highValue}% {segmentLabels.high}</span>
+          {!isRoas && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded bg-[#42bd00]" />
+                  <span className="text-gray-700">{highValue}% {segmentLabels.high}</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded bg-orange-500" />
+                  <span className="text-gray-700">{moderateValue}% {segmentLabels.moderate}</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded bg-red-500" />
+                  <span className="text-gray-700">{lowValue}% {segmentLabels.low}</span>
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-orange-500" />
-                <span className="text-gray-700">{moderateValue}% {segmentLabels.moderate}</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-red-500" />
-                <span className="text-gray-700">{lowValue}% {segmentLabels.low}</span>
-              </div>
-            </div>
-          </div>
+          )}
           <p className="text-gray-600 text-xs mt-2">
             {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
               KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
@@ -572,23 +581,23 @@ const RoasCard = ({
           />
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
             <span className={`text-3xl font-bold ${visuals.textClass}`}>
-              {kpi.formatted_roas || percentage}
+              {kpi.formatted_roas || `${percentage}%`}
             </span>
           </div>
         </div>
         <div className="space-y-1.5">
-          <p className="text-base font-semibold text-foreground">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-muted-foreground text-xs font-medium">
+          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-gray-600 text-xs">
             {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
               KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
               kpi.metric_type}
           </p>
         </div>
-        <div className="w-full rounded-lg bg-muted/50 p-3 text-center">
-          <p className="text-foreground text-sm font-semibold">
+        <div className="w-full rounded-lg bg-gray-100 p-3 text-center">
+          <p className="text-gray-900 text-sm font-semibold">
             {kpi.formatted_roas || formatDecimal(kpi.average_response)}
           </p>
-          <p className="text-muted-foreground text-[10px] uppercase tracking-wide">Value</p>
+          <p className="text-gray-600 text-[10px] uppercase tracking-wide">Value</p>
         </div>
       </CardContent>
     </Card>
@@ -888,10 +897,15 @@ export const MediaSimulationResults = ({
   );
 
   const valueRevenueEfficiency = kpi_summary.filter(
-    (kpi) =>
-      ["cost_per_click", "roas", "return_on_ad_spend", "lifetime_value_indicator", "lifetime_value", "net_promoter_score"].includes(
-        kpi.kpi_metric.toLowerCase()
-      ) && kpi.metric_type.toLowerCase() !== "calculated"
+    (kpi) => {
+      const metricLower = kpi.kpi_metric.toLowerCase();
+      const isValueRevenueMetric = ["cost_per_click", "roas", "return_on_ad_spend", "lifetime_value_indicator", "lifetime_value", "net_promoter_score"].includes(metricLower);
+      // Always include ROAS even if marked as calculated
+      if (metricLower === "roas" || metricLower === "return_on_ad_spend") {
+        return isValueRevenueMetric;
+      }
+      return isValueRevenueMetric && kpi.metric_type.toLowerCase() !== "calculated";
+    }
   );
 
   const reachRecallDelivery = kpi_summary.filter(
