@@ -94,23 +94,6 @@ interface MediaSimulationResultsProps {
   onRestart: () => void;
 }
 
-const formatDate = (value: string) => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
-const formatDecimal = (value: number | null) => {
-  if (value === null || typeof value !== "number" || Number.isNaN(value))
-    return "—";
-  const fraction = Math.abs(value % 1);
-  return fraction === 0 ? value.toFixed(0) : value.toFixed(2);
-};
-
 const titleCase = (value: string) =>
   value
     .split("_")
@@ -126,112 +109,80 @@ const KPI_DESCRIPTIONS: Record<string, string> = {
     "How closely the ad follows the brand's visual and messaging style.",
 
   // Message Clarity
-  "Message Clarity":
-    "How clearly the ad's message is understood.",
-  message_clarity:
-    "How clearly the ad's message is understood.",
+  "Message Clarity": "How clearly the ad's message is understood.",
+  message_clarity: "How clearly the ad's message is understood.",
 
   // Ad Frequency
-  "Ad Frequency":
-    "Overall happiness with the experience of product.",
-  ad_frequency:
-    "Overall happiness with the experience of product.",
+  "Ad Frequency": "Overall happiness with the experience of product.",
+  ad_frequency: "Overall happiness with the experience of product.",
 
   // Ad Recall Lift
-  "Ad Recall Lift":
-    "How easy and intuitive the product feels.",
-  ad_recall_lift:
-    "How easy and intuitive the product feels.",
+  "Ad Recall Lift": "How easy and intuitive the product feels.",
+  ad_recall_lift: "How easy and intuitive the product feels.",
 
   // Audience Fit
-  "Audience Fit":
-    "Likelihood that a user will stop using the product.",
-  audience_fit:
-    "Likelihood that a user will stop using the product.",
+  "Audience Fit": "Likelihood that a user will stop using the product.",
+  audience_fit: "Likelihood that a user will stop using the product.",
 
   // Bounce Rate Predictor
-  "Bounce Rate Predictor":
-    "Likelihood users will leave the page quickly.",
-  bounce_rate_predictor:
-    "Likelihood users will leave the page quickly.",
+  "Bounce Rate Predictor": "Likelihood users will leave the page quickly.",
+  bounce_rate_predictor: "Likelihood users will leave the page quickly.",
 
   // Click Through Rate (CTR)
-  "Click Through Rate (CTR)":
-    "Chance of viewers clicking the ad.",
-  click_through_rate:
-    "Chance of viewers clicking the ad.",
+  "Click Through Rate (CTR)": "Chance of viewers clicking the ad.",
+  click_through_rate: "Chance of viewers clicking the ad.",
 
   // Conversion Rate
-  "Conversion Rate":
-    "Chance of users completing the desired action.",
-  conversion_rate:
-    "Chance of users completing the desired action.",
+  "Conversion Rate": "Chance of users completing the desired action.",
+  conversion_rate: "Chance of users completing the desired action.",
 
   // Cost Per Click (CPC) – Value Indicator
   "Cost Per Click (CPC) – Value Indicator":
     "Cost efficiency of the ad in driving clicks.",
-  cost_per_click:
-    "Cost efficiency of the ad in driving clicks.",
+  cost_per_click: "Cost efficiency of the ad in driving clicks.",
 
   // Engagement Rate
-  "Engagement Rate":
-    "Likelihood of users interacting with the ad.",
-  engagement_rate:
-    "Likelihood of users interacting with the ad.",
+  "Engagement Rate": "Likelihood of users interacting with the ad.",
+  engagement_rate: "Likelihood of users interacting with the ad.",
 
   // Impressions
-  Impressions:
-    "Indicates how well the product/ad was seen by the audience.",
-  impressions:
-    "Indicates how well the product/ad was seen by the audience.",
+  Impressions: "Indicates how well the product/ad was seen by the audience.",
+  impressions: "Indicates how well the product/ad was seen by the audience.",
 
   // Information Seeking Intent
-  "Information Seeking Intent":
-    "Chance users will look up more details.",
-  information_seeking_intent:
-    "Chance users will look up more details.",
+  "Information Seeking Intent": "Chance users will look up more details.",
+  information_seeking_intent: "Chance users will look up more details.",
 
   // Lifetime Value Indicator (LTV Indicator)
   "Lifetime Value Indicator (LTV Indicator)":
     "Potential long-term revenue and profitability of customers.",
   lifetime_value_indicator:
     "Potential long-term revenue and profitability of customers.",
-  lifetime_value:
-    "Potential long-term revenue and profitability of customers.",
+  lifetime_value: "Potential long-term revenue and profitability of customers.",
 
   // Memorability
-  Memorability:
-    "How strongly the ad sticks in memory.",
-  memorability:
-    "How strongly the ad sticks in memory.",
+  Memorability: "How strongly the ad sticks in memory.",
+  memorability: "How strongly the ad sticks in memory.",
 
   // Net Promoter Score (NPS) – Impact Indicator
   "Net Promoter Score (NPS) – Impact Indicator":
     "Likelihood of users recommending the brand to others.",
-  net_promoter_score:
-    "Likelihood of users recommending the brand to others.",
+  net_promoter_score: "Likelihood of users recommending the brand to others.",
 
   // Quality Score
-  "Quality Score":
-    "Overall creative and execution quality.",
-  quality_score:
-    "Overall creative and execution quality.",
+  "Quality Score": "Overall creative and execution quality.",
+  quality_score: "Overall creative and execution quality.",
 
   // Relevance
-  Relevance:
-    "How well the ad matches user needs.",
-  relevance:
-    "How well the ad matches user needs.",
+  Relevance: "How well the ad matches user needs.",
+  relevance: "How well the ad matches user needs.",
 
   // ROAS (Return on Ad Spend)
   "ROAS (Return on Ad Spend)":
     "Expected revenue generated for each unit of ad spend.",
-  ROAS:
-    "Expected revenue generated for each unit of ad spend.",
-  roas:
-    "Expected revenue generated for each unit of ad spend.",
-  return_on_ad_spend:
-    "Expected revenue generated for each unit of ad spend.",
+  ROAS: "Expected revenue generated for each unit of ad spend.",
+  roas: "Expected revenue generated for each unit of ad spend.",
+  return_on_ad_spend: "Expected revenue generated for each unit of ad spend.",
 };
 
 const EmphasizedText = ({ text }: { text: string }) => {
@@ -289,16 +240,32 @@ const getScoreVisuals = (value: number, kpiMetric?: string) => {
   // Always green for Ad Frequency and ROAS
   const metricLower = kpiMetric?.toLowerCase() || "";
   if (metricLower === "ad_frequency" || metricLower === "roas") {
-    return { colorHex: "#42bd00", textClass: "text-[#42bd00]", bgColor: "bg-[#42bd00]" };
+    return {
+      colorHex: "#42bd00",
+      textClass: "text-[#42bd00]",
+      bgColor: "bg-[#42bd00]",
+    };
   }
 
   if (value <= 30) {
-    return { colorHex: "#dc2626", textClass: "text-red-600", bgColor: "bg-red-500" };
+    return {
+      colorHex: "#dc2626",
+      textClass: "text-red-600",
+      bgColor: "bg-red-500",
+    };
   }
   if (value <= 75) {
-    return { colorHex: "#f97316", textClass: "text-orange-500", bgColor: "bg-orange-500" };
+    return {
+      colorHex: "#f97316",
+      textClass: "text-orange-500",
+      bgColor: "bg-orange-500",
+    };
   }
-  return { colorHex: "#42bd00", textClass: "text-[#42bd00]", bgColor: "bg-[#42bd00]" };
+  return {
+    colorHex: "#42bd00",
+    textClass: "text-[#42bd00]",
+    bgColor: "bg-[#42bd00]",
+  };
 };
 
 // Semi-circular gauge for Creative & Message Health and Value & Revenue Efficiency
@@ -330,8 +297,10 @@ const KpiGaugeCard = ({
           </div>
         </div>
         <div className="space-y-1.5">
-          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-gray-600 text-xs">
+          <p className="text-base font-semibold text-gray-900">
+            {titleCase(kpi.kpi_metric)}
+          </p>
+          <p className="text-xs text-gray-600">
             {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
               KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
               kpi.metric_type}
@@ -359,7 +328,9 @@ const KpiProgressBarCard = ({
     <Card className="shadow-sm transition-shadow hover:shadow-md">
       <CardContent className="space-y-3 px-4 py-6">
         <div className="flex items-center justify-between">
-          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-base font-semibold text-gray-900">
+            {titleCase(kpi.kpi_metric)}
+          </p>
           <span className={`text-lg font-bold ${visuals.textClass}`}>
             {percentage}%
           </span>
@@ -371,7 +342,7 @@ const KpiProgressBarCard = ({
               style={{ width: `${percentage}%` }}
             />
           </div>
-          <p className="text-gray-600 text-xs">
+          <p className="text-xs text-gray-600">
             {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
               KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
               kpi.metric_type}
@@ -437,7 +408,10 @@ const KpiCircularGaugeCard = ({
     <Card className="shadow-sm transition-shadow hover:shadow-md">
       <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
         <div className="relative flex items-center justify-center">
-          <CircularGauge percentage={percentage} accentColor={visuals.colorHex} />
+          <CircularGauge
+            percentage={percentage}
+            accentColor={visuals.colorHex}
+          />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <span className={`text-2xl font-bold ${visuals.textClass}`}>
               {percentage}%
@@ -445,8 +419,10 @@ const KpiCircularGaugeCard = ({
           </div>
         </div>
         <div className="space-y-1.5">
-          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-gray-600 text-xs">
+          <p className="text-base font-semibold text-gray-900">
+            {titleCase(kpi.kpi_metric)}
+          </p>
+          <p className="text-xs text-gray-600">
             {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
               KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
               kpi.metric_type}
@@ -473,12 +449,12 @@ const SegmentedGaugeCard = ({
   // Simulated segments - in real app, these would come from the API
   const highValue = Math.round(percentage * 0.68);
   const moderateValue = Math.round(percentage * 0.22);
-  const lowValue = Math.round(percentage * 0.10);
+  const lowValue = Math.round(percentage * 0.1);
 
   // Get segment labels based on metric
   const metricLower = kpi.kpi_metric.toLowerCase();
   const isRoas = metricLower === "roas" || metricLower === "return_on_ad_spend";
-  
+
   let segmentLabels = {
     high: "High value (low cost, good clicks)",
     moderate: "Moderate value",
@@ -506,9 +482,8 @@ const SegmentedGaugeCard = ({
   }
 
   // For ROAS, show formatted_roas if available, otherwise show percentage
-  const displayValue = isRoas && kpi.formatted_roas 
-    ? kpi.formatted_roas 
-    : `${percentage}%`;
+  const displayValue =
+    isRoas && kpi.formatted_roas ? kpi.formatted_roas : `${percentage}%`;
 
   return (
     <Card className="shadow-sm transition-shadow hover:shadow-md">
@@ -524,80 +499,43 @@ const SegmentedGaugeCard = ({
             </span>
           </div>
         </div>
-        <div className="space-y-2 w-full">
-          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+        <div className="w-full space-y-2">
+          <p className="text-base font-semibold text-gray-900">
+            {titleCase(kpi.kpi_metric)}
+          </p>
           {!isRoas && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-[#42bd00]" />
-                  <span className="text-gray-700">{highValue}% {segmentLabels.high}</span>
+                  <span className="text-gray-700">
+                    {highValue}% {segmentLabels.high}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-orange-500" />
-                  <span className="text-gray-700">{moderateValue}% {segmentLabels.moderate}</span>
+                  <span className="text-gray-700">
+                    {moderateValue}% {segmentLabels.moderate}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-red-500" />
-                  <span className="text-gray-700">{lowValue}% {segmentLabels.low}</span>
+                  <span className="text-gray-700">
+                    {lowValue}% {segmentLabels.low}
+                  </span>
                 </div>
               </div>
             </div>
           )}
-          <p className="text-gray-600 text-xs mt-2">
+          <p className="mt-2 text-xs text-gray-600">
             {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
               KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
               kpi.metric_type}
           </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const RoasCard = ({
-  kpi,
-}: {
-  kpi: MediaSimulationData["simulation_analysis"]["kpi_summary"][0];
-}) => {
-  const rawValue = kpi.average_response ?? 0;
-  const percentage =
-    rawValue <= 1 && rawValue >= 0
-      ? Math.max(0, Math.min(100, Math.round(rawValue * 100)))
-      : Math.max(0, Math.min(100, Math.round(rawValue)));
-  const visuals = getScoreVisuals(percentage, kpi.kpi_metric);
-
-  return (
-    <Card className="shadow-sm transition-shadow hover:shadow-md">
-      <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
-        <div className="relative flex h-24 w-28 items-center justify-center">
-          <SemiCircleGauge
-            percentage={percentage}
-            accentColor={visuals.colorHex}
-          />
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-4">
-            <span className={`text-3xl font-bold ${visuals.textClass}`}>
-              {kpi.formatted_roas || `${percentage}%`}
-            </span>
-          </div>
-        </div>
-        <div className="space-y-1.5">
-          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-gray-600 text-xs">
-            {KPI_DESCRIPTIONS[kpi.kpi_metric] ||
-              KPI_DESCRIPTIONS[titleCase(kpi.kpi_metric)] ||
-              kpi.metric_type}
-          </p>
-        </div>
-        <div className="w-full rounded-lg bg-gray-100 p-3 text-center">
-          <p className="text-gray-900 text-sm font-semibold">
-            {kpi.formatted_roas || formatDecimal(kpi.average_response)}
-          </p>
-          <p className="text-gray-600 text-[10px] uppercase tracking-wide">Value</p>
         </div>
       </CardContent>
     </Card>
@@ -615,31 +553,35 @@ const ModificationCard = ({
 }) => (
   <Card className="shadow-sm transition-shadow hover:shadow-md">
     <CardHeader className="space-y-3 pb-4">
-      <CardTitle className="text-xl font-semibold">{modification.modification_area}</CardTitle>
+      <CardTitle className="text-xl font-semibold">
+        {modification.modification_area}
+      </CardTitle>
     </CardHeader>
     <CardContent className="space-y-5 text-sm leading-relaxed">
-      <div className="rounded-lg bg-muted/50 p-4">
-        <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">
+      <div className="bg-muted/50 rounded-lg p-4">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Current State
         </p>
         <p className="text-foreground">{modification.current_state}</p>
       </div>
-      <div className="rounded-lg bg-primary/5 p-4">
-        <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">
+      <div className="bg-primary/5 rounded-lg p-4">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Recommended State
         </p>
-        <p className="text-foreground font-medium">{modification.recommended_state}</p>
+        <p className="text-foreground font-medium">
+          {modification.recommended_state}
+        </p>
       </div>
 
       {modification.specific_changes && (
         <div className="space-y-4 border-t pt-4">
-          <p className="text-muted-foreground mb-3 text-sm font-semibold uppercase tracking-wide">
+          <p className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
             Specific Changes
           </p>
 
           {modification.specific_changes.visuals && (
-            <div className="space-y-3 rounded-lg border bg-card p-4">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-foreground">
+            <div className="bg-card space-y-3 rounded-lg border p-4">
+              <p className="text-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
                 Visual Changes
               </p>
               {modification.specific_changes.visuals.add &&
@@ -697,8 +639,10 @@ const ModificationCard = ({
           )}
 
           {modification.specific_changes.script_rewrite && (
-            <div className="rounded-lg border bg-card p-4">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-foreground">Script Rewrite</p>
+            <div className="bg-card rounded-lg border p-4">
+              <p className="text-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Script Rewrite
+              </p>
               {modification.specific_changes.script_rewrite.current_hook && (
                 <div className="mb-2">
                   <p className="text-muted-foreground mb-1 text-xs">
@@ -709,7 +653,8 @@ const ModificationCard = ({
                   </p>
                 </div>
               )}
-              {modification.specific_changes.script_rewrite.recommended_hook && (
+              {modification.specific_changes.script_rewrite
+                .recommended_hook && (
                 <div className="mb-2">
                   <p className="text-muted-foreground mb-1 text-xs">
                     Recommended Hook:
@@ -745,8 +690,10 @@ const ModificationCard = ({
           )}
 
           {modification.specific_changes.audio_modifications && (
-            <div className="rounded-lg border bg-card p-4">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-foreground">Audio Modifications</p>
+            <div className="bg-card rounded-lg border p-4">
+              <p className="text-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Audio Modifications
+              </p>
               {modification.specific_changes.audio_modifications
                 .voiceover_tone && (
                 <p className="text-xs">
@@ -774,7 +721,9 @@ const ModificationCard = ({
             <div className="rounded-md border border-dashed p-3">
               <p className="mb-2 text-xs font-semibold">Opening Frame</p>
               <p className="text-xs">
-                <EmphasizedText text={modification.specific_changes.opening_frame} />
+                <EmphasizedText
+                  text={modification.specific_changes.opening_frame}
+                />
               </p>
             </div>
           )}
@@ -783,24 +732,33 @@ const ModificationCard = ({
             <div className="rounded-md border border-dashed p-3">
               <p className="mb-2 text-xs font-semibold">Disclaimer Addition</p>
               <p className="text-xs">
-                <EmphasizedText text={modification.specific_changes.disclaimer_addition} />
+                <EmphasizedText
+                  text={modification.specific_changes.disclaimer_addition}
+                />
               </p>
             </div>
           )}
 
           {modification.specific_changes.platform_optimization && (
             <div className="rounded-md border border-dashed p-3">
-              <p className="mb-2 text-xs font-semibold">Platform Optimization</p>
+              <p className="mb-2 text-xs font-semibold">
+                Platform Optimization
+              </p>
               <p className="text-xs">
-                <EmphasizedText text={modification.specific_changes.platform_optimization} />
+                <EmphasizedText
+                  text={modification.specific_changes.platform_optimization}
+                />
               </p>
             </div>
           )}
 
           {modification.specific_changes.trust_indicators_to_add &&
-            modification.specific_changes.trust_indicators_to_add.length > 0 && (
+            modification.specific_changes.trust_indicators_to_add.length >
+              0 && (
               <div className="rounded-md border border-dashed p-3">
-                <p className="mb-2 text-xs font-semibold">Trust Indicators to Add</p>
+                <p className="mb-2 text-xs font-semibold">
+                  Trust Indicators to Add
+                </p>
                 <ul className="list-disc space-y-1 pl-5 text-xs">
                   {modification.specific_changes.trust_indicators_to_add.map(
                     (indicator: string, idx: number) => (
@@ -884,35 +842,56 @@ export const MediaSimulationResults = ({
   // Categorize KPIs into sections
   const creativeMessageHealth = kpi_summary.filter(
     (kpi) =>
-      ["brand_consistency", "message_clarity", "relevance", "quality_score", "memorability"].includes(
-        kpi.kpi_metric.toLowerCase()
-      ) && kpi.metric_type.toLowerCase() !== "calculated"
+      [
+        "brand_consistency",
+        "message_clarity",
+        "relevance",
+        "quality_score",
+        "memorability",
+      ].includes(kpi.kpi_metric.toLowerCase()) &&
+      kpi.metric_type.toLowerCase() !== "calculated"
   );
 
   const engagementActionPrediction = kpi_summary.filter(
     (kpi) =>
-      ["engagement_rate", "click_through_rate", "information_seeking_intent", "conversion_rate", "bounce_rate_predictor"].includes(
-        kpi.kpi_metric.toLowerCase()
-      ) && kpi.metric_type.toLowerCase() !== "calculated"
+      [
+        "engagement_rate",
+        "click_through_rate",
+        "information_seeking_intent",
+        "conversion_rate",
+        "bounce_rate_predictor",
+      ].includes(kpi.kpi_metric.toLowerCase()) &&
+      kpi.metric_type.toLowerCase() !== "calculated"
   );
 
-  const valueRevenueEfficiency = kpi_summary.filter(
-    (kpi) => {
-      const metricLower = kpi.kpi_metric.toLowerCase();
-      const isValueRevenueMetric = ["cost_per_click", "roas", "return_on_ad_spend", "lifetime_value_indicator", "lifetime_value", "net_promoter_score"].includes(metricLower);
-      // Always include ROAS even if marked as calculated
-      if (metricLower === "roas" || metricLower === "return_on_ad_spend") {
-        return isValueRevenueMetric;
-      }
-      return isValueRevenueMetric && kpi.metric_type.toLowerCase() !== "calculated";
+  const valueRevenueEfficiency = kpi_summary.filter((kpi) => {
+    const metricLower = kpi.kpi_metric.toLowerCase();
+    const isValueRevenueMetric = [
+      "cost_per_click",
+      "roas",
+      "return_on_ad_spend",
+      "lifetime_value_indicator",
+      "lifetime_value",
+      "net_promoter_score",
+    ].includes(metricLower);
+    // Always include ROAS even if marked as calculated
+    if (metricLower === "roas" || metricLower === "return_on_ad_spend") {
+      return isValueRevenueMetric;
     }
-  );
+    return (
+      isValueRevenueMetric && kpi.metric_type.toLowerCase() !== "calculated"
+    );
+  });
 
   const reachRecallDelivery = kpi_summary.filter(
     (kpi) =>
-      ["impressions", "ad_recall_lift", "ad_frequency", "audience_fit"].includes(
-        kpi.kpi_metric.toLowerCase()
-      ) && kpi.metric_type.toLowerCase() !== "calculated"
+      [
+        "impressions",
+        "ad_recall_lift",
+        "ad_frequency",
+        "audience_fit",
+      ].includes(kpi.kpi_metric.toLowerCase()) &&
+      kpi.metric_type.toLowerCase() !== "calculated"
   );
 
   return (
@@ -921,11 +900,20 @@ export const MediaSimulationResults = ({
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex-1" />
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={onRestart} className="text-gray-700">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRestart}
+            className="text-gray-700"
+          >
             <RefreshCw className="mr-2 h-4 w-4" />
             Restart
           </Button>
-          <Button size="sm" onClick={handleDownloadReport} className="bg-[#42bd00] hover:bg-[#329600] text-white">
+          <Button
+            size="sm"
+            onClick={handleDownloadReport}
+            className="bg-[#42bd00] text-white hover:bg-[#329600]"
+          >
             <Download className="mr-2 h-4 w-4" />
             Export Report
           </Button>
@@ -933,25 +921,27 @@ export const MediaSimulationResults = ({
       </div>
 
       <Tabs defaultValue="kpi" className="space-y-6">
-        <TabsList className="bg-transparent h-auto w-full justify-start gap-0 p-0 border-b border-gray-200">
+        <TabsList className="h-auto w-full justify-start gap-0 border-b border-gray-200 bg-transparent p-0">
           <TabsTrigger
             value="kpi"
-            className="text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent"
+            className="flex items-center gap-2 rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-600 transition-all data-[state=active]:border-[#42bd00] data-[state=active]:bg-transparent data-[state=active]:text-[#42bd00]"
           >
             Key Performance Indicator - KPIs
           </TabsTrigger>
           <TabsTrigger
             value="recommendations"
-            className="text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent"
+            className="flex items-center gap-2 rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-600 transition-all data-[state=active]:border-[#42bd00] data-[state=active]:bg-transparent data-[state=active]:text-[#42bd00]"
           >
             Recommendations
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="kpi" className="space-y-8 mt-6">
+        <TabsContent value="kpi" className="mt-6 space-y-8">
           {/* Creative & Message Health */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Creative & Message Health</h3>
+            <h3 className="text-xl font-bold text-gray-900">
+              Creative & Message Health
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {creativeMessageHealth.map((kpi) => (
                 <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
@@ -961,7 +951,9 @@ export const MediaSimulationResults = ({
 
           {/* Engagement & Action Prediction */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Engagement & Action Prediction</h3>
+            <h3 className="text-xl font-bold text-gray-900">
+              Engagement & Action Prediction
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {engagementActionPrediction.map((kpi) => (
                 <KpiProgressBarCard key={kpi.kpi_metric} kpi={kpi} />
@@ -971,7 +963,9 @@ export const MediaSimulationResults = ({
 
           {/* Value & Revenue Efficiency */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Value & Revenue Efficiency</h3>
+            <h3 className="text-xl font-bold text-gray-900">
+              Value & Revenue Efficiency
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {valueRevenueEfficiency.map((kpi) => (
                 <SegmentedGaugeCard key={kpi.kpi_metric} kpi={kpi} />
@@ -981,7 +975,9 @@ export const MediaSimulationResults = ({
 
           {/* Reach, Recall & Delivery */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Reach, Recall & Delivery</h3>
+            <h3 className="text-xl font-bold text-gray-900">
+              Reach, Recall & Delivery
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {reachRecallDelivery.map((kpi) => (
                 <KpiCircularGaugeCard key={kpi.kpi_metric} kpi={kpi} />
@@ -1007,7 +1003,7 @@ export const MediaSimulationResults = ({
             </section>
           ) : (
             <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
+              <CardContent className="text-muted-foreground py-8 text-center">
                 No recommendations available
               </CardContent>
             </Card>
@@ -1025,7 +1021,8 @@ export const MediaSimulationResults = ({
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">
-                    {recommendation.alternative_strategy.scenario || "Alternative Strategy"}
+                    {recommendation.alternative_strategy.scenario ||
+                      "Alternative Strategy"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm leading-relaxed">
@@ -1036,7 +1033,9 @@ export const MediaSimulationResults = ({
                       </p>
                       <p>
                         <EmphasizedText
-                          text={recommendation.alternative_strategy.recommendation}
+                          text={
+                            recommendation.alternative_strategy.recommendation
+                          }
                         />
                       </p>
                     </div>
@@ -1048,20 +1047,24 @@ export const MediaSimulationResults = ({
                       </p>
                       <p>
                         <EmphasizedText
-                          text={recommendation.alternative_strategy.justification}
+                          text={
+                            recommendation.alternative_strategy.justification
+                          }
                         />
                       </p>
                     </div>
                   )}
-                  {recommendation.alternative_strategy.targeting_refinements && (
+                  {recommendation.alternative_strategy
+                    .targeting_refinements && (
                     <div>
                       <p className="text-muted-foreground mb-2 text-xs uppercase">
                         Targeting Refinements
                       </p>
                       {recommendation.alternative_strategy.targeting_refinements
                         .negative_audience_exclusions &&
-                        recommendation.alternative_strategy.targeting_refinements
-                          .negative_audience_exclusions.length > 0 && (
+                        recommendation.alternative_strategy
+                          .targeting_refinements.negative_audience_exclusions
+                          .length > 0 && (
                           <div className="mb-3">
                             <p className="mb-1 text-xs font-semibold">
                               Negative Exclusions:
@@ -1102,7 +1105,7 @@ export const MediaSimulationResults = ({
                         {qa.question}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="text-sm leading-relaxed text-muted-foreground">
+                    <CardContent className="text-muted-foreground text-sm leading-relaxed">
                       <EmphasizedText text={qa.answer} />
                     </CardContent>
                   </Card>
@@ -1115,4 +1118,3 @@ export const MediaSimulationResults = ({
     </div>
   );
 };
-

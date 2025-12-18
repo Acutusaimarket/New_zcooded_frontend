@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import type {
+  MarketFitAnsweredQuestion,
   MarketFitAttachment,
   MarketFitCriticalIssue,
   MarketFitKpiSummary,
@@ -17,7 +18,6 @@ import type {
   MarketFitSegmentRecommendation,
   MarketFitSimulationPayload,
   MarketFitValuePropRewrite,
-  MarketFitAnsweredQuestion,
 } from "../types";
 
 interface MarketFitSimulationResultsProps {
@@ -25,21 +25,6 @@ interface MarketFitSimulationResultsProps {
   onRestart: () => void;
   productName?: string;
 }
-
-const formatDate = (value: string) => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-const formatDecimal = (value: number) => {
-  if (typeof value !== "number" || Number.isNaN(value)) return "—";
-  const fraction = Math.abs(value % 1);
-  return fraction === 0 ? value.toFixed(0) : value.toFixed(2);
-};
 const titleCase = (value: string) =>
   value
     .split("_")
@@ -67,7 +52,9 @@ const ListSection = ({ title, items }: { title: string; items: string[] }) => {
   if (!items?.length) return null;
   return (
     <div>
-      <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">{title}</p>
+      <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
+        {title}
+      </p>
       <ul className="list-disc space-y-1.5 pl-5 text-sm">
         {items.map((item, idx) => (
           <li key={idx} className="text-foreground">
@@ -102,11 +89,11 @@ const RecommendationBlock = ({
       </div>
     </CardHeader>
     <CardContent className="space-y-3 text-sm leading-relaxed">
-      <p className="font-medium text-foreground">
+      <p className="text-foreground font-medium">
         <EmphasizedText text={recommendation.recommendation} />
       </p>
-      <div className="rounded-lg bg-muted/50 p-3">
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-1">
+      <div className="bg-muted/50 rounded-lg p-3">
+        <p className="text-muted-foreground mb-1 text-xs font-semibold tracking-wide uppercase">
           Rationale
         </p>
         <p className="text-foreground">
@@ -138,14 +125,14 @@ const CriticalIssueCard = ({ issue }: { issue: MarketFitCriticalIssue }) => (
       <CardTitle className="text-xl font-semibold">{issue.title}</CardTitle>
     </CardHeader>
     <CardContent className="space-y-4 text-sm leading-relaxed">
-      <div className="rounded-lg bg-muted/50 p-3">
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+      <div className="bg-muted/50 rounded-lg p-3">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Description
         </p>
         <p className="text-foreground">{issue.description}</p>
       </div>
       <div>
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Affected segments
         </p>
         <div className="flex flex-wrap gap-2 pt-1">
@@ -156,21 +143,21 @@ const CriticalIssueCard = ({ issue }: { issue: MarketFitCriticalIssue }) => (
           ))}
         </div>
       </div>
-      <div className="rounded-lg bg-muted/50 p-3">
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+      <div className="bg-muted/50 rounded-lg p-3">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Business impact
         </p>
-        <div className="space-y-1 text-foreground">
+        <div className="text-foreground space-y-1">
           {issue.business_impact.split("\n").map((line, idx) => (
             <p key={idx}>{line}</p>
           ))}
         </div>
       </div>
-      <div className="rounded-lg bg-primary/5 p-3">
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+      <div className="bg-primary/5 rounded-lg p-3">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Recommendations
         </p>
-        <div className="space-y-1 text-foreground">
+        <div className="text-foreground space-y-1">
           {issue.recommendations.split("\n").map((line, idx) => (
             <p key={idx}>{line}</p>
           ))}
@@ -187,23 +174,25 @@ const ProductModificationCard = ({
 }) => (
   <Card className="shadow-sm transition-shadow hover:shadow-md">
     <CardHeader>
-      <CardTitle className="text-lg font-semibold">{item.modification_area}</CardTitle>
+      <CardTitle className="text-lg font-semibold">
+        {item.modification_area}
+      </CardTitle>
     </CardHeader>
     <CardContent className="space-y-4 text-sm leading-relaxed">
-      <div className="rounded-lg bg-muted/50 p-3">
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+      <div className="bg-muted/50 rounded-lg p-3">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Current state
         </p>
         <p className="text-foreground">{item.current_state}</p>
       </div>
-      <div className="rounded-lg bg-primary/5 p-3">
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+      <div className="bg-primary/5 rounded-lg p-3">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Recommended state
         </p>
         <p className="text-foreground font-medium">{item.recommended_state}</p>
       </div>
-      <div className="rounded-lg bg-muted/50 p-3">
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+      <div className="bg-muted/50 rounded-lg p-3">
+        <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
           Justification
         </p>
         <p className="text-foreground">{item.justification}</p>
@@ -220,18 +209,20 @@ const ValuePropRewriteCard = ({
   <Card className="shadow-sm transition-shadow hover:shadow-md">
     <CardHeader className="space-y-3">
       <CardTitle className="text-lg font-semibold">Current Messaging</CardTitle>
-      <div className="rounded-lg bg-muted/50 p-3">
-        <p className="text-sm leading-relaxed text-foreground">{rewrite.current_messaging}</p>
+      <div className="bg-muted/50 rounded-lg p-3">
+        <p className="text-foreground text-sm leading-relaxed">
+          {rewrite.current_messaging}
+        </p>
       </div>
     </CardHeader>
     <CardContent className="space-y-4">
       {rewrite.recommendation_by_segment.map((segment) => (
         <div
           key={segment.segment_name}
-          className="rounded-lg border bg-card p-4 transition-shadow hover:shadow-sm"
+          className="bg-card rounded-lg border p-4 transition-shadow hover:shadow-sm"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <h4 className="text-sm font-semibold text-foreground">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h4 className="text-foreground text-sm font-semibold">
               {segment.segment_name} · {segment.primary_hook}
             </h4>
           </div>
@@ -328,40 +319,44 @@ const kpiDescriptions: Record<string, string> = {
     "Indicates how likely users are to stop using the product.",
   click_through_rate:
     "Percentage of viewers who click on a link or call-to-action.",
-  conversion_rate:
-    "Percentage of users who complete a desired action.",
-  customer_acquisition_cost:
-    "Average cost to gain a new customer.",
-  interest_level:
-    "Measures how engaged and interested users feel.",
+  conversion_rate: "Percentage of users who complete a desired action.",
+  customer_acquisition_cost: "Average cost to gain a new customer.",
+  interest_level: "Measures how engaged and interested users feel.",
   pmf_index:
     "Indicates how strongly the product satisfies the target market's needs.",
-  price_perception:
-    "How users feel about the product's price.",
+  price_perception: "How users feel about the product's price.",
   problem_solution_fit:
     "Indicates how well the product solves real user problems.",
-  purchase_intent:
-    "How likely users are to buy the product.",
+  purchase_intent: "How likely users are to buy the product.",
   retention_intent:
     "Shows how likely users are to continue using or renewing the product.",
   retention_rate:
     "Shows how likely users are to continue using or renewing the product.",
-  satisfaction:
-    "Overall happiness with the experience of product.",
-  trial_to_adoption:
-    "Overall happiness with the experience of product.",
-  usability:
-    "How easy and intuitive the product feels.",
+  satisfaction: "Overall happiness with the experience of product.",
+  trial_to_adoption: "Overall happiness with the experience of product.",
+  usability: "How easy and intuitive the product feels.",
 };
 
 const getScoreVisuals = (value: number) => {
   if (value <= 30) {
-    return { colorHex: "#dc2626", textClass: "text-red-600", bgColor: "bg-red-500" };
+    return {
+      colorHex: "#dc2626",
+      textClass: "text-red-600",
+      bgColor: "bg-red-500",
+    };
   }
   if (value <= 75) {
-    return { colorHex: "#f97316", textClass: "text-orange-500", bgColor: "bg-orange-500" };
+    return {
+      colorHex: "#f97316",
+      textClass: "text-orange-500",
+      bgColor: "bg-orange-500",
+    };
   }
-  return { colorHex: "#42bd00", textClass: "text-[#42bd00]", bgColor: "bg-[#42bd00]" };
+  return {
+    colorHex: "#42bd00",
+    textClass: "text-[#42bd00]",
+    bgColor: "bg-[#42bd00]",
+  };
 };
 
 // Semi-circular gauge for Core PMF Metrics
@@ -391,8 +386,10 @@ const KpiGaugeCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
           </div>
         </div>
         <div className="space-y-1.5">
-          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-gray-600 text-xs">{description}</p>
+          <p className="text-base font-semibold text-gray-900">
+            {titleCase(kpi.kpi_metric)}
+          </p>
+          <p className="text-xs text-gray-600">{description}</p>
         </div>
       </CardContent>
     </Card>
@@ -415,7 +412,9 @@ const KpiProgressBarCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
     <Card className="shadow-sm transition-shadow hover:shadow-md">
       <CardContent className="space-y-3 px-4 py-6">
         <div className="flex items-center justify-between">
-          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
+          <p className="text-base font-semibold text-gray-900">
+            {titleCase(kpi.kpi_metric)}
+          </p>
           <span className={`text-lg font-bold ${visuals.textClass}`}>
             {percentage}%
           </span>
@@ -427,7 +426,7 @@ const KpiProgressBarCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
               style={{ width: `${percentage}%` }}
             />
           </div>
-          <p className="text-gray-600 text-xs">{description}</p>
+          <p className="text-xs text-gray-600">{description}</p>
         </div>
       </CardContent>
     </Card>
@@ -488,7 +487,10 @@ const KpiCircularGaugeCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
     <Card className="shadow-sm transition-shadow hover:shadow-md">
       <CardContent className="flex flex-col items-center space-y-4 px-4 py-6 text-center">
         <div className="relative flex items-center justify-center">
-          <CircularGauge percentage={percentage} accentColor={visuals.colorHex} />
+          <CircularGauge
+            percentage={percentage}
+            accentColor={visuals.colorHex}
+          />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <span className={`text-2xl font-bold ${visuals.textClass}`}>
               {percentage}%
@@ -496,8 +498,10 @@ const KpiCircularGaugeCard = ({ kpi }: { kpi: MarketFitKpiSummary }) => {
           </div>
         </div>
         <div className="space-y-1.5">
-          <p className="text-base font-semibold text-gray-900">{titleCase(kpi.kpi_metric)}</p>
-          <p className="text-gray-600 text-xs">{description}</p>
+          <p className="text-base font-semibold text-gray-900">
+            {titleCase(kpi.kpi_metric)}
+          </p>
+          <p className="text-xs text-gray-600">{description}</p>
         </div>
       </CardContent>
     </Card>
@@ -517,10 +521,10 @@ const SegmentedPricePerceptionGauge = ({
     Math.min(100, Math.round((kpi.average_response ?? 0) * 100))
   );
   const visuals = getScoreVisuals(percentage);
-  
+
   // Simulated segments - in real app, these would come from the API
   const affordable = Math.round(percentage * 0.55);
-  const fair = Math.round(percentage * 0.30);
+  const fair = Math.round(percentage * 0.3);
   const expensive = Math.round(percentage * 0.15);
 
   return (
@@ -537,13 +541,17 @@ const SegmentedPricePerceptionGauge = ({
             </span>
           </div>
         </div>
-        <div className="space-y-2 w-full">
-          <p className="text-base font-semibold text-gray-900">Price Perception</p>
+        <div className="w-full space-y-2">
+          <p className="text-base font-semibold text-gray-900">
+            Price Perception
+          </p>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded bg-[#42bd00]" />
-                <span className="text-gray-700">{affordable}% feels affordable</span>
+                <span className="text-gray-700">
+                  {affordable}% feels affordable
+                </span>
               </div>
             </div>
             <div className="flex items-center justify-between text-xs">
@@ -555,11 +563,15 @@ const SegmentedPricePerceptionGauge = ({
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded bg-red-500" />
-                <span className="text-gray-700">{expensive}% feels expensive</span>
+                <span className="text-gray-700">
+                  {expensive}% feels expensive
+                </span>
               </div>
             </div>
           </div>
-          <p className="text-gray-600 text-xs mt-2">{kpiDescriptions.price_perception}</p>
+          <p className="mt-2 text-xs text-gray-600">
+            {kpiDescriptions.price_perception}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -572,7 +584,7 @@ export const MarketFitSimulationResults = ({
   productName,
 }: MarketFitSimulationResultsProps) => {
   const { simulation_analysis, recommendation, s3_keys } = data;
-  
+
   // Add null/undefined checks to prevent destructuring errors
   if (!simulation_analysis) {
     return (
@@ -580,7 +592,8 @@ export const MarketFitSimulationResults = ({
         <Card className="border-destructive">
           <CardContent className="p-4">
             <div className="text-destructive">
-              <strong>Error:</strong> Simulation analysis data is missing. Please try running the simulation again.
+              <strong>Error:</strong> Simulation analysis data is missing.
+              Please try running the simulation again.
             </div>
           </CardContent>
         </Card>
@@ -593,9 +606,9 @@ export const MarketFitSimulationResults = ({
       </div>
     );
   }
-  
+
   const { metadata, kpi_summary } = simulation_analysis;
-  
+
   // Additional safety checks
   if (!metadata || !kpi_summary) {
     return (
@@ -603,7 +616,8 @@ export const MarketFitSimulationResults = ({
         <Card className="border-destructive">
           <CardContent className="p-4">
             <div className="text-destructive">
-              <strong>Error:</strong> Simulation metadata or KPI summary is missing. Please try running the simulation again.
+              <strong>Error:</strong> Simulation metadata or KPI summary is
+              missing. Please try running the simulation again.
             </div>
           </CardContent>
         </Card>
@@ -616,7 +630,7 @@ export const MarketFitSimulationResults = ({
       </div>
     );
   }
-  
+
   // Check for recommendation to prevent errors when rendering recommendations tab
   if (!recommendation) {
     return (
@@ -624,7 +638,8 @@ export const MarketFitSimulationResults = ({
         <Card className="border-destructive">
           <CardContent className="p-4">
             <div className="text-destructive">
-              <strong>Error:</strong> Recommendation data is missing. Please try running the simulation again.
+              <strong>Error:</strong> Recommendation data is missing. Please try
+              running the simulation again.
             </div>
           </CardContent>
         </Card>
@@ -654,16 +669,26 @@ export const MarketFitSimulationResults = ({
   // Categorize KPIs
   const corePMFMetrics = kpi_summary.filter(
     (kpi) =>
-      ["pmf_index", "adoption_rate", "retention_rate", "problem_solution_fit", "trial_to_adoption", "churn_probability"].includes(
-        kpi.kpi_metric.toLowerCase()
-      ) && kpi.metric_type.toLowerCase() !== "calculated"
+      [
+        "pmf_index",
+        "adoption_rate",
+        "retention_rate",
+        "problem_solution_fit",
+        "trial_to_adoption",
+        "churn_probability",
+      ].includes(kpi.kpi_metric.toLowerCase()) &&
+      kpi.metric_type.toLowerCase() !== "calculated"
   );
 
   const growthConversionMetrics = kpi_summary.filter(
     (kpi) =>
-      ["conversion_rate", "click_through_rate", "purchase_intent", "customer_acquisition_cost"].includes(
-        kpi.kpi_metric.toLowerCase()
-      ) && kpi.metric_type.toLowerCase() !== "calculated"
+      [
+        "conversion_rate",
+        "click_through_rate",
+        "purchase_intent",
+        "customer_acquisition_cost",
+      ].includes(kpi.kpi_metric.toLowerCase()) &&
+      kpi.metric_type.toLowerCase() !== "calculated"
   );
 
   const experienceValueMetrics = kpi_summary.filter(
@@ -685,11 +710,20 @@ export const MarketFitSimulationResults = ({
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex-1" />
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={onRestart} className="text-gray-700">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRestart}
+            className="text-gray-700"
+          >
             <RefreshCw className="mr-2 h-4 w-4" />
             Restart
           </Button>
-          <Button size="sm" onClick={handleDownloadReport} className="bg-[#42bd00] hover:bg-[#329600] text-white">
+          <Button
+            size="sm"
+            onClick={handleDownloadReport}
+            className="bg-[#42bd00] text-white hover:bg-[#329600]"
+          >
             <Download className="mr-2 h-4 w-4" />
             Export Report
           </Button>
@@ -697,25 +731,27 @@ export const MarketFitSimulationResults = ({
       </div>
 
       <Tabs defaultValue="kpi-summary" className="space-y-6">
-        <TabsList className="bg-transparent h-auto w-full justify-start gap-0 p-0 border-b border-gray-200">
+        <TabsList className="h-auto w-full justify-start gap-0 border-b border-gray-200 bg-transparent p-0">
           <TabsTrigger
             value="kpi-summary"
-            className="text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent"
+            className="flex items-center gap-2 rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-600 transition-all data-[state=active]:border-[#42bd00] data-[state=active]:bg-transparent data-[state=active]:text-[#42bd00]"
           >
             Key Performance Indicators - KPIs
           </TabsTrigger>
           <TabsTrigger
             value="recommendations"
-            className="text-gray-600 flex items-center gap-2 rounded-none px-4 py-3 text-sm font-medium transition-all border-b-2 border-transparent data-[state=active]:border-[#42bd00] data-[state=active]:text-[#42bd00] data-[state=active]:bg-transparent"
+            className="flex items-center gap-2 rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-600 transition-all data-[state=active]:border-[#42bd00] data-[state=active]:bg-transparent data-[state=active]:text-[#42bd00]"
           >
             Recommendations
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="kpi-summary" className="space-y-8 mt-6">
+        <TabsContent value="kpi-summary" className="mt-6 space-y-8">
           {/* Core PMF Metrics */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Core PMF Metrics</h3>
+            <h3 className="text-xl font-bold text-gray-900">
+              Core PMF Metrics
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {corePMFMetrics.map((kpi) => (
                 <KpiGaugeCard key={kpi.kpi_metric} kpi={kpi} />
@@ -725,7 +761,9 @@ export const MarketFitSimulationResults = ({
 
           {/* Growth & Conversion Metrics */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Growth & Conversion Metrics</h3>
+            <h3 className="text-xl font-bold text-gray-900">
+              Growth & Conversion Metrics
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2">
               {growthConversionMetrics.map((kpi) => (
                 <KpiProgressBarCard key={kpi.kpi_metric} kpi={kpi} />
@@ -735,7 +773,9 @@ export const MarketFitSimulationResults = ({
 
           {/* Experience & Value Metrics */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-gray-900">Experience & Value Metrics</h3>
+            <h3 className="text-xl font-bold text-gray-900">
+              Experience & Value Metrics
+            </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {experienceValueMetrics.map((kpi) => (
                 <KpiCircularGaugeCard key={kpi.kpi_metric} kpi={kpi} />
@@ -752,7 +792,9 @@ export const MarketFitSimulationResults = ({
         <TabsContent value="recommendations" className="space-y-6">
           <section className="space-y-4">
             <div>
-              <p className="text-base font-semibold text-foreground">Segment Analysis</p>
+              <p className="text-foreground text-base font-semibold">
+                Segment Analysis
+              </p>
               <p className="text-muted-foreground text-sm">
                 Deep dive into top personas, blockers, and activation paths.
               </p>
@@ -760,7 +802,10 @@ export const MarketFitSimulationResults = ({
             <div className="space-y-4">
               {recommendation.segment_analysis.map(
                 (segment: MarketFitSegmentAnalysis) => (
-                  <Card key={segment.segment_name} className="shadow-sm transition-shadow hover:shadow-md">
+                  <Card
+                    key={segment.segment_name}
+                    className="shadow-sm transition-shadow hover:shadow-md"
+                  >
                     <CardHeader className="space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
@@ -771,24 +816,26 @@ export const MarketFitSimulationResults = ({
                             {segment.segment_size}
                           </p>
                         </div>
-                        <Badge variant="outline" className="font-medium">{segment.fit_level}</Badge>
+                        <Badge variant="outline" className="font-medium">
+                          {segment.fit_level}
+                        </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-5 text-sm leading-relaxed">
                       <div className="grid gap-4 md:grid-cols-3">
-                        <div className="rounded-lg bg-muted/50 p-3">
+                        <div className="bg-muted/50 rounded-lg p-3">
                           <ListSection
                             title="Demographics"
                             items={segment.key_characteristics.demographics}
                           />
                         </div>
-                        <div className="rounded-lg bg-muted/50 p-3">
+                        <div className="bg-muted/50 rounded-lg p-3">
                           <ListSection
                             title="Behaviors"
                             items={segment.key_characteristics.behaviors}
                           />
                         </div>
-                        <div className="rounded-lg bg-muted/50 p-3">
+                        <div className="bg-muted/50 rounded-lg p-3">
                           <ListSection
                             title="Pain points"
                             items={segment.key_characteristics.pain_points}
@@ -810,7 +857,7 @@ export const MarketFitSimulationResults = ({
                         </div>
                       </div>
                       <div className="space-y-3 border-t pt-4">
-                        <p className="text-sm font-semibold text-foreground">
+                        <p className="text-foreground text-sm font-semibold">
                           Specific recommendations
                         </p>
                         <div className="grid gap-3 md:grid-cols-2">
@@ -824,13 +871,17 @@ export const MarketFitSimulationResults = ({
                           )}
                         </div>
                       </div>
-                      <div className="rounded-lg bg-primary/5 p-3">
-                        <p className="text-sm font-semibold text-foreground mb-2">
+                      <div className="bg-primary/5 rounded-lg p-3">
+                        <p className="text-foreground mb-2 text-sm font-semibold">
                           Acquisition channels
                         </p>
                         <div className="flex flex-wrap gap-2 pt-1">
                           {segment.acquisition_channels.map((channel) => (
-                            <Badge key={channel} variant="outline" className="font-medium">
+                            <Badge
+                              key={channel}
+                              variant="outline"
+                              className="font-medium"
+                            >
                               {channel}
                             </Badge>
                           ))}
@@ -845,7 +896,9 @@ export const MarketFitSimulationResults = ({
 
           <section className="space-y-4">
             <div>
-              <p className="text-base font-semibold text-foreground">Critical Issues</p>
+              <p className="text-foreground text-base font-semibold">
+                Critical Issues
+              </p>
               <p className="text-muted-foreground text-sm">
                 Urgent risks that block conversion or adoption.
               </p>
@@ -859,7 +912,9 @@ export const MarketFitSimulationResults = ({
 
           <section className="space-y-4">
             <div>
-              <p className="text-base font-semibold text-foreground">Product & Experience</p>
+              <p className="text-foreground text-base font-semibold">
+                Product & Experience
+              </p>
               <p className="text-muted-foreground text-sm">
                 Near-term product changes to unlock adoption.
               </p>
@@ -876,7 +931,9 @@ export const MarketFitSimulationResults = ({
 
           <section className="space-y-4">
             <div>
-              <p className="text-base font-semibold text-foreground">Value Proposition</p>
+              <p className="text-foreground text-base font-semibold">
+                Value Proposition
+              </p>
               <p className="text-muted-foreground text-sm">
                 Messaging pivots aligned to each priority segment.
               </p>
@@ -892,7 +949,7 @@ export const MarketFitSimulationResults = ({
             recommendation.answered_questions.length > 0 && (
               <section className="space-y-4">
                 <div>
-                  <p className="text-base font-semibold text-foreground">
+                  <p className="text-foreground text-base font-semibold">
                     Questions &amp; Answers from Simulation
                   </p>
                   <p className="text-muted-foreground text-sm">
@@ -908,7 +965,7 @@ export const MarketFitSimulationResults = ({
                             {qa.question}
                           </CardTitle>
                         </CardHeader>
-                        <CardContent className="text-sm leading-relaxed text-muted-foreground">
+                        <CardContent className="text-muted-foreground text-sm leading-relaxed">
                           <EmphasizedText text={qa.answer} />
                         </CardContent>
                       </Card>

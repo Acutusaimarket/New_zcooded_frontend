@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 
-import { AlertCircle, Globe, HelpCircle, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react";
+import { AlertCircle, Globe, Loader2, Plus, Trash2 } from "lucide-react";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -74,7 +70,7 @@ const environmentOptions: EnvironmentOption[] = [
     description:
       "Represents shopping behavior during major sales events and festivals, where users are more price-sensitive and deal-driven.",
   },
-]
+];
 
 export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
   questions,
@@ -85,21 +81,13 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
   isRunning,
 }) => {
   const [newQuestion, setNewQuestion] = useState("");
-  const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const maxQuestionLength = 200;
 
   const handleAddQuestion = () => {
     if (newQuestion.trim() && newQuestion.length <= maxQuestionLength) {
-      setIsAddingQuestion(true);
-      // Simulate a brief loading state for better UX
       onQuestionsChange([...questions, newQuestion.trim()]);
       setNewQuestion("");
-      setIsAddingQuestion(false);
     }
-  };
-
-  const handleCancelAdd = () => {
-    setNewQuestion("");
   };
 
   const handleRemoveQuestion = (index: number) => {
@@ -109,9 +97,7 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
 
   const handleEnvironmentToggle = (environmentId: string) => {
     if (environments.includes(environmentId)) {
-      onEnvironmentsChange(
-        environments.filter((id) => id !== environmentId)
-      );
+      onEnvironmentsChange(environments.filter((id) => id !== environmentId));
     } else {
       onEnvironmentsChange([...environments, environmentId]);
     }
@@ -181,7 +167,7 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
                 className="border-muted bg-muted/40 flex items-center justify-between rounded-md border px-3 py-2 text-xs"
               >
                 <span className="line-clamp-1">
-                  <span className="font-medium text-muted-foreground">
+                  <span className="text-muted-foreground font-medium">
                     Q{index + 1}:
                   </span>{" "}
                   {question}
@@ -270,7 +256,7 @@ export const SimulationConfigStep: React.FC<SimulationConfigStepProps> = ({
                       />
                       <Label
                         htmlFor={option.id}
-                        className="cursor-pointer flex-1 font-medium text-sm"
+                        className="flex-1 cursor-pointer text-sm font-medium"
                       >
                         {option.label}
                       </Label>
