@@ -57,7 +57,7 @@ export function NavUser() {
   };
 
   if (isLoading) {
-    return <Skeleton className="border-input h-12 w-full border shadow-xl" />;
+    return <Skeleton className="border-input h-10 w-full border shadow-xl" />;
   }
 
   if (error && !user) {
@@ -72,7 +72,7 @@ export function NavUser() {
 
   return (
     <SidebarMenu>
-      <SidebarMenuItem className="mb-2">
+      <SidebarMenuItem className="mb-1.5">
         <CreditDisplay />
       </SidebarMenuItem>
       {/* <SidebarMenuItem className="mt-2">
@@ -100,26 +100,29 @@ export function NavUser() {
         <DropdownMenu>
           <div className="bg-background/30 border-border/20 hover:bg-background/40 hover:border-border/30 relative cursor-pointer rounded-lg">
             <DropdownMenuTrigger asChild>
-              <SidebarMenuButton size="lg" className="w-full pr-20">
-                <Avatar className="h-8 w-8 rounded-lg">
+              <SidebarMenuButton
+                size="lg"
+                className="w-full py-2.5 pr-16 sm:py-2 sm:pr-14"
+              >
+                <Avatar className="h-7 w-7 rounded-lg sm:h-6 sm:w-6">
                   <AvatarImage alt={user?.first_name} />
-                  <AvatarFallback className="rounded-lg">
+                  <AvatarFallback className="rounded-lg text-xs font-semibold sm:text-[10px]">
                     {`${user?.first_name?.charAt(0).toUpperCase()}${user?.last_name?.charAt(0).toUpperCase()}` ||
                       "CN"}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 text-left text-sm leading-tight sm:text-xs">
                   <span className="truncate font-medium capitalize">
                     {user?.first_name} {user?.last_name}
                   </span>
-                  <span className="text-secondary-foreground text-xs">
+                  <span className="text-secondary-foreground text-[11px] sm:text-[10px]">
                     {currentPlanName}
                   </span>
                 </div>
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <Button
-              className="absolute top-1.5 right-1.5 h-auto rounded-full px-1.5 py-1 text-xs"
+              className="absolute top-1.5 right-1 h-auto rounded-full px-2 py-1 text-[11px] font-medium sm:top-1 sm:right-1 sm:px-1.5 sm:py-0.5 sm:text-[10px]"
               variant={"secondary"}
               size={"sm"}
               asChild
@@ -137,19 +140,19 @@ export function NavUser() {
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-xs">
+                <Avatar className="h-6 w-6 rounded-lg">
                   <AvatarImage alt={user?.first_name} />
-                  <AvatarFallback className="rounded-lg">
+                  <AvatarFallback className="rounded-lg text-[10px]">
                     {`${user?.first_name?.charAt(0).toUpperCase()}${user?.last_name?.charAt(0).toUpperCase()}` ||
                       "CN"}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 text-left text-xs leading-tight">
                   <span className="truncate font-medium">
                     {user?.first_name}
                   </span>
-                  <span className="truncate text-xs">{user?.email}</span>
+                  <span className="truncate text-[10px]">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

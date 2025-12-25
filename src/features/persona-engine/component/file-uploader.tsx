@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertCircleIcon, FileIcon, UploadIcon, XIcon } from "lucide-react";
+import { AlertCircleIcon, CloudUpload, UploadIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -115,8 +115,8 @@ export default function PersonaEngineFileUploader() {
             : "Open file upload section"
         }
       >
-        <CollapsibleTrigger className="hover:bg-secondary/20 bg-secondary/30 border-input mb-1 flex w-full cursor-pointer items-center justify-between rounded-2xl border-2 px-4 py-4 shadow-md">
-          <h2 className="text-xl font-semibold">Upload Data Files</h2>
+        <CollapsibleTrigger className="hover:bg-secondary/20 bg-secondary/30 border-input mb-1 flex w-full cursor-pointer items-center justify-between rounded-lg border-2 px-4 py-3 shadow-sm transition-all duration-200 hover:shadow-md">
+          <h2 className="text-lg font-semibold">Files Upload</h2>
         </CollapsibleTrigger>
       </TooltipWrapper>
       <CollapsibleContent className="shadow-md">
@@ -128,7 +128,7 @@ export default function PersonaEngineFileUploader() {
             onDrop={handleDrop}
             data-dragging={isDragging || undefined}
             data-files={files.length > 0 || undefined}
-            className="border-input data-[dragging=true]:bg-accent/50 has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 flex flex-col items-center rounded-xl border border-dashed p-4 py-5 shadow-md transition-colors not-data-[files]:justify-center has-[input:focus]:ring-[3px]"
+            className="border-input has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 flex min-h-[300px] flex-col items-center rounded-lg border-2 border-dashed bg-green-50/50 p-4 py-5 shadow-sm transition-all duration-200 not-data-[files]:justify-center hover:shadow-md has-[input:focus]:ring-2 data-[dragging=true]:border-green-300 data-[dragging=true]:bg-green-50"
           >
             <input
               {...getInputProps()}
@@ -143,7 +143,7 @@ export default function PersonaEngineFileUploader() {
                   {files.map((file) => (
                     <div
                       key={file.id}
-                      className="bg-background flex items-center justify-between gap-2 rounded-lg border p-2 pe-3"
+                      className="bg-background flex items-center justify-between gap-2 rounded-lg border p-3 shadow-sm transition-all duration-200 hover:shadow-md"
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
                         <div className="flex aspect-square size-10 shrink-0 items-center justify-center rounded border">
@@ -203,25 +203,35 @@ export default function PersonaEngineFileUploader() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex flex-col items-center justify-center gap-4 text-center">
                 <div
-                  className="bg-background mb-2 flex size-11 shrink-0 items-center justify-center rounded-full border"
+                  className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-green-500"
                   aria-hidden="true"
                 >
-                  <FileIcon className="size-4 opacity-60" />
+                  <CloudUpload className="size-8 text-green-500" />
                 </div>
-                <p className="mb-1.5 text-sm font-medium">Upload files</p>
-                <p className="text-muted-foreground text-xs">
-                  Max {maxFiles} files ∙ Up to {formatBytes(maxSize)}
-                </p>
+                <div className="flex flex-col items-center gap-1">
+                  <p className="text-sm font-medium">
+                    Drag & drop files or{" "}
+                    <button
+                      type="button"
+                      onClick={openFileDialog}
+                      className="cursor-pointer text-blue-600 underline hover:text-blue-700"
+                      disabled={uploadMutation.isPending}
+                    >
+                      Browse
+                    </button>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Max {maxFiles} files • Up to {formatBytes(maxSize)}
+                  </p>
+                </div>
                 <Button
                   disabled={uploadMutation.isPending}
-                  variant="outline"
-                  className="mt-4"
+                  className="mt-4 bg-green-500 text-white shadow-sm transition-all duration-200 hover:bg-green-600 hover:shadow-md"
                   onClick={openFileDialog}
                 >
-                  <UploadIcon className="-ms-1 opacity-60" aria-hidden="true" />
-                  Select files
+                  Upload file
                 </Button>
               </div>
             )}

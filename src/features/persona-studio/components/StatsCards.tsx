@@ -18,6 +18,7 @@ export const StatsCards = () => {
   const { data: stats, isLoading, error } = usePersonaStatsQuery();
   const [showAllLocations, setShowAllLocations] = useState(false);
   const [showAllAgeRanges, setShowAllAgeRanges] = useState(false);
+  const [showAllGenders, setShowAllGenders] = useState(false);
 
   if (isLoading) {
     return (
@@ -52,85 +53,121 @@ export const StatsCards = () => {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Personas</CardTitle>
+      <Card className="border-border/50 hover:border-border shadow-sm transition-all duration-200 hover:shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-foreground text-sm font-semibold">
+            Total Personas
+          </CardTitle>
           <Users className="text-muted-foreground h-4 w-4" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.total_personas}</div>
-          <p className="text-muted-foreground text-xs">
+        <CardContent className="pt-0">
+          <div className="text-3xl font-bold tracking-tight">
+            {stats.total_personas}
+          </div>
+          <p className="text-muted-foreground mt-1.5 text-xs">
             {stats.created_this_month} created this month
           </p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Published</CardTitle>
+      <Card className="border-border/50 hover:border-border shadow-sm transition-all duration-200 hover:shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-foreground text-sm font-semibold">
+            Published
+          </CardTitle>
           <Activity className="text-muted-foreground h-4 w-4" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="pt-0">
+          <div className="text-3xl font-bold tracking-tight">
             {stats.personas_by_status.published}
           </div>
-          <p className="text-muted-foreground text-xs">Currently active</p>
+          <p className="text-muted-foreground mt-1.5 text-xs">
+            Currently active
+          </p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Draft Personas</CardTitle>
+      <Card className="border-border/50 hover:border-border shadow-sm transition-all duration-200 hover:shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-foreground text-sm font-semibold">
+            Draft Personas
+          </CardTitle>
           <FileText className="text-muted-foreground h-4 w-4" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="pt-0">
+          <div className="text-3xl font-bold tracking-tight">
             {stats.personas_by_status.draft}
           </div>
-          <p className="text-muted-foreground text-xs">Need completion</p>
+          <p className="text-muted-foreground mt-1.5 text-xs">
+            Need completion
+          </p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
+      <Card className="border-border/50 hover:border-border shadow-sm transition-all duration-200 hover:shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-foreground text-sm font-semibold">
             Gender Distribution
           </CardTitle>
           <UserCheck className="text-muted-foreground h-4 w-4" />
         </CardHeader>
-        <CardContent>
-          <div className="space-y-1">
-            {Object.entries(stats.personas_by_gender).map(([gender, count]) => (
-              <div key={gender} className="flex justify-between text-sm">
-                <span>{gender}:</span>
-                <span className="font-medium">{count}</span>
-              </div>
-            ))}
+        <CardContent className="pt-0">
+          <div className="space-y-2">
+            {Object.entries(stats.personas_by_gender)
+              .slice(0, showAllGenders ? undefined : 2)
+              .map(([gender, count]) => (
+                <div
+                  key={gender}
+                  className="hover:bg-muted/50 flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors"
+                >
+                  <span className="text-muted-foreground capitalize">
+                    {gender}
+                  </span>
+                  <span className="font-semibold">{count}</span>
+                </div>
+              ))}
+            {Object.entries(stats.personas_by_gender).length > 2 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAllGenders(!showAllGenders)}
+                className="text-primary hover:bg-primary/10 hover:text-primary mt-1 h-7 px-2 text-xs font-medium"
+              >
+                {showAllGenders ? "Show Less" : "Show More"}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Locations</CardTitle>
+      <Card className="border-border/50 hover:border-border shadow-sm transition-all duration-200 hover:shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-foreground text-sm font-semibold">
+            Locations
+          </CardTitle>
           <MapPin className="text-muted-foreground h-4 w-4" />
         </CardHeader>
-        <CardContent>
-          <div className="space-y-1">
+        <CardContent className="pt-0">
+          <div className="space-y-2">
             {Object.entries(stats.personas_by_location)
               .slice(0, showAllLocations ? undefined : 2)
               .map(([location, count]) => (
-                <div key={location} className="flex justify-between text-sm">
-                  <span>{location}:</span>
-                  <span className="font-medium">{count}</span>
+                <div
+                  key={location}
+                  className="hover:bg-muted/50 flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors"
+                >
+                  <span className="text-muted-foreground truncate pr-2">
+                    {location}
+                  </span>
+                  <span className="flex-shrink-0 font-semibold">{count}</span>
                 </div>
               ))}
-            {Object.entries(stats.personas_by_location).length > 4 && (
+            {Object.entries(stats.personas_by_location).length > 2 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowAllLocations(!showAllLocations)}
-                className="mt-2 h-auto p-0 text-xs text-blue-600 hover:text-blue-800"
+                className="text-primary hover:bg-primary/10 hover:text-primary mt-1 h-7 px-2 text-xs font-medium"
               >
                 {showAllLocations ? "Show Less" : "Show More"}
               </Button>
@@ -139,27 +176,32 @@ export const StatsCards = () => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Age Ranges</CardTitle>
+      <Card className="border-border/50 hover:border-border shadow-sm transition-all duration-200 hover:shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-foreground text-sm font-semibold">
+            Age Ranges
+          </CardTitle>
           <Calendar className="text-muted-foreground h-4 w-4" />
         </CardHeader>
-        <CardContent>
-          <div className="space-y-1">
+        <CardContent className="pt-0">
+          <div className="space-y-2">
             {Object.entries(stats.age_distribution)
               .slice(0, showAllAgeRanges ? undefined : 2)
               .map(([ageRange, count]) => (
-                <div key={ageRange} className="flex justify-between text-sm">
-                  <span>{ageRange}:</span>
-                  <span className="font-medium">{count}</span>
+                <div
+                  key={ageRange}
+                  className="hover:bg-muted/50 flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors"
+                >
+                  <span className="text-muted-foreground">{ageRange}</span>
+                  <span className="font-semibold">{count}</span>
                 </div>
               ))}
-            {Object.entries(stats.age_distribution).length > 4 && (
+            {Object.entries(stats.age_distribution).length > 2 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowAllAgeRanges(!showAllAgeRanges)}
-                className="mt-2 h-auto p-0 text-xs text-blue-600 hover:text-blue-800"
+                className="text-primary hover:bg-primary/10 hover:text-primary mt-1 h-7 px-2 text-xs font-medium"
               >
                 {showAllAgeRanges ? "Show Less" : "Show More"}
               </Button>

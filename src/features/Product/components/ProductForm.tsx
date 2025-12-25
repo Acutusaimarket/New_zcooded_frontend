@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload, X } from "lucide-react";
@@ -9,7 +9,6 @@ import ArrayObjectInput from "@/components/shared/array-object-input";
 import FromInput from "@/components/shared/form-input";
 import FormTextArea from "@/components/shared/form-text-area";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -52,6 +51,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ocrMutation = useOCRExtract();
@@ -84,22 +84,71 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const { control, handleSubmit, setValue } = form;
 
   // Handle image selection (multiple images)
-  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const newFiles = Array.from(files);
-      setSelectedImages((prev) => [...prev, ...newFiles]);
+  const handleImageSelect = useCallback((files: FileList | File[]) => {
+    const fileArray = Array.isArray(files) ? files : Array.from(files);
+    if (fileArray.length > 0) {
+      const newFiles = fileArray.filter((file) => {
+        // Validate file type
+        const isImage = file.type.startsWith("image/");
+        const isVideo = file.type.startsWith("video/");
+        if (!isImage && !isVideo) return false;
 
-      // Generate previews for new files
-      newFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setImagePreviews((prev) => [...prev, e.target?.result as string]);
-        };
-        reader.readAsDataURL(file);
+        // Check file size (10MB limit)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) return false;
+
+        return true;
       });
+
+      if (newFiles.length > 0) {
+        setSelectedImages((prev) => [...prev, ...newFiles]);
+
+        // Generate previews for new files
+        newFiles.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            setImagePreviews((prev) => [...prev, e.target?.result as string]);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+  }, []);
+
+  // Handle file input change
+  const handleFileInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.files) {
+      handleImageSelect(event.target.files);
     }
   };
+
+  // Handle drag and drop
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      if (e.dataTransfer.files) {
+        handleImageSelect(e.dataTransfer.files);
+      }
+    },
+    [handleImageSelect]
+  );
 
   // Handle OCR extraction
   const handleOCRExtract = async () => {
@@ -253,64 +302,108 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             {/* Upload Product Images for OCR - Moved to top */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Upload Product Images</h3>
-                <p className="text-muted-foreground text-sm">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Upload Product Images
+                </h3>
+                <p className="text-sm text-gray-500">
                   Upload multiple images to automatically extract product
                   information
                 </p>
               </div>
 
-              <Card className="border-2 border-dashed">
-                <CardContent className="p-6">
-                  {imagePreviews.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center space-y-4">
-                      <Upload className="text-muted-foreground h-12 w-12" />
-                      <div className="text-center">
-                        <p className="text-sm font-medium">
-                          Upload Product Images
-                        </p>
-                        <p className="text-muted-foreground text-xs">
-                          Click to select images or drag and drop (multiple
-                          files supported)
-                        </p>
-                      </div>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageSelect}
-                        className="hidden"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={ocrMutation.isPending}
-                      >
-                        Select Images
-                      </Button>
+              <div
+                className={`cursor-pointer rounded-lg border-2 border-dashed ${
+                  isDragging
+                    ? "border-[#0070f3] bg-[#d9ffe5]"
+                    : "border-[#0070f3]/50 bg-[#e6ffeF] hover:border-[#0070f3] hover:bg-[#d9ffe5]"
+                } p-10 transition-colors`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => {
+                  if (imagePreviews.length === 0) {
+                    fileInputRef.current?.click();
+                  }
+                }}
+              >
+                {imagePreviews.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#42bd00]/50 bg-white">
+                      <Upload className="h-7 w-7 text-[#42bd00]" />
                     </div>
-                  ) : (
+                    <div className="space-y-1 text-center">
+                      <p className="text-sm font-semibold text-gray-900">
+                        Drag & drop files or{" "}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            fileInputRef.current?.click();
+                          }}
+                          className="text-[#0070f3] underline hover:text-[#0051cc]"
+                        >
+                          Browse
+                        </button>
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        Upload images or videos to analyze. Supported formats:
+                        JPG, PNG, GIF, MP4, MOV, AVI (Max: 10MB per file)
+                      </p>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,video/*"
+                      multiple
+                      onChange={handleFileInputChange}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      disabled={ocrMutation.isPending}
+                      className="mt-2 rounded-full bg-[#42bd00] px-8 text-sm font-semibold text-white hover:bg-[#329600]"
+                    >
+                      Upload media
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
                     <div className="space-y-4">
                       {/* Image Grid */}
-                      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5">
                         {imagePreviews.map((preview, index) => (
-                          <div key={index} className="relative">
-                            <img
-                              src={preview}
-                              alt={`Product preview ${index + 1}`}
-                              className="h-24 w-full rounded-lg object-cover"
-                            />
+                          <div
+                            key={index}
+                            className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
+                          >
+                            <div className="aspect-square overflow-hidden">
+                              <img
+                                src={preview}
+                                alt={`Product preview ${index + 1}`}
+                                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                              />
+                            </div>
                             <Button
                               type="button"
                               variant="destructive"
                               size="sm"
-                              className="absolute top-1 right-1 h-6 w-6 p-0"
-                              onClick={() => removeSelectedImage(index)}
+                              className="absolute top-2 right-2 h-7 w-7 rounded-full p-0 opacity-0 shadow-md transition-opacity group-hover:opacity-100"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeSelectedImage(index);
+                              }}
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-4 w-4" />
                             </Button>
+                            <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 transition-opacity group-hover:opacity-100">
+                              <p className="truncate text-xs font-medium text-white">
+                                Image {index + 1}
+                              </p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -363,9 +456,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         </div>
                       )}
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Basic Information */}

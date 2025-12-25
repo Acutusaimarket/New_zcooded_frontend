@@ -34,19 +34,12 @@ export function CreditDisplay() {
     return "bg-[#42bd00]";
   };
 
-  const getUsageStatus = (percentage: number) => {
-    if (percentage >= 90) return { text: "Critical", color: "text-red-500" };
-    if (percentage >= 75) return { text: "Low", color: "text-orange-500" };
-    if (percentage >= 50) return { text: "Moderate", color: "text-amber-500" };
-    return { text: "Good", color: "text-[#42bd00]" };
-  };
-
   if (isLoading) {
     return (
-      <div className="border-sidebar-border bg-sidebar mx-2 space-y-3 rounded-lg border p-4 shadow-sm">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-2 w-full" />
-        <Skeleton className="h-4 w-32" />
+      <div className="border-sidebar-border bg-sidebar mx-2 space-y-2 rounded-lg border p-2 shadow-sm">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-1.5 w-full" />
+        <Skeleton className="h-3 w-28" />
       </div>
     );
   }
@@ -55,75 +48,46 @@ export function CreditDisplay() {
     return null;
   }
 
-  const isLowCredits = usagePercentage >= 75;
-  const status = getUsageStatus(usagePercentage);
+  const creditsConsumed = data.credits_consumed.toLocaleString(undefined, {
+    maximumFractionDigits: 0,
+  });
+  const totalCredits = data.total_credits.toLocaleString();
 
   return (
-    <div className="mx-2 space-y-2">
+    <div className="mx-2 space-y-2 sm:space-y-1.5">
       {/* Credit Calculator Button */}
       <Button
         onClick={handleCalculatorClick}
         variant="outline"
         size="sm"
-        className="h-7 w-full border border-[#42bd00]/30 bg-white/30 text-xs font-medium text-black backdrop-blur-sm hover:border-[#42bd00]/50 hover:bg-[#42bd00]/10"
+        className="flex h-7 w-full items-center justify-between border border-[#42bd00]/30 bg-white/30 text-[11px] font-medium text-black backdrop-blur-sm transition-all hover:border-[#42bd00]/50 hover:bg-[#42bd00]/10 sm:h-6 sm:text-[10px]"
       >
-        <Calculator className="h-3 w-3" />
-        Credit Calculator
+        <div className="flex items-center gap-1.5">
+          <Calculator className="h-3 w-3 sm:h-2.5 sm:w-2.5" />
+          <span>Credit Calculator</span>
+        </div>
+        <span className="text-[10px] font-semibold sm:text-[9px]">
+          {creditsConsumed}
+        </span>
       </Button>
 
       {/* Credits Card */}
-      <div
-        className={cn(
-          "group bg-background/30 border-border/20 relative overflow-hidden rounded-md border p-2.5 shadow-sm backdrop-blur-md transition-all",
-          isLowCredits &&
-            "from-sidebar border-orange-500/40 bg-gradient-to-br to-orange-500/5"
-        )}
-      >
-        {/* Header */}
-        <div className="mb-2 flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            {/* <div className="rounded-md bg-[#42BD00]/10 p-1.5">
-              <Coins className="h-4 w-4 text-[#42BD00]" />
-            </div> */}
-            {/* <div>
-              <h3 className="text-sidebar-foreground text-xs font-semibold">
-                Credits Balance
-              </h3>
-              <p className="text-sidebar-foreground/60 text-[10px]">
-                {status.text}
-              </p>
-            </div> */}
-          </div>
-          {isLowCredits && (
-            <span
-              className={cn(
-                "rounded-full px-1.5 py-0.5 text-[9px] font-semibold",
-                status.color,
-                "bg-orange-500/10"
-              )}
-            >
-              {status.text}
-            </span>
-          )}
-        </div>
-
+      <div className="group bg-background/30 border-border/20 relative overflow-hidden rounded-md border p-2 shadow-sm backdrop-blur-md transition-all sm:p-1.5">
         {/* Credit Amount Display */}
-        <div className="mb-2">
+        <div className="mb-2 sm:mb-1">
           <div className="flex items-baseline gap-1">
-            <span className="text-sidebar-foreground text-lg font-bold">
-              {data.credits_consumed.toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })}
+            <span className="text-sidebar-foreground text-base font-bold sm:text-sm">
+              {creditsConsumed}
             </span>
-            <span className="text-sidebar-foreground/50 text-[10px] font-medium">
-              / {data.total_credits.toLocaleString()}
+            <span className="text-sidebar-foreground/50 text-[10px] font-medium sm:text-[9px]">
+              / {totalCredits}
             </span>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-2 space-y-1">
-          <div className="flex items-center justify-between text-[9px]">
+        <div className="mb-2 space-y-1 sm:mb-1 sm:space-y-0.5">
+          <div className="flex items-center justify-between text-[9px] sm:text-[8px]">
             <span className="text-sidebar-foreground/70 font-medium">
               Usage
             </span>
@@ -131,7 +95,7 @@ export function CreditDisplay() {
               {usagePercentage.toFixed(1)}%
             </span>
           </div>
-          <div className="bg-sidebar-accent/50 relative h-1.5 w-full overflow-hidden rounded-full">
+          <div className="bg-sidebar-accent/50 relative h-1.5 w-full overflow-hidden rounded-full sm:h-1">
             <div
               className={cn(
                 "h-full rounded-full transition-all duration-500 ease-out",
@@ -146,9 +110,9 @@ export function CreditDisplay() {
         <Button
           onClick={handleAddCredits}
           size="sm"
-          className="h-7 w-full bg-[#000000] text-[10px] font-semibold text-white hover:bg-[#808080] hover:shadow-md"
+          className="h-7 w-full bg-[#000000] text-[10px] font-semibold text-white transition-all hover:bg-[#808080] hover:shadow-md sm:h-6 sm:text-[9px]"
         >
-          <Plus className="mr-1 h-3 w-3" />
+          <Plus className="mr-1 h-3 w-3 sm:h-2.5 sm:w-2.5" />
           Add Credits
         </Button>
       </div>

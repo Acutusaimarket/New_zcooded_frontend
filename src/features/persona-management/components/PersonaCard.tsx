@@ -109,12 +109,12 @@ export const PersonaCard = ({
   return (
     <Card
       className={cn(
-        "relative overflow-hidden rounded-lg border-2 transition-colors",
+        "relative overflow-hidden rounded-lg border-2 shadow-sm transition-all duration-200 hover:shadow-md",
         persona.status === "published" &&
-          "border-emerald-500 hover:border-emerald-500/50",
+          "border-emerald-500/50 hover:border-emerald-500",
         persona.status === "draft" &&
-          "border-amber-500 hover:border-yellow-500/50",
-        checked && "border-primary hover:border-primary/50"
+          "border-amber-500/50 hover:border-amber-500",
+        checked && "border-primary hover:border-primary/80"
       )}
       role="button"
       tabIndex={0}
@@ -159,7 +159,7 @@ export const PersonaCard = ({
                       variant="ghost"
                       size="icon"
                       disabled={disabledActionButton}
-                      className="size-6 rounded-full"
+                      className="hover:bg-muted/80 size-7 rounded-lg"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
@@ -220,7 +220,11 @@ export const PersonaCard = ({
           </div>
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 shadow-sm transition-all duration-200 hover:shadow-md"
+              >
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </Button>
@@ -235,7 +239,7 @@ export const PersonaCard = ({
                     variant="outline"
                     size="sm"
                     onClick={handleDownload}
-                    className="h-8"
+                    className="h-8 shadow-sm transition-all duration-200 hover:shadow-md"
                     disabled={isDownloading}
                   >
                     <Download className="mr-2 h-4 w-4" />

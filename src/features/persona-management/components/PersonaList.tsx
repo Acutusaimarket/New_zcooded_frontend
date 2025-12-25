@@ -1,23 +1,10 @@
 import { useCallback, useState } from "react";
 
-import {
-  ChevronDown,
-  CloudIcon,
-  FileUpIcon,
-  PlusIcon,
-  TrashIcon,
-  UploadIcon,
-} from "lucide-react";
+import { CloudIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { LoadingSwap } from "@/components/shared/loading-swap";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Pagination,
   PaginationContent,
@@ -239,27 +226,11 @@ export const PersonaList = () => {
         <div className="flex gap-2">
           <Button
             onClick={() => setQueryState({ create_persona_dialog: true })}
+            className="shadow-sm transition-all duration-200 hover:shadow-md"
           >
             <PlusIcon className="mr-2 h-4 w-4" />
             Create Persona
           </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-1">
-                <UploadIcon className="h-4 w-4" /> Import Persona{" "}
-                <ChevronDown className="ml-1 h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <UploadIcon className="mr-2 h-4 w-4" /> Import JSON
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FileUpIcon className="mr-2 h-4 w-4" /> Upload Data
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
       {/* Filters */}
@@ -269,29 +240,30 @@ export const PersonaList = () => {
 
       {/* persona select action */}
       {selectedPersonasIds.length > 0 && (
-        <div className="fixed bottom-2 left-1/2 z-50 flex max-w-3xl items-center justify-center gap-4">
+        <div className="bg-background fixed bottom-4 left-1/2 z-50 flex max-w-3xl items-center justify-center gap-3 rounded-lg border p-3 shadow-lg">
           <Button
             variant={"destructive"}
             onClick={handleDeleteSelectedPersonas}
+            className="shadow-sm transition-all duration-200 hover:shadow-md"
           >
             <LoadingSwap
               className="flex items-center justify-center gap-1"
               isLoading={bulkDeleteMutation.isPending}
             >
-              <TrashIcon />
+              <TrashIcon className="h-4 w-4" />
               Delete Selected ({selectedPersonasIds.length})
             </LoadingSwap>
           </Button>
           <Button
             onClick={handleSavePersona}
             disabled={bulkPersonaUpdateMutation.isPending}
-            className="bg-emerald-600 text-emerald-50 hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-emerald-600 text-emerald-50 shadow-sm transition-all duration-200 hover:bg-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
           >
             <LoadingSwap
               className="flex items-center justify-center gap-1"
               isLoading={bulkPersonaUpdateMutation.isPending}
             >
-              <CloudIcon />
+              <CloudIcon className="h-4 w-4" />
               Publish Selected ({selectedPersonasIds.length})
             </LoadingSwap>
           </Button>

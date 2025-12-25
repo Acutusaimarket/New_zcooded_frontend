@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
-// import { Label } from "@/components/ui/label";
-import { Check, CheckCircle, Package, Search } from "lucide-react";
+import { Check, CheckCircle, Package, Search, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,10 +36,12 @@ export const ProductSelectionStep: React.FC<ProductSelectionStepProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="space-y-2 text-center">
-          <div className="border-primary mx-auto h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading products...</p>
+      <div className="flex items-center justify-center py-12">
+        <div className="space-y-3 text-center">
+          <div className="border-primary mx-auto h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"></div>
+          <p className="text-muted-foreground text-sm font-medium">
+            Loading products...
+          </p>
         </div>
       </div>
     );
@@ -48,8 +49,8 @@ export const ProductSelectionStep: React.FC<ProductSelectionStepProps> = ({
 
   if (error) {
     return (
-      <div className="py-8 text-center">
-        <p className="text-destructive">
+      <div className="py-12 text-center">
+        <p className="text-destructive text-sm font-medium">
           Failed to load products. Please try again.
         </p>
       </div>
@@ -58,153 +59,216 @@ export const ProductSelectionStep: React.FC<ProductSelectionStepProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
+      {/* Search Section */}
+      <div className="relative max-w-lg">
+        <Search className="text-muted-foreground absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2" />
         <Input
-          placeholder="Search products..."
+          placeholder="Search products by name, type, or description..."
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
-          className="pl-10"
+          className="h-11 pr-4 pl-11 text-sm shadow-sm transition-all focus:shadow-md"
         />
       </div>
 
       {/* Selected Product Info */}
       {selectedProduct && (
-        <div className="bg-primary/5 flex items-center space-x-2 rounded-lg border p-3">
-          <CheckCircle className="text-primary h-5 w-5" />
-          <span className="text-sm font-medium">
-            Product selected for simulation
-          </span>
+        <div className="bg-primary/10 border-primary/20 flex items-center gap-3 rounded-lg border px-4 py-3 shadow-sm">
+          <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+            <CheckCircle className="text-primary h-4 w-4" />
+          </div>
+          <div className="flex-1">
+            <p className="text-primary text-sm font-semibold">
+              Product Selected
+            </p>
+            <p className="text-muted-foreground text-xs">
+              Ready to proceed with simulation
+            </p>
+          </div>
         </div>
       )}
 
       {/* Products List */}
-      <div className="space-y-4">
-        {productData?.items?.map((product) => (
-          <Card
-            key={product._id}
-            className={`cursor-pointer transition-all hover:shadow-md ${
-              selectedProduct === product._id
-                ? "ring-primary bg-primary/5 ring-2"
-                : "hover:bg-muted/50"
-            }`}
-            onClick={() => onProductChange(product._id)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start space-x-4">
-                <div className="mt-1">
-                  <div
-                    className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                      selectedProduct === product._id
-                        ? "border-primary bg-primary"
-                        : "border-muted-foreground"
-                    }`}
-                  >
-                    {selectedProduct === product._id && (
-                      <Check className="text-primary-foreground h-2.5 w-2.5" />
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="cursor-pointer text-lg font-semibold">
-                        {product.name}
+      <div className="space-y-3">
+        {productData?.items?.map((product) => {
+          const isSelected = selectedProduct === product._id;
+          return (
+            <Card
+              key={product._id}
+              className={`group relative cursor-pointer overflow-hidden border transition-all duration-200 ${
+                isSelected
+                  ? "border-primary bg-primary/5 ring-primary/20 shadow-lg ring-2"
+                  : "border-border bg-card hover:border-primary/30 hover:shadow-md"
+              }`}
+              onClick={() => onProductChange(product._id)}
+            >
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
+                  {/* Product Image or Icon */}
+                  <div className="relative flex-shrink-0">
+                    {product.images && product.images.length > 0 ? (
+                      <div className="border-border bg-muted relative h-20 w-20 overflow-hidden rounded-lg border-2">
+                        <img
+                          src={product.images[0]}
+                          alt={product.name || "Product"}
+                          className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        />
                       </div>
-                      <p className="text-muted-foreground mt-1 text-sm">
-                        {product.description}
-                      </p>
-                    </div>
-
-                    {product.price && (
-                      <Badge variant="secondary" className="ml-2">
-                        {product.price} {product.currency || "INR"}
-                      </Badge>
+                    ) : (
+                      <div className="bg-muted border-border flex h-20 w-20 items-center justify-center rounded-lg border-2">
+                        <Package className="text-muted-foreground h-8 w-8" />
+                      </div>
+                    )}
+                    {/* Selection Indicator Overlay */}
+                    {isSelected && (
+                      <div className="bg-primary border-background absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 shadow-md">
+                        <Check className="text-primary-foreground h-3.5 w-3.5" />
+                      </div>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-                    <div>
-                      <span className="text-muted-foreground font-medium">
-                        Type:
-                      </span>
-                      <p className="capitalize">
-                        {product.product_type || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground font-medium">
-                        Country:
-                      </span>
-                      <p>{product.country || "N/A"}</p>
-                    </div>
-                  </div>
-
-                  {product.features && product.features.length > 0 && (
-                    <div>
-                      <span className="text-muted-foreground text-sm font-medium">
-                        Features:
-                      </span>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {product.features.slice(0, 5).map((feature, index) => (
-                          <Badge
-                            key={index}
-                            variant="outline"
-                            className="text-xs"
+                  {/* Product Details */}
+                  <div className="flex flex-1 flex-col gap-3">
+                    {/* Header Section */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h3
+                            className={`text-base leading-tight font-semibold ${
+                              isSelected ? "text-primary" : "text-foreground"
+                            }`}
                           >
-                            {feature}
-                          </Badge>
-                        ))}
-                        {product.features.length > 5 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{product.features.length - 5} more
-                          </Badge>
+                            {product.name || "Unnamed Product"}
+                          </h3>
+                          {isSelected && (
+                            <Sparkles className="text-primary h-4 w-4" />
+                          )}
+                        </div>
+                        {product.description && (
+                          <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
+                            {product.description}
+                          </p>
                         )}
                       </div>
+                      {product.price && (
+                        <div className="flex-shrink-0 text-right">
+                          <Badge
+                            variant={isSelected ? "default" : "secondary"}
+                            className="text-xs font-semibold"
+                          >
+                            {product.price} {product.currency || "INR"}
+                          </Badge>
+                        </div>
+                      )}
                     </div>
-                  )}
 
-                  {product.specification &&
-                    Object.keys(product.specification).length > 0 && (
-                      <div>
-                        <span className="text-muted-foreground text-sm font-medium">
-                          Specifications:
+                    {/* Metadata Grid */}
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-4">
+                      {product.product_type && (
+                        <div className="space-y-0.5">
+                          <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                            Type
+                          </span>
+                          <p className="text-foreground font-medium capitalize">
+                            {product.product_type}
+                          </p>
+                        </div>
+                      )}
+                      {product.country && (
+                        <div className="space-y-0.5">
+                          <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                            Country
+                          </span>
+                          <p className="text-foreground font-medium">
+                            {product.country}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Features */}
+                    {product.features && product.features.length > 0 && (
+                      <div className="space-y-2">
+                        <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+                          Key Features
                         </span>
-                        <div className="mt-1 grid grid-cols-2 gap-2 text-xs">
-                          {Object.entries(product.specification)
+                        <div className="flex flex-wrap gap-1.5">
+                          {product.features
                             .slice(0, 4)
-                            .map(([key, value]) => (
-                              <div key={key} className="flex justify-between">
-                                <span className="text-muted-foreground">
-                                  {key}:
-                                </span>
-                                <span>{String(value)}</span>
-                              </div>
+                            .map((feature, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="text-xs font-normal"
+                              >
+                                {feature}
+                              </Badge>
                             ))}
+                          {product.features.length > 4 && (
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-normal"
+                            >
+                              +{product.features.length - 4} more
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     )}
+
+                    {/* Specifications */}
+                    {product.specification &&
+                      Object.keys(product.specification).length > 0 && (
+                        <div className="space-y-2">
+                          <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+                            Specifications
+                          </span>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                            {Object.entries(product.specification)
+                              .slice(0, 4)
+                              .map(([key, value]) => (
+                                <div
+                                  key={key}
+                                  className="border-border/50 flex items-center justify-between border-b pb-1"
+                                >
+                                  <span className="text-muted-foreground capitalize">
+                                    {key}:
+                                  </span>
+                                  <span className="text-foreground font-medium">
+                                    {String(value)}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
+      {/* Empty State */}
       {productData?.items?.length === 0 && (
-        <div className="py-8 text-center">
-          <Package className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-          <p className="text-muted-foreground">
-            No products found matching your criteria.
+        <div className="py-16 text-center">
+          <div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+            <Package className="text-muted-foreground h-8 w-8" />
+          </div>
+          <h3 className="text-foreground mb-2 text-base font-semibold">
+            No products found
+          </h3>
+          <p className="text-muted-foreground text-sm">
+            {searchTerm
+              ? "Try adjusting your search criteria"
+              : "No products available at the moment"}
           </p>
         </div>
       )}
 
       {/* Pagination */}
       {productData?.pagination && productData.pagination.total_pages > 1 && (
-        <div className="flex justify-center space-x-2">
+        <div className="flex items-center justify-center gap-3 border-t pt-6">
           <Button
             variant="outline"
             size="sm"
@@ -212,13 +276,19 @@ export const ProductSelectionStep: React.FC<ProductSelectionStepProps> = ({
             onClick={() =>
               setFilters((prev) => ({ ...prev, page: (prev?.page || 1) - 1 }))
             }
+            className="min-w-[100px]"
           >
             Previous
           </Button>
-          <span className="text-muted-foreground flex items-center px-3 text-sm">
-            Page {productData.pagination.page} of{" "}
-            {productData.pagination.total_pages}
-          </span>
+          <div className="text-muted-foreground flex items-center gap-2 px-4 text-sm">
+            <span className="font-medium">
+              Page {productData.pagination.page}
+            </span>
+            <span>of</span>
+            <span className="font-medium">
+              {productData.pagination.total_pages}
+            </span>
+          </div>
           <Button
             variant="outline"
             size="sm"
@@ -226,6 +296,7 @@ export const ProductSelectionStep: React.FC<ProductSelectionStepProps> = ({
             onClick={() =>
               setFilters((prev) => ({ ...prev, page: (prev?.page || 1) + 1 }))
             }
+            className="min-w-[100px]"
           >
             Next
           </Button>

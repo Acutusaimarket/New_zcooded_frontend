@@ -1,10 +1,10 @@
-import { Component, useEffect, type ReactNode } from "react";
+import { Component, type ReactNode, useEffect } from "react";
+
+import { AlertCircle } from "lucide-react";
 import { useParams } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import { MediaSimulationDashboard } from "@/features/media-simulation/containers/MediaSimulationDashboard";
 
 // Error Boundary Component
@@ -28,15 +28,15 @@ class ErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen items-center justify-center bg-background p-4">
-          <Alert className="max-w-2xl border-destructive">
+        <div className="bg-background flex min-h-screen items-center justify-center p-4">
+          <Alert className="border-destructive max-w-2xl">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              <h2 className="font-semibold mb-2">Error rendering simulation</h2>
-              <p className="text-sm mb-2">
+              <h2 className="mb-2 font-semibold">Error rendering simulation</h2>
+              <p className="mb-2 text-sm">
                 {this.state.error?.message || "An unexpected error occurred"}
               </p>
-              <p className="text-xs text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-xs">
                 Simulation ID: {this.props.simulationId}
               </p>
               <Button
@@ -71,7 +71,7 @@ export default function MediaSimulationDetailsPage() {
 
   if (!id) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="bg-background flex min-h-screen items-center justify-center p-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">
             Invalid Simulation ID
@@ -86,9 +86,7 @@ export default function MediaSimulationDetailsPage() {
 
   return (
     <ErrorBoundary simulationId={id}>
-      <div className="bg-background min-h-screen">
-        <MediaSimulationDashboard simulationId={id} />
-      </div>
+      <MediaSimulationDashboard simulationId={id} />
     </ErrorBoundary>
   );
 }

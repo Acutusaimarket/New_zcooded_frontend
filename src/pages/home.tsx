@@ -4,9 +4,11 @@ import {
   ArrowRight,
   Check,
   ChevronDown,
+  Coins,
   Eye,
   Menu,
   RefreshCw,
+  Search,
   Shield,
   Target,
   TrendingUp,
@@ -21,7 +23,11 @@ import { Button } from "@/components/ui/button";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { data: subscriptionData, isLoading: isLoadingPlans, error: plansError } = useSubscriptionDetailsQuery();
+  const {
+    data: subscriptionData,
+    isLoading: isLoadingPlans,
+    error: plansError,
+  } = useSubscriptionDetailsQuery();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedStep, setExpandedStep] = useState<number | null>(0);
   const [selectedAudience, setSelectedAudience] = useState<
@@ -641,36 +647,37 @@ const HomePage = () => {
               Choose Your <span className="text-[#42BD00]">Plan</span>
             </h2>
             <p className="mx-auto max-w-3xl px-2 text-base leading-relaxed text-gray-700 sm:px-0 sm:text-lg">
-              Select the perfect plan for your business needs
+              Select the perfect plan for your needs. All plans include our core
+              features with varying limits and capabilities.
             </p>
           </div>
 
-        <div className="mb-8 flex justify-center">
-          <div className="inline-flex items-center gap-1 rounded-full bg-gray-100 p-1">
-            <button
-              type="button"
-              onClick={() => setBillingCycle("monthly")}
-              className={`rounded-full px-4 py-1 text-xs font-medium transition-colors sm:text-sm ${
-                billingCycle === "monthly"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-800"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              type="button"
-              onClick={() => setBillingCycle("yearly")}
-              className={`rounded-full px-4 py-1 text-xs font-medium transition-colors sm:text-sm ${
-                billingCycle === "yearly"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-800"
-              }`}
-            >
-              Yearly
-            </button>
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex items-center gap-1 rounded-full bg-gray-100 p-1">
+              <button
+                type="button"
+                onClick={() => setBillingCycle("monthly")}
+                className={`rounded-full px-4 py-1 text-xs font-medium transition-colors sm:text-sm ${
+                  billingCycle === "monthly"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingCycle("yearly")}
+                className={`rounded-full px-4 py-1 text-xs font-medium transition-colors sm:text-sm ${
+                  billingCycle === "yearly"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                Yearly
+              </button>
+            </div>
           </div>
-        </div>
 
           {isLoadingPlans ? (
             <div className="flex items-center justify-center py-12">
@@ -688,7 +695,7 @@ const HomePage = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {subscriptionData?.data?.map((plan, index) => {
                 // Prefer INR pricing for display on the marketing page
                 const inrPricing = plan.pricing.find(
@@ -700,10 +707,10 @@ const HomePage = () => {
                   billingCycle === "monthly" ? monthlyPrice : yearlyPrice;
                 const monthlyFromYearly =
                   yearlyPrice > 0 ? Math.round(yearlyPrice / 12) : 0;
-                
+
                 // Determine if this is the popular plan (Pro plan)
                 const isPopular = plan.plan_type === "pro";
-                
+
                 // Get description and greatFor based on plan type
                 const getDescription = () => {
                   switch (plan.plan_type) {
@@ -719,7 +726,7 @@ const HomePage = () => {
                       return "";
                   }
                 };
-                
+
                 const getGreatFor = () => {
                   switch (plan.plan_type) {
                     case "free":
@@ -736,122 +743,144 @@ const HomePage = () => {
                 };
 
                 return (
-              <div
-                key={index}
-                className={`relative rounded-2xl border-2 bg-white p-6 shadow-lg transition-all hover:shadow-xl ${
-                  isPopular
-                    ? "border-[#42bd00] ring-2 ring-[#42bd0033]"
-                    : "border-gray-200"
-                }`}
-              >
-                {isPopular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="rounded-full bg-[#42bd00] px-4 py-1 text-xs font-semibold text-white">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-
-                <div className="mb-6">
-                  <h3 className="mb-2 text-2xl font-bold text-gray-900">
-                    {plan.name}
-                  </h3>
-                  <p className="mb-3 text-sm text-gray-600">
-                    {getDescription()}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Great for: {getGreatFor()}
-                  </p>
-                </div>
-
-                {plan.plan_type !== "free" && (
-                  <div className="mb-6 space-y-2">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-gray-900">
-                        {activePrice === 0 ? "Custom" : `₹${activePrice}`}
-                      </span>
-                      {activePrice > 0 && (
-                        <span className="text-sm text-gray-500">
-                          {billingCycle === "monthly" ? "/mo*" : "/yr*"}
+                  <div
+                    key={index}
+                    className={`relative rounded-2xl border-2 p-6 shadow-lg transition-all hover:shadow-xl ${
+                      isPopular
+                        ? "border-[#42bd00] bg-[#F0F7ED]"
+                        : "border-gray-200 bg-white"
+                    }`}
+                  >
+                    {isPopular && (
+                      <div className="absolute -top-3 right-4">
+                        <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-semibold text-white">
+                          Most popular
                         </span>
-                      )}
+                      </div>
+                    )}
+
+                    <div className="mb-6">
+                      <h3 className="mb-2 text-2xl font-bold text-gray-900">
+                        {plan.name}
+                      </h3>
+                      <p className="mb-4 text-sm text-gray-600">
+                        {getDescription()}
+                      </p>
                     </div>
-                    {billingCycle === "yearly" && yearlyPrice > 0 && (
-                      <div className="text-sm text-gray-600">
-                        ≈ ₹{monthlyFromYearly}/mo (billed yearly)
+
+                    {plan.plan_type !== "free" && (
+                      <div className="mb-6 space-y-2">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl font-bold text-gray-900">
+                            {activePrice === 0
+                              ? "Custom"
+                              : `₹${activePrice.toLocaleString()}`}
+                          </span>
+                          {activePrice > 0 && (
+                            <span className="text-sm text-gray-500">
+                              {billingCycle === "monthly" ? "/mo*" : "/yr*"}
+                            </span>
+                          )}
+                        </div>
+                        {billingCycle === "monthly" &&
+                          yearlyPrice > 0 &&
+                          monthlyFromYearly > 0 && (
+                            <div className="text-sm text-gray-600">
+                              ≈ ₹{monthlyFromYearly.toLocaleString()}/mo (billed
+                              yearly)
+                            </div>
+                          )}
+                        {billingCycle === "yearly" &&
+                          yearlyPrice > 0 &&
+                          monthlyFromYearly > 0 && (
+                            <div className="text-sm text-gray-600">
+                              ≈ ₹{monthlyFromYearly.toLocaleString()}/mo (billed
+                              yearly)
+                            </div>
+                          )}
                       </div>
                     )}
-                    {billingCycle === "monthly" && activePrice > 0 && (
-                      <div className="text-sm text-gray-600">
-                        <span className="line-through">
-                          ₹{Math.round(activePrice * 1.2)}
-                        </span>{" "}
-                        <span className="text-green-600">
-                          Save ₹{Math.round(activePrice * 0.2 * 12)}/year
-                        </span>
+
+                    <div className="mb-6 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+                          <Coins className="h-5 w-5 text-gray-700" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-500">
+                            Credits
+                          </p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {plan.credits === 999999
+                              ? "Tailored Your Need"
+                              : `${plan.credits.toLocaleString()}/mo`}
+                          </p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                )}
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+                          <Users className="h-5 w-5 text-gray-700" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-500">
+                            Max users
+                          </p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {plan.max_users === 999999
+                              ? "Tailored Your Need"
+                              : plan.max_users}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+                          <Search className="h-5 w-5 text-gray-700" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-500">
+                            Great for
+                          </p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {getGreatFor()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-                <div className="mb-6 space-y-3">
-                  <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                    <span className="text-sm font-medium text-gray-700">
-                      Credits
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {plan.credits === 999999
-                        ? "Tailored Your Need"
-                        : `${plan.credits.toLocaleString()}/mo`}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                    <span className="text-sm font-medium text-gray-700">
-                      Max Users
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900">
-                      {plan.max_users === 999999
-                        ? "Tailored Your Need"
-                        : plan.max_users}
-                    </span>
-                  </div>
-                </div>
+                    <div className="mb-6 space-y-2">
+                      <ul className="space-y-2">
+                        {plan.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#42BD00]" />
+                            <span className="text-xs text-gray-700">
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-                <div className="mb-6 space-y-2">
-                  <h4 className="text-sm font-semibold text-gray-900">
-                    Features:
-                  </h4>
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
-                        <span className="text-xs text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <Button
-                  onClick={() => {
-                    if (plan.plan_type === "enterprise") {
-                      scrollToForm();
-                    } else {
-                      navigate(`/signup?plan_id=${plan._id}`);
-                    }
-                  }}
-                  className={`w-full ${
-                    isPopular
-                      ? "bg-[#42bd00] text-white hover:bg-[#329600]"
-                      : "border-2 border-[#42bd00] bg-white text-[#42bd00] hover:bg-[#42bd0010]"
-                  }`}
-                >
-                  {plan.plan_type === "enterprise"
-                    ? "Contact Sale"
-                    : plan.plan_type === "free"
-                      ? "Try it free"
-                      : "Get Started"}
-                </Button>
-              </div>
+                    <Button
+                      onClick={() => {
+                        if (plan.plan_type === "enterprise") {
+                          scrollToForm();
+                        } else {
+                          navigate(`/signup?plan_id=${plan._id}`);
+                        }
+                      }}
+                      className={`w-full ${
+                        isPopular
+                          ? "bg-[#42bd00] text-white hover:bg-[#329600]"
+                          : "border-2 border-[#42bd00] bg-white text-[#42bd00] hover:bg-[#42bd0010]"
+                      }`}
+                    >
+                      {plan.plan_type === "enterprise"
+                        ? "Contact Sale"
+                        : plan.plan_type === "free"
+                          ? "Try it free"
+                          : "Get Started"}
+                    </Button>
+                  </div>
                 );
               })}
             </div>

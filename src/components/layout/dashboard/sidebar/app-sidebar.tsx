@@ -62,11 +62,6 @@ export function DashboardSidebar({
   return (
     <>
       <Sidebar variant="inset" {...props}>
-        <img
-          src={sidebarProp}
-          className="absolute right-0 bottom-0 z-1"
-          alt="sidebarProp"
-        />
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -98,8 +93,17 @@ export function DashboardSidebar({
             </div>
           </NavWithExpandableSubmenu>
         </SidebarContent>
-        <SidebarFooter className="z-10">
-          <NavUser />
+        <SidebarFooter className="relative z-10">
+          <div
+            className="pointer-events-none absolute inset-0 rounded-lg bg-center bg-no-repeat opacity-50"
+            style={{
+              backgroundImage: `url(${sidebarProp})`,
+              backgroundSize: "120%",
+            }}
+          />
+          <div className="relative z-10">
+            <NavUser />
+          </div>
         </SidebarFooter>
       </Sidebar>
     </>

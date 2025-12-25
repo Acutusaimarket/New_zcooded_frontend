@@ -11,25 +11,31 @@ import { PersonaEngineProvider } from "@/features/persona-engine/context/persona
 const PersonaEnginePage = () => {
   const [activeTab, setActiveTab] = useQueryState(
     "tab",
-    parseAsStringEnum(["upload-data", "history", "create-persona"]).withDefault("upload-data")
+    parseAsStringEnum(["upload-data", "history", "create-persona"]).withDefault(
+      "upload-data"
+    )
   );
   const [historyTab, setHistoryTab] = useQueryState(
     "history-tab",
-    parseAsStringEnum(["active", "completed", "failed", "pending"]).withDefault("active")
+    parseAsStringEnum(["active", "completed", "failed", "pending"]).withDefault(
+      "active"
+    )
   );
 
   return (
     <div className="container mx-auto space-y-6">
       {/* Header Section */}
-      <div className="mt-4 space-y-1">
-        <h1 className="text-primary text-3xl font-bold tracking-tight">
-          Persona Engine
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Upload your data files to automatically generate detailed personas
-          based on your audience insights and behavioral patterns.
-        </p>
-      </div>
+      {activeTab !== "history" && (
+        <div className="mt-4 space-y-1">
+          <h1 className="text-primary text-3xl font-bold tracking-tight">
+            Persona Engine
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Upload your data files to automatically generate detailed personas
+            based on your audience insights and behavioral patterns.
+          </p>
+        </div>
+      )}
       <Tabs
         onValueChange={(value) =>
           setActiveTab(value as "upload-data" | "history" | "create-persona")
@@ -64,7 +70,9 @@ const PersonaEnginePage = () => {
         </TabsContent>
         <TabsContent value="history">
           <PersonaHistory
-            activeTab={historyTab as "active" | "completed" | "failed" | "pending"}
+            activeTab={
+              historyTab as "active" | "completed" | "failed" | "pending"
+            }
             onTabChange={(tab) => setHistoryTab(tab)}
           />
         </TabsContent>

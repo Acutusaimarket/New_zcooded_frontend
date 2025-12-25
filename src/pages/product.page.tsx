@@ -4,7 +4,7 @@ import { ProductManagementComponent } from "@/features/Product/ProductManagement
 
 export const ProductPage: React.FC = () => {
   return (
-    <div className="container mx-auto p-6">
+    <div className="space-y-6">
       <ProductManagementComponent />
     </div>
   );

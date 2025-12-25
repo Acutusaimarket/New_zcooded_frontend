@@ -115,10 +115,10 @@ export default function PersonaChatSession() {
   return (
     <div className="">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3">
-        <Button asChild size={"sm"}>
+      <header className="flex items-center justify-between px-6 py-4">
+        <Button asChild size={"sm"} variant="ghost" className="gap-2">
           <Link to="/dashboard/persona-studio">
-            <ChevronLeftIcon />
+            <ChevronLeftIcon className="h-4 w-4" />
             Back to Persona Studio
           </Link>
         </Button>
@@ -136,11 +136,11 @@ export default function PersonaChatSession() {
 
           {/* Input Area */}
           <form onSubmit={handleCreateSession}>
-            <InputGroup className="rounded-full shadow-xl focus-within:shadow-lg">
+            <InputGroup className="rounded-full shadow-lg transition-shadow focus-within:shadow-xl">
               <InputGroupAddon align="inline-start">
                 <InputGroupButton
                   variant="ghost"
-                  className="cursor-pointer rounded-full disabled:cursor-not-allowed"
+                  className="hover:bg-muted/50 cursor-pointer rounded-full disabled:cursor-not-allowed"
                   size="icon-sm"
                   disabled={sessionCreateMutation.isPending}
                   type="button"
@@ -191,9 +191,9 @@ export default function PersonaChatSession() {
                 </DropdownMenu>
                 <InputGroupButton
                   variant="default"
-                  className="cursor-pointer rounded-full disabled:cursor-not-allowed"
+                  className="cursor-pointer rounded-full disabled:cursor-not-allowed disabled:opacity-50"
                   size="icon-sm"
-                  disabled={!message.trim()}
+                  disabled={!message.trim() || sessionCreateMutation.isPending}
                   type="submit"
                 >
                   <LoadingSwap isLoading={sessionCreateMutation.isPending}>
@@ -222,19 +222,19 @@ export default function PersonaChatSession() {
                     <Link
                       key={chat._id}
                       to={`/dashboard/persona-studio/chat/${chat._id}`}
-                      className="hover:bg-accent group border-border bg-card flex items-center gap-3 rounded-full border px-4 py-3 shadow-sm transition-all hover:shadow-md"
+                      className="hover:bg-accent group border-border bg-card hover:border-border/80 flex items-center gap-3 rounded-lg border px-4 py-3 shadow-sm transition-all duration-200 hover:shadow-md"
                     >
-                      <div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-full">
+                      <div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-lg">
                         <MessageSquareIcon className="size-4" />
                       </div>
                       <span
-                        className="flex-1 truncate text-sm"
+                        className="flex-1 truncate text-sm font-medium"
                         title={chat.name}
                       >
                         {chat.name}
                       </span>
-                      <div className="bg-foreground flex shrink-0 items-center justify-center rounded-full p-2 transition-transform group-hover:translate-x-0.5">
-                        <ArrowRightIcon className="text-background size-4" />
+                      <div className="bg-foreground flex shrink-0 items-center justify-center rounded-lg p-1.5 transition-transform group-hover:translate-x-0.5">
+                        <ArrowRightIcon className="text-background size-3.5" />
                       </div>
                     </Link>
                   ))}
@@ -245,7 +245,7 @@ export default function PersonaChatSession() {
                       variant="outline"
                       onClick={handleLoadMore}
                       disabled={isFetchingNextPage}
-                      className="w-full"
+                      className="mt-2 w-full"
                     >
                       {isFetchingNextPage ? (
                         <>

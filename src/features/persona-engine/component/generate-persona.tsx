@@ -131,9 +131,11 @@ const GeneratePersona = ({ onGenerationSuccess }: GeneratePersonaProps) => {
             }}
             content={isCollapsed ? "Click to close" : "Click to open"}
           >
-            <CollapsibleTrigger className="hover:bg-muted/50 hover:ring-muted flex w-full cursor-pointer items-start justify-between space-y-1.5 p-6 pb-3 transition-[border,color] hover:rounded-md hover:ring-2">
+            <CollapsibleTrigger className="hover:bg-muted/50 flex w-full cursor-pointer items-start justify-between space-y-1.5 p-6 pb-3 transition-all duration-200 hover:rounded-md">
               <CardHeader className="w-fit items-start p-0">
-                <CardTitle>Generate Persona</CardTitle>
+                <CardTitle className="text-lg font-semibold">
+                  Generate Persona
+                </CardTitle>
                 <p className="text-muted-foreground text-sm">
                   Click the button below to generate personas based on your
                   uploaded data.
@@ -226,7 +228,7 @@ const GeneratePersona = ({ onGenerationSuccess }: GeneratePersonaProps) => {
                   /> */}
 
                   <Button
-                    className="w-full"
+                    className="w-full shadow-sm transition-all duration-200 hover:shadow-md"
                     type="submit"
                     disabled={generatePersonaMutation.isPending}
                   >

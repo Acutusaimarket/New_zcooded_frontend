@@ -141,19 +141,21 @@ export const SimulationWizard: React.FC = () => {
   }, [currentStep, formData, runSimulationMutation.isPending]);
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      <div className="space-y-2 text-start">
-        <h1 className="text-3xl font-bold">Market Fit Simulation</h1>
-        <p className="text-muted-foreground">
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-foreground text-3xl font-bold tracking-tight">
+          Market Fit Simulation
+        </h1>
+        <p className="text-muted-foreground text-sm">
           Configure and run simulations to understand how different personas
           interact with your products
         </p>
       </div>
 
       {/* Progress Steps */}
-      <Card>
+      <Card className="border-border/50 shadow-sm">
         <CardContent className="p-6">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
             {steps.map((step, index) => {
               const isCompleted = isStepCompleted(index);
               const isActive = index === currentStep;
@@ -163,30 +165,38 @@ export const SimulationWizard: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors",
                         {
                           "bg-[#42bd00] text-white": isCompleted || isActive,
-                          "bg-gray-200 text-gray-600": !isCompleted && !isActive,
+                          "bg-muted text-muted-foreground":
+                            !isCompleted && !isActive,
                         }
                       )}
                     >
                       {isCompleted && index !== currentStep ? (
                         <Check className="h-5 w-5" />
                       ) : (
-                        <span className="text-sm font-semibold">{index + 1}</span>
+                        <span className="text-sm font-semibold">
+                          {index + 1}
+                        </span>
                       )}
                     </div>
-                    <span
-                      className={cn("text-sm font-medium", {
-                        "text-[#42bd00]": isCompleted || isActive,
-                        "text-gray-600": !isCompleted && !isActive,
-                      })}
-                    >
-                      {step.title}
-                    </span>
+                    <div className="flex flex-col">
+                      <span
+                        className={cn("text-sm font-medium", {
+                          "text-[#42bd00]": isCompleted || isActive,
+                          "text-muted-foreground": !isCompleted && !isActive,
+                        })}
+                      >
+                        {step.title}
+                      </span>
+                      <span className="text-muted-foreground hidden text-xs sm:block">
+                        {step.description}
+                      </span>
+                    </div>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className="flex-1 h-0.5 bg-gray-200" />
+                    <div className="bg-border hidden h-0.5 flex-1 sm:block" />
                   )}
                 </React.Fragment>
               );
@@ -196,27 +206,27 @@ export const SimulationWizard: React.FC = () => {
       </Card>
 
       {/* Step Content */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>{steps[currentStep].title}</span>
-            <Badge variant="outline">
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-xl">{steps[currentStep].title}</span>
+            <Badge variant="outline" className="w-fit">
               Step {currentStep + 1} of {steps.length}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent>{renderStepContent}</CardContent>
+        <CardContent className="pt-0">{renderStepContent}</CardContent>
       </Card>
 
       {/* Navigation */}
-      <div className="flex justify-between">
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <Button
           variant="outline"
           onClick={prevStep}
           disabled={currentStep === 0}
-          className="flex items-center space-x-2"
+          className="w-full sm:w-auto"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           <span>Previous</span>
         </Button>
 
@@ -224,10 +234,10 @@ export const SimulationWizard: React.FC = () => {
           <Button
             onClick={nextStep}
             disabled={!canProceed()}
-            className="flex items-center space-x-2 bg-[#42bd00] hover:bg-[#329600]"
+            className="w-full bg-[#42bd00] hover:bg-[#329600] sm:w-auto"
           >
             <span>Next</span>
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : null}
       </div>

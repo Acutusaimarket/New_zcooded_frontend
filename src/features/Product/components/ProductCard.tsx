@@ -5,7 +5,7 @@ import { Link } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 
 import type { ProductDocument } from "../types";
 
@@ -112,14 +112,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   size="sm"
                   variant="outline"
                   onClick={() => onCreateVariant(product)}
+                  className="h-8 px-3 text-xs"
                 >
-                  <Plus className="mr-1 h-4 w-4" />
+                  <Plus className="mr-1.5 h-3.5 w-3.5" />
                   Create Variant
                 </Button>
               )}
-              <Button size="sm" variant="outline" asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 px-3 text-xs"
+                asChild
+              >
                 <Link to={`/dashboard/product/variants/${product._id}`}>
-                  <Eye className="mr-1 h-4 w-4" />
+                  <Eye className="mr-1.5 h-3.5 w-3.5" />
                   View Variants
                 </Link>
               </Button>
@@ -147,142 +153,177 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="min-w-0 flex-1">
-            <CardTitle className="truncate text-lg font-semibold">
-              {product.name || "Unnamed Product"}
-            </CardTitle>
-            <div className="mt-1 flex items-center gap-2">
-              <Badge
-                variant={
-                  product.product_type === "product" ? "default" : "secondary"
-                }
-              >
-                {product.product_type}
-              </Badge>
+    <Card className="group h-full overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-gray-300 hover:shadow-lg">
+      {/* Product Image Section */}
+      <div className="relative aspect-square overflow-hidden bg-gray-100">
+        {product.images && product.images.length > 0 ? (
+          <img
+            src={product.images[0]}
+            alt={product.name || "Product"}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src =
+                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect fill='%23f3f4f6' width='400' height='400'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='20' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+            }}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+            <Package className="h-12 w-12 text-gray-400" />
+          </div>
+        )}
+
+        {/* Action Buttons Overlay */}
+        <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onEdit(product)}
+            className="h-8 w-8 rounded-full bg-white/90 p-0 shadow-md backdrop-blur-sm hover:bg-white"
+          >
+            <Edit className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onDelete(product._id)}
+            className="text-destructive hover:text-destructive h-8 w-8 rounded-full bg-white/90 p-0 shadow-md backdrop-blur-sm hover:bg-white"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+
+        {/* Product Type Badge */}
+        <div className="absolute top-2 left-2">
+          <Badge
+            variant={
+              product.product_type === "product" ? "default" : "secondary"
+            }
+            className="shadow-sm"
+          >
+            {product.product_type}
+          </Badge>
+        </div>
+
+        {/* Image Count Indicator */}
+        {product.images && product.images.length > 1 && (
+          <div className="absolute right-2 bottom-2 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+            +{product.images.length - 1}
+          </div>
+        )}
+      </div>
+
+      <CardContent className="p-4">
+        {/* Product Title and Attributes */}
+        <div className="mb-3">
+          <CardTitle className="mb-2 line-clamp-2 text-base font-semibold text-gray-900">
+            {product.name || "Unnamed Product"}
+          </CardTitle>
+
+          {/* Color and Size Badges */}
+          {(product.color || product.size) && (
+            <div className="mb-2 flex flex-wrap gap-1.5">
               {product.color && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs font-normal">
                   {product.color}
                 </Badge>
               )}
               {product.size && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs font-normal">
                   {product.size}
                 </Badge>
               )}
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onEdit(product)}
-              className="h-8 w-8 p-0"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onDelete(product._id)}
-              className="text-destructive hover:text-destructive h-8 w-8 p-0"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          )}
+
+          {/* Description */}
+          {product.description && (
+            <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
+              {product.description}
+            </p>
+          )}
         </div>
-      </CardHeader>
 
-      <CardContent className="space-y-3">
-        {product.description && (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
-            {product.description}
-          </p>
-        )}
-
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Tag className="text-muted-foreground h-4 w-4" />
-            <span className="font-medium">Price:</span>
-            <span>{formatPrice(product.price, product.currency)}</span>
+        {/* Price and Quantity Section */}
+        <div className="mb-3 space-y-2 border-t border-gray-100 pt-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Tag className="text-muted-foreground h-3.5 w-3.5" />
+              <span className="text-xs font-medium text-gray-600">Price</span>
+            </div>
+            <span className="text-base font-semibold text-gray-900">
+              {formatPrice(product.price, product.currency)}
+            </span>
           </div>
 
           {product.weight && (
-            <div className="flex items-center gap-2">
-              <Package className="text-muted-foreground h-4 w-4" />
-              <span className="text-xs font-medium">Weight/Quantity:</span>
-              <span>{product.weight}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Package className="text-muted-foreground h-3.5 w-3.5" />
+                <span className="text-xs font-medium text-gray-600">
+                  Quantity
+                </span>
+              </div>
+              <span className="text-sm font-medium text-gray-700">
+                {product.weight}
+              </span>
             </div>
           )}
         </div>
 
-        {/* {(product.country || product.city) && (
-          <div className="text-muted-foreground text-sm">
-            <span className="font-medium">Location: </span>
-            {[product.city, product.country].filter(Boolean).join(", ")}
-          </div>
-        )} */}
-
+        {/* Features */}
         {product.features && product.features.length > 0 && (
-          <div className="space-y-2">
-            <span className="text-sm font-medium">Features:</span>
-            <div className="flex flex-wrap gap-1">
+          <div className="mb-3">
+            <div className="mb-1.5 flex flex-wrap gap-1">
               {product.features.slice(0, 3).map((feature, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="text-xs font-normal"
+                >
                   {feature}
                 </Badge>
               ))}
               {product.features.length > 3 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{product.features.length - 3} more
+                <Badge variant="secondary" className="text-xs font-normal">
+                  +{product.features.length - 3}
                 </Badge>
               )}
             </div>
           </div>
         )}
 
-        {product.images && product.images.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {product.images.slice(0, 3).map((image, index) => (
-              <img
-                key={index}
-                src={image}
-                alt={`Product ${index + 1}`}
-                className="h-16 w-16 rounded-md border object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                }}
-              />
-            ))}
-          </div>
-        )}
-
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex items-center gap-2 border-t border-gray-100 pt-3">
           {product.product_type === "product" && (
             <Button
               size="sm"
               variant="outline"
               onClick={() => onCreateVariant(product)}
-              className="flex-1"
+              className="h-8 flex-1 text-xs font-medium"
             >
-              <Plus className="mr-1 h-4 w-4" />
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
               Create Variant
             </Button>
           )}
-          <Button size="sm" variant="outline" className="flex-1" asChild>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 flex-1 text-xs font-medium"
+            asChild
+          >
             <Link to={`/dashboard/product/variants/${product._id}`}>
-              <Eye className="mr-1 h-4 w-4" />
+              <Eye className="mr-1.5 h-3.5 w-3.5" />
               View Variants
             </Link>
           </Button>
         </div>
 
-        <div className="text-muted-foreground border-t pt-2 text-xs">
-          Created: {formatDate(product.created_at)}
+        {/* Footer */}
+        <div className="mt-3 text-center">
+          <p className="text-muted-foreground text-xs">
+            Created {formatDate(product.created_at)}
+          </p>
         </div>
       </CardContent>
     </Card>
