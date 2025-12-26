@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Lock, type LucideIcon } from "lucide-react";
+import { CreditCard, Lock, type LucideIcon } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
 import { toast } from "sonner";
 
@@ -19,7 +19,10 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { useAuthGuard } from "@/hooks/use-auth-guard";
 import { cn } from "@/lib/utils";
+
+import { CustomPlanDialog } from "./custom-plan-dialog";
 
 export interface NavItem {
   title: string;
@@ -39,114 +42,151 @@ export function NavWithExpandableSubmenu({
   items: NavItem[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   const { pathname } = useLocation();
+  const { user } = useAuthGuard();
+  const [isCustomPlanDialogOpen, setIsCustomPlanDialogOpen] =
+    React.useState(false);
+  const isSuperAdmin = user?.role === "super_admin";
 
   return (
-    <SidebarGroup {...props}>
-      <SidebarGroupContent>
-        {props.children}
-        <SidebarMenu>
-          {items.map((item) => {
-            const hasSubmenu = item.submenu && item.submenu.length > 0;
+    <>
+      <SidebarGroup {...props}>
+        <SidebarGroupContent>
+          {props.children}
+          <SidebarMenu>
+            {items.map((item) => {
+              const hasSubmenu = item.submenu && item.submenu.length > 0;
 
-            if (hasSubmenu) {
-              return (
-                <Collapsible
-                  key={item.title}
-                  asChild
-                  className="group/collapsible"
-                >
-                  <SidebarMenuItem>
-                    <SidebarMenuButton size={"lg"} asChild tooltip={item.title}>
-                      <CollapsibleTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                        <div className="flex w-full items-center gap-1 text-base font-medium">
-                          {item.icon && <item.icon className="size-[1.3em]" />}
-                          <span>{item.title}</span>
-                        </div>
-                      </CollapsibleTrigger>
-                    </SidebarMenuButton>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.submenu?.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton
-                              isActive={pathname === subItem.url}
-                              size="md"
-                              asChild
-                              className={cn(
-                                "data-[active=true]:bg-primary! data-[active=true]:text-primary-foreground! px-2 py-2 transition-colors data-[active=true]:shadow-xl"
-                              )}
-                            >
-                              <NavLink to={subItem.url}>
-                                {subItem.icon && (
-                                  <subItem.icon
-                                    className={cn(
-                                      pathname === subItem.url &&
-                                        "stroke-primary-foreground"
-                                    )}
-                                  />
+              if (hasSubmenu) {
+                return (
+                  <Collapsible
+                    key={item.title}
+                    asChild
+                    className="group/collapsible"
+                  >
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        size={"lg"}
+                        asChild
+                        tooltip={item.title}
+                      >
+                        <CollapsibleTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                          <div className="flex w-full items-center gap-1 text-base font-medium">
+                            {item.icon && (
+                              <item.icon className="size-[1.3em]" />
+                            )}
+                            <span>{item.title}</span>
+                          </div>
+                        </CollapsibleTrigger>
+                      </SidebarMenuButton>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.submenu?.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                isActive={pathname === subItem.url}
+                                size="md"
+                                asChild
+                                className={cn(
+                                  "data-[active=true]:bg-primary! data-[active=true]:text-primary-foreground! px-2 py-2 transition-colors data-[active=true]:shadow-xl"
                                 )}
-                                <span>{subItem.title}</span>
-                              </NavLink>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
+                              >
+                                <NavLink to={subItem.url}>
+                                  {subItem.icon && (
+                                    <subItem.icon
+                                      className={cn(
+                                        pathname === subItem.url &&
+                                          "stroke-primary-foreground"
+                                      )}
+                                    />
+                                  )}
+                                  <span>{subItem.title}</span>
+                                </NavLink>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                );
+              }
+
+              // Check if this is the Library item (locked)
+              const isLibrary = item.title === "Library";
+
+              return (
+                <React.Fragment key={item.title}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild={!isLibrary}
+                      size="lg"
+                      isActive={pathname === item.url}
+                      onClick={
+                        isLibrary
+                          ? (e) => {
+                              e.preventDefault();
+                              toast.info("Coming soon", {
+                                description: "Library feature is coming soon!",
+                              });
+                            }
+                          : undefined
+                      }
+                      className={cn(
+                        isLibrary && "cursor-not-allowed opacity-75"
+                      )}
+                    >
+                      {isLibrary ? (
+                        <div
+                          className={cn(
+                            "flex h-auto w-full items-center gap-2 px-2 py-2 transition-colors"
+                          )}
+                        >
+                          {item.icon && <item.icon className="size-[1.5em]" />}
+                          <span className="text-base font-medium">
+                            {item.title}
+                          </span>
+                          <Lock className="ml-auto size-4" />
+                        </div>
+                      ) : (
+                        <NavLink
+                          to={item.url || ""}
+                          className={cn(
+                            "data-[active=true]:bg-primary! data-[active=true]:text-primary-foreground! h-auto px-2 py-2 transition-colors data-[active=true]:shadow-xl"
+                          )}
+                        >
+                          {item.icon && <item.icon className="size-[1.5em]" />}
+                          <span className="text-base font-medium">
+                            {item.title}
+                          </span>
+                        </NavLink>
+                      )}
+                    </SidebarMenuButton>
                   </SidebarMenuItem>
-                </Collapsible>
+                  {/* Custom Plan button for super_admin below Library */}
+                  {isLibrary && isSuperAdmin && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        size="lg"
+                        onClick={() => setIsCustomPlanDialogOpen(true)}
+                        className="hover:bg-primary/80 hover:text-primary-foreground h-auto px-2 py-2 transition-colors"
+                      >
+                        <CreditCard className="size-[1.5em]" />
+                        <span className="text-base font-medium">
+                          Custom Plan
+                        </span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
+                </React.Fragment>
               );
-            }
-
-            // Check if this is the Library item (locked)
-            const isLibrary = item.title === "Library";
-
-            return (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  asChild={!isLibrary}
-                  size="lg"
-                  isActive={pathname === item.url}
-                  onClick={
-                    isLibrary
-                      ? (e) => {
-                          e.preventDefault();
-                          toast.info("Coming soon", {
-                            description: "Library feature is coming soon!",
-                          });
-                        }
-                      : undefined
-                  }
-                  className={cn(
-                    isLibrary && "cursor-not-allowed opacity-75"
-                  )}
-                >
-                  {isLibrary ? (
-                    <div
-                      className={cn(
-                        "flex w-full items-center gap-2 h-auto px-2 py-2 transition-colors"
-                      )}
-                    >
-                      {item.icon && <item.icon className="size-[1.5em]" />}
-                      <span className="text-base font-medium">{item.title}</span>
-                      <Lock className="size-4 ml-auto" />
-                    </div>
-                  ) : (
-                    <NavLink
-                      to={item.url || ""}
-                      className={cn(
-                        "data-[active=true]:bg-primary! data-[active=true]:text-primary-foreground! h-auto px-2 py-2 transition-colors data-[active=true]:shadow-xl"
-                      )}
-                    >
-                      {item.icon && <item.icon className="size-[1.5em]" />}
-                      <span className="text-base font-medium">{item.title}</span>
-                    </NavLink>
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+            })}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+      <CustomPlanDialog
+        open={isCustomPlanDialogOpen}
+        onOpenChange={setIsCustomPlanDialogOpen}
+      />
+    </>
   );
 }

@@ -93,4 +93,5 @@ export const subscriptionApiEndPoint = {
   getSubscriptionDetails: "/subscription/plans",
   checkout: "/subscription/checkout",
   creditsTopup: "/subscription/credits/topup",
+  createCustomSubscription: "/subscription/create-custom-subscription",
 } as const;
